@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="GameSetting" load_steps=2 format=3 uid="uid://db6heivp5ufs"]
+
+[ext_resource type="Script" uid="uid://kjeq1xf2lefj" path="res://autoload/persistence/game_setting.gd" id="1_kreot"]
+
+[resource]
+script = ExtResource("1_kreot")
+section = &"localization"
+key = &"voices_language"
+field_type = 4
+default_string_value = "en_GB"
+string_value = "en_GB"
+metadata/_custom_type_script = "uid://cyux6sfdw33yl"

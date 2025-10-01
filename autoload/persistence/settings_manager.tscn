@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://by5o51aey31de"]
+[gd_scene load_steps=37 format=3 uid="uid://by5o51aey31de"]
 
 [ext_resource type="Script" uid="uid://gw68qgsqm3kv" path="res://autoload/persistence/settings_manager.gd" id="1_lstiy"]
 [ext_resource type="Script" uid="uid://kjeq1xf2lefj" path="res://autoload/persistence/game_setting.gd" id="2_hkhhi"]
@@ -15,7 +15,28 @@
 [ext_resource type="Resource" uid="uid://bn2dn6rxspm37" path="res://autoload/persistence/options/accessibility/screen_contrast.tres" id="13_5apsq"]
 [ext_resource type="Resource" uid="uid://cmepcxukb5vro" path="res://autoload/persistence/options/accessibility/screen_saturation.tres" id="14_4joex"]
 [ext_resource type="Resource" uid="uid://bvrhfnl2xta21" path="res://autoload/persistence/options/accessibility/screen_shake.tres" id="15_atyq8"]
+[ext_resource type="Resource" uid="uid://djde1h654xmy2" path="res://autoload/persistence/options/analytics/allow_telemetry.tres" id="16_untrg"]
+[ext_resource type="Resource" uid="uid://bvt2ewgpmwevy" path="res://autoload/persistence/options/audio/muted_audio.tres" id="17_bc7th"]
+[ext_resource type="Resource" uid="uid://vs81word56vd" path="res://autoload/persistence/options/localization/current_language.tres" id="18_3tca8"]
+[ext_resource type="Resource" uid="uid://cdvf6w8puewxg" path="res://autoload/persistence/options/localization/subtitles_enabled.tres" id="19_28mbh"]
+[ext_resource type="Resource" uid="uid://cpk3bphxfgbjm" path="res://autoload/persistence/options/localization/subtitles_language.tres" id="20_uvt57"]
+[ext_resource type="Resource" uid="uid://db6heivp5ufs" path="res://autoload/persistence/options/localization/voices_language.tres" id="21_cx4cx"]
+[ext_resource type="Resource" uid="uid://1h1tujf8qwpc" path="res://autoload/persistence/options/graphics/antialiasing_2d.tres" id="22_o7ruw"]
+[ext_resource type="Resource" uid="uid://br6w83pbyfnvn" path="res://autoload/persistence/options/graphics/antialiasing_3d.tres" id="23_7p1qw"]
+[ext_resource type="Resource" uid="uid://bcl5sg0ungho1" path="res://autoload/persistence/options/graphics/current_monitor.tres" id="24_pdyo6"]
+[ext_resource type="Resource" uid="uid://dlag1kc1chhxx" path="res://autoload/persistence/options/graphics/fps_counter.tres" id="25_6bwxa"]
+[ext_resource type="Resource" uid="uid://xs5vnf650pll" path="res://autoload/persistence/options/graphics/fps_limits.tres" id="26_re5ni"]
+[ext_resource type="Resource" uid="uid://er50vubsqo8n" path="res://autoload/persistence/options/graphics/integer_scaling.tres" id="27_y8wj4"]
+[ext_resource type="Resource" uid="uid://4n5xbag64pt1" path="res://autoload/persistence/options/graphics/max_fps.tres" id="28_4evmy"]
+[ext_resource type="Resource" uid="uid://bx7aobo1v3t20" path="res://autoload/persistence/options/graphics/quality_preset.tres" id="29_2tajf"]
+[ext_resource type="Resource" uid="uid://cne4so42tuc1h" path="res://autoload/persistence/options/graphics/scaling_3d_fsr_value.tres" id="30_6sxs2"]
+[ext_resource type="Resource" uid="uid://binfvnwb7k7q2" path="res://autoload/persistence/options/graphics/scaling_3d_mode.tres" id="31_88f3i"]
+[ext_resource type="Resource" uid="uid://b1nbqoclik7fv" path="res://autoload/persistence/options/graphics/scaling_3d_value.tres" id="32_t4v5q"]
+[ext_resource type="Resource" uid="uid://cbydm33m20rsn" path="res://autoload/persistence/options/graphics/vsync.tres" id="33_1s0hg"]
+[ext_resource type="Resource" uid="uid://dc4hqettyaqeg" path="res://autoload/persistence/options/graphics/window_borderless.tres" id="34_qk6gj"]
+[ext_resource type="Resource" uid="uid://j7pp0jlc20uj" path="res://autoload/persistence/options/graphics/window_display.tres" id="35_1hdl6"]
+[ext_resource type="Resource" uid="uid://bhh28aa87o0as" path="res://autoload/persistence/options/graphics/window_resolution.tres" id="36_gp16s"]
 
 [node name="SettingsManager" type="Node"]
 script = ExtResource("1_lstiy")
-settings = Array[ExtResource("2_hkhhi")]([ExtResource("3_spw3l"), ExtResource("4_u05k6"), ExtResource("5_na5ex"), ExtResource("6_d1s6s"), ExtResource("7_gftj0"), ExtResource("8_lgnkw"), ExtResource("9_dfva4"), ExtResource("10_fgwom"), ExtResource("11_qnfs7"), ExtResource("12_fh5mr"), ExtResource("13_5apsq"), ExtResource("14_4joex"), ExtResource("15_atyq8")])
+settings = Array[ExtResource("2_hkhhi")]([ExtResource("3_spw3l"), ExtResource("4_u05k6"), ExtResource("5_na5ex"), ExtResource("6_d1s6s"), ExtResource("7_gftj0"), ExtResource("8_lgnkw"), ExtResource("9_dfva4"), ExtResource("10_fgwom"), ExtResource("11_qnfs7"), ExtResource("12_fh5mr"), ExtResource("13_5apsq"), ExtResource("14_4joex"), ExtResource("15_atyq8"), ExtResource("16_untrg"), ExtResource("17_bc7th"), ExtResource("18_3tca8"), ExtResource("19_28mbh"), ExtResource("20_uvt57"), ExtResource("21_cx4cx"), ExtResource("22_o7ruw"), ExtResource("23_7p1qw"), ExtResource("24_pdyo6"), ExtResource("25_6bwxa"), ExtResource("26_re5ni"), ExtResource("27_y8wj4"), ExtResource("28_4evmy"), ExtResource("29_2tajf"), ExtResource("30_6sxs2"), ExtResource("31_88f3i"), ExtResource("32_t4v5q"), ExtResource("33_1s0hg"), ExtResource("34_qk6gj"), ExtResource("35_1hdl6"), ExtResource("36_gp16s")])

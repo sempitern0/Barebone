@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameSetting" load_steps=2 format=3 uid="uid://cbydm33m20rsn"]
+
+[ext_resource type="Script" uid="uid://kjeq1xf2lefj" path="res://autoload/persistence/game_setting.gd" id="1_6g8a4"]
+
+[resource]
+script = ExtResource("1_6g8a4")
+section = &"graphics"
+key = &"vsync"
+field_type = 2
+max_int_value = 3
+metadata/_custom_type_script = "uid://cyux6sfdw33yl"

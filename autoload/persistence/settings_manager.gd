@@ -124,19 +124,18 @@ func create_settings(path: String = config_file_path) -> void:
 		
 		## Some settings default values can be retrieved from the game engine for a better experience
 		match setting.key:
-			&"quality_preset":
+			GameSettings.QualityPresetSetting:
 				setting.update_value(OmniKitHardwareRequirements.auto_discover_graphics_quality())
-			&"vsync":
+			GameSettings.VsyncSetting:
 				setting.update_value(DisplayServer.window_get_vsync_mode())
-			&"window_borderless":
+			GameSettings.WindowDisplayBorderlessSetting:
 				setting.update_value(DisplayServer.window_get_flag(DisplayServer.WINDOW_FLAG_BORDERLESS))
-			&"window_resolution":
+			GameSettings.WindowResolutionSetting:
 				setting.update_value(viewport_start_size)
-			&"integer_scaling":
+			GameSettings.IntegerScalingSetting:
 				setting.update_value(true if ProjectSettings.get_setting("display/window/stretch/scale_mode") == "integer" else false)
-			&"current_language", &"voices_language", &"subtitles_language":
+			GameSettings.CurrentLanguageSetting, GameSettings.VoicesLanguageSetting, GameSettings.SubtitlesLanguageSetting:
 				setting.update_value(TranslationServer.get_locale())
-				
 				
 		update_setting_section(setting.section, setting.key, setting.value())
 		
@@ -151,9 +150,13 @@ func create_audio_section() -> void:
 	for bus: String in AcousticAudioManager.enumerate_available_buses():
 		update_audio_section(bus, AcousticAudioManager.get_default_volume_for_bus(bus))
 	
-	var buses_are_muted: bool = active_settings[GameSettings.MutedAudioSetting].value() if active_settings.has(&"muted_audio") else false
+	var buses_are_muted: bool = false
+
+	if active_settings.has(GameSettings.MutedAudioSetting):
+		buses_are_muted = active_settings[GameSettings.MutedAudioSetting].value()
+
 	update_audio_section(GameSettings.MutedAudioSetting, buses_are_muted)
-	
+
 	if(buses_are_muted):
 		AcousticAudioManager.mute_all_buses()
 	else:
