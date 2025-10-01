@@ -1,4 +1,5 @@
 @tool
+@icon("res://components/3D/environment/day_night_cycle/day_night_cycle.svg")
 class_name DayNightCycle extends Node
 
 signal changed_day_zone(previous_zone: DayZone, new_zone: DayZone)

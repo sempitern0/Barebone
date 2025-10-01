@@ -108,7 +108,7 @@ enum DaltonismTypes {
 func _enter_tree() -> void:
 	get_tree().root.size_changed.connect(on_size_changed)
 
-
+## To work as expected, make sure application/config/auto_accept_quit is false
 func quit_game(exit_code: int = 0, unpause_before_quit: bool = false) -> void:
 	## Note: On Web platform and iOS this method doesn't work. 
 	## On iOS instead, as recommended by the https://developer.apple.com/library/archive/qa/qa1561/_index.html.
@@ -123,7 +123,6 @@ func quit_game(exit_code: int = 0, unpause_before_quit: bool = false) -> void:
 			
 		tree.root.propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
 		get_tree().call_deferred("quit", exit_code)
-
 
 #region Resolution getters
 func get_mobile_resolutions(use_computer_screen_limit: bool = false) -> Array[Vector2i]:
