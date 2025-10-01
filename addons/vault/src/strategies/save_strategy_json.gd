@@ -53,7 +53,6 @@ func _parse(path: String) -> Variant:
 	if encrypted_key.is_empty():
 		file = FileAccess.open(path, FileAccess.READ)
 	else:
-		print("open json with ", encrypted_key)
 		file = FileAccess.open_encrypted_with_pass(path, FileAccess.READ, encrypted_key)
 		
 	var open_error: Error = FileAccess.get_open_error()

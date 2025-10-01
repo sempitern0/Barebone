@@ -1,0 +1,28 @@
+[gd_scene load_steps=6 format=3 uid="uid://eh46ype87v11"]
+
+[ext_resource type="Script" uid="uid://b7jj73ypum0gu" path="res://components/3D/first_person/hands/weapons/firearm/bullets/bullet_trace.gd" id="1_gr4li"]
+
+[sub_resource type="Gradient" id="Gradient_gr4li"]
+offsets = PackedFloat32Array(0, 0.471616)
+colors = PackedColorArray(0.929412, 0.415686, 0, 0.901961, 1, 1, 0, 0.901961)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_fkesr"]
+gradient = SubResource("Gradient_gr4li")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bflf5"]
+transparency = 1
+cull_mode = 2
+albedo_texture = SubResource("GradientTexture2D_fkesr")
+
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_81eif"]
+material = SubResource("StandardMaterial3D_bflf5")
+size = 0.015
+sections = 2
+section_segments = 1
+
+[node name="TestBulletTrace" type="Node3D"]
+script = ExtResource("1_gr4li")
+
+[node name="Trace" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, -0.2)
+mesh = SubResource("RibbonTrailMesh_81eif")

@@ -29,7 +29,7 @@ func wait(seconds: float = 1.0):
 	
 #endregion
 
-#var player: FirstPersonController
+var player: FirstPersonController
 
 #region Music & SFX
 

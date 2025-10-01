@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvgu8fqmdktug"]
+
+[ext_resource type="Script" uid="uid://b70wuhohikwyj" path="res://components/3D/first_person/debug_ui/debug_ui.gd" id="1_m01y6"]
+
+[node name="DebugUI" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+script = ExtResource("1_m01y6")
+
+[node name="DebugPanel" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0.180392)
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 200.0
+
+[node name="MarginContainer" type="MarginContainer" parent="DebugPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="DebugPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="CurrentStateLabel" type="Label" parent="DebugPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Motion State: "
+
+[node name="VelocityLabel" type="Label" parent="DebugPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Velocity:"
+
+[node name="SpeedLabel" type="Label" parent="DebugPanel/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Speed:"
