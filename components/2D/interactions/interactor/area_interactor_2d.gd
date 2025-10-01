@@ -1,5 +1,5 @@
 @icon("res://components/2D/interactions/interactor/interactor_2d.svg")
-class_name IndieBlueprintAreaInteractor2D extends Area2D
+class_name AreaInteractor2D extends Area2D
 
 @export var maximum_detection_distance: float = 25.0
 

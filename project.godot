@@ -330,10 +330,16 @@ first_person_debug={
 3d_physics/layer_2="Player"
 2d_physics/layer_3="Enemies"
 3d_physics/layer_3="Enemies"
+2d_physics/layer_4="Interactables"
 3d_physics/layer_4="Interactables"
+2d_physics/layer_5="Grabbables"
 3d_physics/layer_5="Grabbables"
+2d_physics/layer_6="Bullets"
 3d_physics/layer_6="Bullets"
+2d_physics/layer_7="Arrows"
 3d_physics/layer_7="Arrows"
+2d_physics/layer_8="Hitboxes"
+3d_physics/layer_8="Hitboxes"
 
 [physics]
 
