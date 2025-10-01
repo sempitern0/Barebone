@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GameSetting" load_steps=2 format=3 uid="uid://o4cskd8b4w20"]
+
+[ext_resource type="Script" uid="uid://kjeq1xf2lefj" path="res://autoload/persistence/game_setting.gd" id="1_mfpyv"]
+
+[resource]
+script = ExtResource("1_mfpyv")
+section = &"accessibility"
+key = &"mouse_sensitivity"
+field_type = 3
+default_int_value = 1
+max_int_value = 1
+default_float_value = 2.5
+max_float_value = 100.0
+default_color_value = Color(1, 1, 1, 1)
+metadata/_custom_type_script = "uid://cyux6sfdw33yl"

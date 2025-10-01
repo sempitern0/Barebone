@@ -1,0 +1,21 @@
+[gd_scene load_steps=16 format=3 uid="uid://by5o51aey31de"]
+
+[ext_resource type="Script" uid="uid://gw68qgsqm3kv" path="res://autoload/persistence/settings_manager.gd" id="1_lstiy"]
+[ext_resource type="Script" uid="uid://kjeq1xf2lefj" path="res://autoload/persistence/game_setting.gd" id="2_hkhhi"]
+[ext_resource type="Resource" uid="uid://ddd8ft3b0gxm8" path="res://autoload/persistence/options/accessibility/camera_fov.tres" id="3_spw3l"]
+[ext_resource type="Resource" uid="uid://5pgvhdfaruln" path="res://autoload/persistence/options/accessibility/controller_sensitivity.tres" id="4_u05k6"]
+[ext_resource type="Resource" uid="uid://df1bk00vclrsm" path="res://autoload/persistence/options/accessibility/controller_vibration.tres" id="5_na5ex"]
+[ext_resource type="Resource" uid="uid://c37w57h1la0hm" path="res://autoload/persistence/options/accessibility/invert_look.tres" id="6_d1s6s"]
+[ext_resource type="Resource" uid="uid://df5rxh2x1s3d3" path="res://autoload/persistence/options/accessibility/invert_x_axis.tres" id="7_gftj0"]
+[ext_resource type="Resource" uid="uid://bwefbulfvlv4r" path="res://autoload/persistence/options/accessibility/invert_y_axis.tres" id="8_lgnkw"]
+[ext_resource type="Resource" uid="uid://dfws173skkx5k" path="res://autoload/persistence/options/accessibility/left_handed.tres" id="9_dfva4"]
+[ext_resource type="Resource" uid="uid://o4cskd8b4w20" path="res://autoload/persistence/options/accessibility/mouse_sensitivity.tres" id="10_fgwom"]
+[ext_resource type="Resource" uid="uid://24y8g6x065sc" path="res://autoload/persistence/options/accessibility/photosensitivity.tres" id="11_qnfs7"]
+[ext_resource type="Resource" uid="uid://crmqe334x7xnm" path="res://autoload/persistence/options/accessibility/screen_brightness.tres" id="12_fh5mr"]
+[ext_resource type="Resource" uid="uid://bn2dn6rxspm37" path="res://autoload/persistence/options/accessibility/screen_contrast.tres" id="13_5apsq"]
+[ext_resource type="Resource" uid="uid://cmepcxukb5vro" path="res://autoload/persistence/options/accessibility/screen_saturation.tres" id="14_4joex"]
+[ext_resource type="Resource" uid="uid://bvrhfnl2xta21" path="res://autoload/persistence/options/accessibility/screen_shake.tres" id="15_atyq8"]
+
+[node name="SettingsManager" type="Node"]
+script = ExtResource("1_lstiy")
+settings = Array[ExtResource("2_hkhhi")]([ExtResource("3_spw3l"), ExtResource("4_u05k6"), ExtResource("5_na5ex"), ExtResource("6_d1s6s"), ExtResource("7_gftj0"), ExtResource("8_lgnkw"), ExtResource("9_dfva4"), ExtResource("10_fgwom"), ExtResource("11_qnfs7"), ExtResource("12_fh5mr"), ExtResource("13_5apsq"), ExtResource("14_4joex"), ExtResource("15_atyq8")])

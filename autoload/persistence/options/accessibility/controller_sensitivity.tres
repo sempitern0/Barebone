@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="GameSetting" load_steps=2 format=3 uid="uid://5pgvhdfaruln"]
+
+[ext_resource type="Script" uid="uid://kjeq1xf2lefj" path="res://autoload/persistence/game_setting.gd" id="1_wqck5"]
+
+[resource]
+script = ExtResource("1_wqck5")
+section = &"accessibility"
+key = &"controller_sensitivity"
+field_type = 3
+default_int_value = 1
+max_int_value = 1
+default_float_value = 5.0
+max_float_value = 100.0

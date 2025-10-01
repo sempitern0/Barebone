@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GameSetting" load_steps=2 format=3 uid="uid://bwefbulfvlv4r"]
+
+[ext_resource type="Script" uid="uid://kjeq1xf2lefj" path="res://autoload/persistence/game_setting.gd" id="1_5l32o"]
+
+[resource]
+script = ExtResource("1_5l32o")
+section = &"accessibility"
+key = &"invert_y_axis"
+field_type = 1
+default_int_value = 1
+max_int_value = 1
+default_float_value = 3.0
+max_float_value = 100.0
+default_color_value = Color(1, 1, 1, 1)
+metadata/_custom_type_script = "uid://cyux6sfdw33yl"

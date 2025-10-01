@@ -19,6 +19,15 @@ config/icon="res://icon.svg"
 AcousticAudioManager="*res://addons/acoustic/src/audio_manager.gd"
 AcousticMusicManager="*res://addons/acoustic/src/music_manager.gd"
 AcousticSoundPool="*res://addons/acoustic/src/sound_pool.gd"
+FastPoolManager="*res://addons/fast_pool/src/object_pool_manager.gd"
+VaultSaveManager="*res://addons/vault/src/save_manager.gd"
+Warp="*res://addons/warp/src/warp.tscn"
+OmniKitWindowManager="*res://addons/omnikit/src/autoloads/viewport/window_manager.gd"
+OmniKitLocalNetworkHandler="*res://addons/omnikit/src/autoloads/network/local_network_handler.gd"
+OmniKitGamepadControllerManager="*res://addons/omnikit/src/autoloads/gamepad/gamepad_controller_manager.gd"
+Globals="*res://autoload/general/global.gd"
+GlobalEvents="*res://autoload/general/global_events.gd"
+SettingsManager="*res://autoload/persistence/settings_manager.tscn"
 
 [display]
 
@@ -29,7 +38,15 @@ window/size/window_height_override=720
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/acoustic/plugin.cfg")
+enabled=PackedStringArray("res://addons/acoustic/plugin.cfg", "res://addons/fast_pool/plugin.cfg", "res://addons/machina/plugin.cfg", "res://addons/omnikit/plugin.cfg", "res://addons/vault/plugin.cfg", "res://addons/warp/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://addons/": "gray",
+"res://autoload/": "yellow",
+"res://ui/": "green"
+}
 
 [input]
 
