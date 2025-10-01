@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="IndieBlueprintContentWarning" load_steps=2 format=3 uid="uid://bv0gmqiphekgj"]
+
+[ext_resource type="Script" uid="uid://ba2kjntj2fm5u" path="res://ui/content/warnings/content_warning.gd" id="1_0etnp"]
+
+[resource]
+script = ExtResource("1_0etnp")
+time_on_screen = 2.0
+description = "The following game contains graphic depictions of suicide which some players may find troubling. If you or someone know is struggling, information and crisis resources are available at www.wannatalkaboutit.com"
+description_translation_key = "WARNING_SUICIDE_ADVICE"

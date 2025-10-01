@@ -1,0 +1,20 @@
+[gd_scene load_steps=6 format=3 uid="uid://bq8i0wna87fve"]
+
+[ext_resource type="Script" uid="uid://bkyaoxyro3kqd" path="res://ui/animations/ui_animation.gd" id="1_ysvws"]
+[ext_resource type="Resource" uid="uid://tpg6b3c74ni" path="res://ui/animations/default/screen_to_animation.tres" id="2_d7qdi"]
+[ext_resource type="Resource" uid="uid://dm40owhusm6xh" path="res://ui/animations/default/shrink_animation.tres" id="3_mhaxf"]
+[ext_resource type="Resource" uid="uid://bn0q38lgdjju2" path="res://ui/animations/default/pop_animation.tres" id="4_8dkwl"]
+[ext_resource type="Resource" uid="uid://cwyhdio3hmsh5" path="res://ui/animations/default/out_screen_animation.tres" id="5_xcgpp"]
+
+[node name="UIAnimations" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ysvws")
+screen_to_animation_options = ExtResource("2_d7qdi")
+shrink_animation_options = ExtResource("3_mhaxf")
+pop_animation_options = ExtResource("4_8dkwl")
+out_screen_animation_options = ExtResource("5_xcgpp")

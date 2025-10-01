@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="UIAnimationOptions" load_steps=2 format=3 uid="uid://cwyhdio3hmsh5"]
+
+[ext_resource type="Script" uid="uid://5evmxh1mj5p4" path="res://ui/animations/animation_options.gd" id="1_mrion"]
+
+[resource]
+script = ExtResource("1_mrion")
+time = 0.4
+metadata/_custom_type_script = "uid://5evmxh1mj5p4"

@@ -49,3 +49,5 @@ const ToggleInventory: StringName = &"toggle_inventory"
 const PerformanceMetrics: StringName = &"performance_metrics"
 const FirstPersonDebug: StringName = &"first_person_debug"
 const PauseGame: StringName = &"pause"
+
+const SkipContentWarning: StringName = &"ui_accept"

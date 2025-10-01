@@ -28,6 +28,8 @@ OmniKitGamepadControllerManager="*res://addons/omnikit/src/autoloads/gamepad/gam
 Globals="*res://autoload/general/global.gd"
 GlobalEvents="*res://autoload/general/global_events.gd"
 SettingsManager="*res://autoload/persistence/settings_manager.tscn"
+GlobalEffects="*res://ui/effects/global_effects.tscn"
+UiAnimations="*res://ui/animations/ui_animations.tscn"
 
 [display]
 
