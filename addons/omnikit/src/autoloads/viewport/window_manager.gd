@@ -107,7 +107,23 @@ enum DaltonismTypes {
 
 func _enter_tree() -> void:
 	get_tree().root.size_changed.connect(on_size_changed)
-	
+
+
+func quit_game(exit_code: int = 0, unpause_before_quit: bool = false) -> void:
+	## Note: On Web platform and iOS this method doesn't work. 
+	## On iOS instead, as recommended by the https://developer.apple.com/library/archive/qa/qa1561/_index.html.
+	## The user is expected to close apps via the Home button
+	if OmniKitHardwareDetector.is_ios() or OmniKitHardwareDetector.is_web():
+		OS.alert(tr("QUIT_GAME_INSTRUCTIONS"), tr("QUIT_GAME"))
+	else:
+		var tree: SceneTree = get_tree()
+		
+		if unpause_before_quit:
+			tree.paused = false
+			
+		tree.root.propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
+		get_tree().call_deferred("quit", exit_code)
+
 
 #region Resolution getters
 func get_mobile_resolutions(use_computer_screen_limit: bool = false) -> Array[Vector2i]:
@@ -185,7 +201,6 @@ func get_camera2d_frame(viewport: Viewport = get_viewport()) -> Rect2:
 		camera_frame.position = camera.get_screen_center_position() - camera_frame.size / 2.0
 		
 	return camera_frame
-	
 	
 #region Screenshot
 ## Recommended to call this method after await RenderingServer.frame_post_draw

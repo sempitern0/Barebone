@@ -45,14 +45,22 @@ static func is_steam_deck() -> bool:
 		or OS.get_processor_name().containsn("amd custom apu 0405")
 
 
+static func is_android() -> bool:
+	return OS.get_name() == "Android"
+
+
+static func is_ios() -> bool:
+	return OS.get_name() == "iOS"
+	
+
 static func is_mobile() -> bool:
 	if not OS.has_feature("web"):
 		return false
 	
-	return OS.get_name() == "Android" or OS.get_name() == "iOS" \
+	return is_android() or is_ios() \
 		or (is_web() and OS.has_feature("web_android")) or (is_web() and OS.has_feature("web_ios")) \
 		or JavaScriptBridge.eval("/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)", true)
-		
+
 
 static func is_windows() -> bool:
 	return OS.get_name() == "Windows" or (is_web() and OS.has_feature("web_windows"))
