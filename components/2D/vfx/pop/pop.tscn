@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://7uexvgan7raf"]
+
+[ext_resource type="Script" uid="uid://dhoabsu7i82y6" path="res://components/2D/vfx/pop/pop.gd" id="1_iiiyc"]
+
+[node name="PopCircleEffect" type="Node2D"]
+position = Vector2(93.34418, -54.718147)
+scale = Vector2(0.33941218, 0.33941218)
+script = ExtResource("1_iiiyc")
+emitting = false

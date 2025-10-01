@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://cjyhnn5f2105c"]
+
+[ext_resource type="Script" uid="uid://ewak6bn22dny" path="res://components/3D/dungeon_crawler/motion/dungeon_crawler_controller.gd" id="1_6cl61"]
+[ext_resource type="Script" uid="uid://b2ylcg8wgo71v" path="res://components/3D/dungeon_crawler/motion/dungeon_grid_movement.gd" id="2_v0pkn"]
+
+[node name="DungeonController" type="Node3D"]
+script = ExtResource("1_6cl61")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
+
+[node name="DungeonGridMovement3D" type="Node" parent="." node_paths=PackedStringArray("target")]
+script = ExtResource("2_v0pkn")
+target = NodePath("..")
+
+[node name="FrontRaycast" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+target_position = Vector3(0, 0, -1.1)
+
+[node name="BackRaycast" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+target_position = Vector3(0, 0, 1.1)
+
+[node name="RightRaycast" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+target_position = Vector3(1.1, 0, 0)
+
+[node name="LeftRaycast" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+target_position = Vector3(-1.1, 0, 0)
