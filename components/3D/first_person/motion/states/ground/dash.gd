@@ -56,7 +56,8 @@ func physics_update(delta: float) -> void:
 func dash() -> void:
 	if is_instance_valid(dash_timer):
 		dash_timer.start(dash_time)
-		
+	
+	
 	if last_state is GroundState:
 		base_speed = last_state.speed
 	elif last_state is AirState:
