@@ -47,6 +47,8 @@ enabled=PackedStringArray("res://addons/acoustic/plugin.cfg", "res://addons/fast
 folder_colors={
 "res://addons/": "gray",
 "res://autoload/": "yellow",
+"res://components/": "red",
+"res://shaders/": "purple",
 "res://ui/": "green"
 }
 

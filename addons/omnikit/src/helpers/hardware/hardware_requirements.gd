@@ -335,7 +335,7 @@ static func apply_graphics_on_environment(world_environment: WorldEnvironment, q
 			"rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality":
 				RenderingServer.directional_soft_shadow_filter_set_quality(quality.value)
 			"rendering/lights_and_shadows/positional_shadow/soft_shadow_filter_quality":
-				RenderingServer.positional_soft_shadow_filter_set_quality(quality.vallue)
+				RenderingServer.positional_soft_shadow_filter_set_quality(quality.value)
 			"rendering/lights_and_shadows/positional_shadow/atlas_size":
 				RenderingServer.directional_shadow_atlas_set_size(quality.value, true)
 				viewport.positional_shadow_atlas_size = quality.value
