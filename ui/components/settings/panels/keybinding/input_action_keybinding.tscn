@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://lxbuehwddqs"]
+
+[ext_resource type="Script" uid="uid://51y878jjwok3" path="res://ui/components/settings/panels/keybinding/input_action_keybinding.gd" id="1_6njha"]
+
+[node name="InputActionKeybinding" type="HBoxContainer"]
+theme_override_constants/separation = 45
+script = ExtResource("1_6njha")
+action = &"move_left"
+
+[node name="ActionLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "ACTION NAME"
+
+[node name="InputKeyButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(164, 36)
+layout_mode = 2
+text = "SPACE"

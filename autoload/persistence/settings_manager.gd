@@ -58,7 +58,7 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	if load_on_start:
 		prepare_settings()
-
+	
 #region Generic
 func save_settings(path: String = config_file_path) -> void:
 	var error: Error = config_file_api.save_encrypted_pass(path, _encription_key()) if use_encription else config_file_api.save(path)
@@ -167,6 +167,18 @@ func create_keybindings_section() -> void:
 	_get_input_map_actions().map(create_keybinding_events_for_action)
 	update_keybindings_section(GameSettings.DefaultInputMapActionsSetting, GameSettings.DefaultSettings[GameSettings.DefaultInputMapActionsSetting])
 #endregion
+
+
+func reset_keybinding_events_to_default() -> void:
+	var default_keybindings: Dictionary = GameSettings.DefaultSettings[GameSettings.DefaultInputMapActionsSetting]
+	
+	for input_action: StringName in default_keybindings:
+		InputMap.action_erase_events(input_action)
+		
+		for event: InputEvent in default_keybindings[input_action]:
+			InputMap.action_add_event(input_action, event)
+	
+	create_keybindings_section()
 
 
 func create_keybinding_events_for_action(action: StringName) -> Array[String]:
