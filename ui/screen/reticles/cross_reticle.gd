@@ -1,5 +1,5 @@
 @tool
-@icon("res://autoload/screen/reticles/reticle.svg")
+@icon("res://ui/screen/reticles/reticle.svg")
 class_name CrossReticle extends Control
 
 @export var reticle_color: Color = Color.WHITE:

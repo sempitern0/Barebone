@@ -1,5 +1,5 @@
 @tool
-@icon("res://autoload/screen/reticles/reticle.svg")
+@icon("res://ui/screen/reticles/reticle.svg")
 class_name Reticle extends Control
 
 @export var full_circle: bool = false:
