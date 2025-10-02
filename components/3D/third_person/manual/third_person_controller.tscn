@@ -1,0 +1,83 @@
+[gd_scene load_steps=13 format=3 uid="uid://ch3pctr3a0piy"]
+
+[ext_resource type="Script" uid="uid://dev72b4kxphfv" path="res://components/3D/third_person/manual/third_person_controller.gd" id="1_1x7a4"]
+[ext_resource type="Script" uid="uid://d4sqxm1fmt36" path="res://components/3D/first_person/motion/mouse/mouse_capture_component.gd" id="2_hpnqg"]
+[ext_resource type="Script" uid="uid://dpxsaf4d16r5n" path="res://components/3D/third_person/spring_camera_pivot.gd" id="3_8cv8g"]
+[ext_resource type="Script" uid="uid://uydvspiq3y2j" path="res://addons/machina/src/finite-state-machine.gd" id="4_kxbnw"]
+[ext_resource type="Script" uid="uid://b546hq3rh3u8m" path="res://components/3D/third_person/manual/states/idle.gd" id="5_44edv"]
+[ext_resource type="Script" uid="uid://bw0lp5jf12g2g" path="res://components/3D/third_person/manual/states/walk.gd" id="6_picc0"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_arwy3"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1x7a4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hpnqg"]
+albedo_color = Color(1, 1, 0.2784314, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1x7a4"]
+albedo_color = Color(1, 0.30588236, 0.08235294, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_8cv8g"]
+material = SubResource("StandardMaterial3D_1x7a4")
+size = Vector3(0.5, 0.1, 0.1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hpnqg"]
+radius = 0.25
+
+[node name="ThirdPersonController" type="CharacterBody3D" node_paths=PackedStringArray("skin")]
+script = ExtResource("1_1x7a4")
+skin = NodePath("Body")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_arwy3")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_1x7a4")
+surface_material_override/0 = SubResource("StandardMaterial3D_hpnqg")
+
+[node name="Eyes" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5241183, -0.52654433)
+mesh = SubResource("BoxMesh_8cv8g")
+
+[node name="MouseCaptureComponent" type="Node" parent="."]
+script = ExtResource("2_hpnqg")
+metadata/_custom_type_script = "uid://d4sqxm1fmt36"
+
+[node name="SpringCameraPivot" type="Node3D" parent="." node_paths=PackedStringArray("spring_arm", "spring_relative_position", "camera", "mouse_capture")]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+script = ExtResource("3_8cv8g")
+spring_arm = NodePath("SpringArm3D")
+spring_relative_position = NodePath("SpringArm3D/SpringRelativePosition")
+camera = NodePath("Camera3D")
+mouse_capture = NodePath("../MouseCaptureComponent")
+min_vertical_angle = -1.2217304763960306
+max_vertical_angle = 0.08726646259971647
+
+[node name="SpringArm3D" type="SpringArm3D" parent="SpringCameraPivot"]
+collision_mask = 25
+shape = SubResource("SphereShape3D_hpnqg")
+spring_length = 3.0
+
+[node name="SpringRelativePosition" type="Node3D" parent="SpringCameraPivot/SpringArm3D"]
+
+[node name="Camera3D" type="Camera3D" parent="SpringCameraPivot"]
+unique_name_in_owner = true
+
+[node name="MotionStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("4_kxbnw")
+initial_state = NodePath("ThirdPersonIdleState")
+enable_stack = false
+metadata/_custom_type_script = "uid://uydvspiq3y2j"
+
+[node name="ThirdPersonIdleState" type="Node" parent="MotionStateMachine" node_paths=PackedStringArray("actor")]
+script = ExtResource("5_44edv")
+actor = NodePath("../..")
+gravity_force = 15.0
+
+[node name="ThirdPersonWalkState" type="Node" parent="MotionStateMachine" node_paths=PackedStringArray("actor")]
+script = ExtResource("6_picc0")
+actor = NodePath("../..")
+gravity_force = 15.0

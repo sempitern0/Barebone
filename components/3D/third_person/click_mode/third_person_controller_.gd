@@ -1,4 +1,4 @@
-class_name ThirdPersonController extends CharacterBody3D
+class_name ThirdPersonClickController extends CharacterBody3D
 
 @export var movement_mode: MovementMode = MovementMode.Free:
 	set(new_mode):

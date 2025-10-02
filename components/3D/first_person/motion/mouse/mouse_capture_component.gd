@@ -56,9 +56,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	mouse_input = Vector2.ZERO
-	
-	
+	reset_mouse_input()
+
+
 func capture_mouse() -> void:
 	OmniKitInputHelper.capture_mouse()
 	set_process(true)
@@ -67,8 +67,8 @@ func capture_mouse() -> void:
 func show_mouse_cursor() -> void:
 	set_process(false)
 	OmniKitInputHelper.show_mouse_cursor()
-	mouse_input = Vector2.ZERO
-	
+	reset_mouse_input()
+
 
 func switch_mouse_capture_mode() -> void:
 	if OmniKitInputHelper.is_mouse_visible():
@@ -77,6 +77,12 @@ func switch_mouse_capture_mode() -> void:
 	else:
 		show_mouse_cursor()
 		capture_exited.emit()
+
+
+func reset_mouse_input() -> void:
+	mouse_input = Vector2.ZERO
+	twist_input = 0.0
+	pitch_input = 0.0
 
 
 func on_setting_section_updated(_section: String, key: String, value: Variant) -> void:
