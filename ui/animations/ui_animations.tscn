@@ -6,13 +6,7 @@
 [ext_resource type="Resource" uid="uid://bn0q38lgdjju2" path="res://ui/animations/default/pop_animation.tres" id="4_8dkwl"]
 [ext_resource type="Resource" uid="uid://cwyhdio3hmsh5" path="res://ui/animations/default/out_screen_animation.tres" id="5_xcgpp"]
 
-[node name="UIAnimations" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="UIAnimations" type="Node"]
 script = ExtResource("1_ysvws")
 screen_to_animation_options = ExtResource("2_d7qdi")
 shrink_animation_options = ExtResource("3_mhaxf")

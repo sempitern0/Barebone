@@ -1,6 +1,9 @@
 @icon("res://components/3D/first_person/motion/mouse/mouse_capture.svg")
 class_name MouseCaptureComponent extends Node
 
+signal capture_entered
+signal capture_exited
+
 @export var capture_mouse_on_ready: bool = true
 
 @onready var root_node: Window = get_tree().root
@@ -70,8 +73,10 @@ func show_mouse_cursor() -> void:
 func switch_mouse_capture_mode() -> void:
 	if OmniKitInputHelper.is_mouse_visible():
 		capture_mouse()
+		capture_entered.emit()
 	else:
 		show_mouse_cursor()
+		capture_exited.emit()
 
 
 func on_setting_section_updated(_section: String, key: String, value: Variant) -> void:
