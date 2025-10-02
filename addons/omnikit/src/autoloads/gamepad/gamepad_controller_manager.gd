@@ -4,8 +4,8 @@ extends Node
 signal controller_connected(device_id, controller_name: String)
 signal controller_disconnected(device_id, previous_controller_name: String, controller_name: String)
 
-const default_vibration_strength = 0.5
-const default_vibration_duration = 0.65
+const default_vibration_strength: float = 0.5
+const default_vibration_duration: float = 0.65
 
 const DeviceGeneric: StringName = &"generic"
 const DeviceKeyboard: StringName = &"keyboard"
@@ -15,10 +15,12 @@ const DeviceSwitchJoyconLeftController: StringName = &"switch_left_joycon"
 const DeviceSwitchJoyconRightController: StringName = &"switch_right_joycon"
 const DevicePlaystationController: StringName = &"playstation"
 const DeviceLunaController: StringName = &"luna"
+const DeviceSteamDeckController: StringName = &"steam"
 
-const XboxButtonLabels = ["A", "B", "X", "Y", "Back", "Home", "Menu", "Left Stick", "Right Stick", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right", "Share"]
-const SwitchButtonLabels = ["B", "A", "Y", "X", "-", "", "+", "Left Stick", "Right Stick", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right", "Capture"]
-const PlaystationButtonLabels = ["Cross", "Circle", "Square", "Triangle", "Select", "PS", "Options", "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right", "Microphone"]
+const XboxButtonLabels: Array[String] = ["A", "B", "X", "Y", "Back", "Home", "Menu", "Left Stick", "Right Stick", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right", "Share"]
+const SwitchButtonLabels: Array[String] = ["B", "A", "Y", "X", "-", "", "+", "Left Stick", "Right Stick", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right", "Capture"]
+const PlaystationButtonLabels: Array[String] = ["Cross", "Circle", "Square", "Triangle", "Select", "PS", "Options", "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right", "Microphone"]
+const SteamdeckButtonLabels: Array[String] = ["A", "B", "X", "Y", "View", "", "Options", "Left Stick Press", "Right Stick Press", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right"]
 
 
 var current_controller_guid
@@ -67,6 +69,8 @@ func update_current_controller(device: int, controller_name: String) -> void:
 	current_controller_name = controller_name
 	
 	match controller_name:
+		"Steam", "SteamOS":
+			current_controller_device = DeviceSteamDeckController
 		"Luna Controller":
 			current_controller_device = DeviceLunaController
 		"XInput Gamepad", "Xbox One For Windows", "Xbox Series Controller", "Xbox 360 Controller", \
@@ -94,6 +98,9 @@ func current_controller_is_generic() -> bool:
 	return current_controller_device == DeviceGeneric
 
 
+func current_controller_is_steam_deck() -> bool:
+	return current_controller_device == DeviceSteamDeckController
+	
 func current_controller_is_luna() -> bool:
 	return current_controller_device == DeviceLunaController
 
