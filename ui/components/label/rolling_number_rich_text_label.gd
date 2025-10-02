@@ -1,4 +1,4 @@
-class_name RollingNumberLabel extends RichTextLabel
+class_name RollingNumberRichTextLabel extends RichTextLabel
 
 signal started
 signal ended

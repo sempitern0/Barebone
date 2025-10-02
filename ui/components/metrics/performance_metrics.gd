@@ -1,4 +1,4 @@
-@icon("res://ui/components/metrics/performance/performance_metrics.svg")
+@icon("res://ui/components/metrics/performance_metrics.svg")
 extends Control
 
 @export var show_hardware_specs_input_action: StringName = &"performance_metrics"
