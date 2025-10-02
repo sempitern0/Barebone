@@ -4,9 +4,6 @@ extends Node
 signal controller_connected(device_id, controller_name: String)
 signal controller_disconnected(device_id, previous_controller_name: String, controller_name: String)
 
-const default_vibration_strength: float = 0.5
-const default_vibration_duration: float = 0.65
-
 const DeviceGeneric: StringName = &"generic"
 const DeviceKeyboard: StringName = &"keyboard"
 const DeviceXboxController: StringName = &"xbox"
@@ -22,6 +19,8 @@ const SwitchButtonLabels: Array[String] = ["B", "A", "Y", "X", "-", "", "+", "Le
 const PlaystationButtonLabels: Array[String] = ["Cross", "Circle", "Square", "Triangle", "Select", "PS", "Options", "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right", "Microphone"]
 const SteamdeckButtonLabels: Array[String] = ["A", "B", "X", "Y", "View", "", "Options", "Left Stick Press", "Right Stick Press", "Left Shoulder", "Right Shoulder", "Up", "Down", "Left", "Right"]
 
+const DefaultVibrationStrength: float = 0.5
+const DefaultVibrationDuration: float = 0.65
 
 var current_controller_guid
 var current_controller_device := DeviceKeyboard
@@ -36,8 +35,11 @@ func _notification(what: int) -> void:
 
 
 func _enter_tree() -> void:
-	Input.joy_connection_changed.connect(on_joy_connection_changed)
+	process_thread_group = PROCESS_THREAD_GROUP_SUB_THREAD
+	process_thread_messages = FLAG_PROCESS_THREAD_MESSAGES
 	
+	Input.joy_connection_changed.connect(on_joy_connection_changed)
+
 
 func _ready() -> void:
 	for joypad in joypads():
@@ -52,7 +54,7 @@ func joypads() -> Array[int]:
 	return Input.get_connected_joypads()
 
 
-func start_controller_vibration(weak_strength = default_vibration_strength, strong_strength = default_vibration_strength, duration = default_vibration_duration):
+func start_controller_vibration(weak_strength = DefaultVibrationStrength, strong_strength = DefaultVibrationStrength, duration = DefaultVibrationDuration):
 	if not current_controller_is_keyboard() and has_joypad():
 		Input.start_joy_vibration(current_device_id, weak_strength, strong_strength, duration)
 
