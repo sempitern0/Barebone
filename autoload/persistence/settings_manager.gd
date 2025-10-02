@@ -19,7 +19,10 @@ enum ConfigFileFormat {
 	set(value):
 		if value != settings_file_path:
 			settings_file_path = value
-			config_file_path = OS.get_user_data_dir() + "/%s.%s" % [settings_file_path.trim_prefix("/").trim_suffix("/"),  OmniKitEnumHelper.value_to_str(ConfigFileFormat, file_format)]
+			config_file_path = OS.get_user_data_dir() + "/%s.%s" % [
+				settings_file_path.trim_prefix("/").trim_suffix("/"),  
+				OmniKitEnumHelper.value_to_str(ConfigFileFormat, file_format)
+				]
 ## The file format of the config file .cfg or .ini
 @export var file_format: ConfigFileFormat = ConfigFileFormat.ini
 @export var use_encription: bool = false

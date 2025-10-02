@@ -37,8 +37,7 @@ func _ready() -> void:
 	
 	frame_freezed_started.connect(on_frame_freeze_started)
 	frame_freezed_finished.connect(on_frame_freeze_finished)
-
-
+	
 #region Fade effects
 func fade_in_out(
 	in_duration: float = default_fade_duration, 
