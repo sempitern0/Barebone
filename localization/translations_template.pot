@@ -1,0 +1,136 @@
+# GodotExtensionatorStarter - Translation template:
+#
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: GodotExtensionatorStarter\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8-bit\n"
+
+
+#: autoload/persistence/game_setting.gd
+msgid "PROPERTY_USAGE_READ_ONLY"
+msgstr "PROPERTY_USAGE_READ_ONLY"
+
+#: autoload/persistence/game_setting.gd
+msgid "PROPERTY_USAGE_DEFAULT"
+msgstr "PROPERTY_USAGE_DEFAULT"
+
+#: components/3D/interactions/visual/hint/visual_hint_3d.gd
+msgid "BILLBOARD_FIXED_Y"
+msgstr "BILLBOARD_FIXED_Y"
+
+#: components/3D/first_person/hands/weapons/bow/arrow.gd
+msgid "DAMP_MODE_REPLACE"
+msgstr "DAMP_MODE_REPLACE"
+
+#: addons/omnikit/settings/plugin_settings.gd
+msgid "PROPERTY_HINT_TYPE_STRING"
+msgstr "PROPERTY_HINT_TYPE_STRING"
+
+#: addons/omnikit/src/autoloads/viewport/window_manager.gd
+msgid "QUIT_GAME_INSTRUCTIONS"
+msgstr "QUIT_GAME_INSTRUCTIONS"
+
+#: addons/omnikit/src/autoloads/viewport/window_manager.gd
+msgid "QUIT_GAME"
+msgstr "QUIT_GAME"
+
+#: addons/omnikit/src/autoloads/gamepad/gamepad_controller_manager.gd
+msgid "FLAG_PROCESS_THREAD_MESSAGES"
+msgstr "FLAG_PROCESS_THREAD_MESSAGES"
+
+#: autoload/persistence/settings_manager.gd
+msgid "SCALING_3D_MODE_BILINEAR"
+msgstr "SCALING_3D_MODE_BILINEAR"
+
+#: autoload/persistence/settings_manager.gd
+msgid "VIEWPORT_SCREEN_SPACE_AA_FXAA"
+msgstr "VIEWPORT_SCREEN_SPACE_AA_FXAA"
+
+#: autoload/persistence/settings_manager.gd
+msgid "VIEWPORT_SCREEN_SPACE_AA_DISABLED"
+msgstr "VIEWPORT_SCREEN_SPACE_AA_DISABLED"
+
+#: ui/components/settings/option_button/quality_preset_option_button.gd
+msgid "QUALITY_LOW"
+msgstr "QUALITY_LOW"
+
+#: ui/components/settings/option_button/quality_preset_option_button.gd
+msgid "QUALITY_MEDIUM"
+msgstr "QUALITY_MEDIUM"
+
+#: ui/components/settings/option_button/quality_preset_option_button.gd
+msgid "QUALITY_HIGH"
+msgstr "QUALITY_HIGH"
+
+#: ui/components/settings/hbox/graphics_quality_preset_hbox_container.gd
+msgid "GRAPHICS_QUALITY"
+msgstr "GRAPHICS_QUALITY"
+
+#: ui/components/settings/checkbox/integer_scaling_checkbox.gd
+msgid "CONTENT_SCALE_STRETCH"
+msgstr "CONTENT_SCALE_STRETCH"
+
+#: ui/components/settings/panels/keybinding/input_action_keybinding.gd
+msgid "WAITING_FOR_INPUT"
+msgstr "WAITING_FOR_INPUT"
+
+#: ui/components/settings/option_button/quality_preset_option_button.gd
+msgid "QUALITY_ULTRA"
+msgstr "QUALITY_ULTRA"
+
+#: ui/components/settings/option_button/fps_limit_option_button.gd
+msgid "NO_FPS_LIMIT"
+msgstr "NO_FPS_LIMIT"
+
+#: ui/components/settings/option_button/scale_3d_mode_option_button.gd
+msgid "SCALING_3D_MODE_FSR"
+msgstr "SCALING_3D_MODE_FSR"
+
+#: ui/components/settings/option_button/scale_3d_mode_option_button.gd
+msgid "SCALING_3D_MODE_FSR2"
+msgstr "SCALING_3D_MODE_FSR2"
+
+#: ui/content/warnings/premade/content_warning_photosensitive.tres
+msgid "PHOTOSENSITIVE_TITLE"
+msgstr "PHOTOSENSITIVE_TITLE"
+
+#: ui/content/warnings/premade/content_warning_photosensitive.tres
+msgid "PHOTOSENSITIVE_SUBTITLE"
+msgstr "PHOTOSENSITIVE_SUBTITLE"
+
+#: ui/content/warnings/premade/content_warning_photosensitive.tres
+msgid "PHOTOSENSITIVE_CONTENT"
+msgstr "PHOTOSENSITIVE_CONTENT"
+
+#: ui/content/warnings/premade/content_warning_photosensitive.tres
+msgid "PHOTOSENSITIVE_CONTENT_2"
+msgstr "PHOTOSENSITIVE_CONTENT_2"
+
+#: ui/content/warnings/premade/content_warning_mature_content.tres
+msgid "MATURE_CONTENT_TITLE"
+msgstr "MATURE_CONTENT_TITLE"
+
+#: ui/content/warnings/premade/content_warning_mature_content.tres
+msgid "MATURE_CONTENT_DESCRIPTION"
+msgstr "MATURE_CONTENT_DESCRIPTION"
+
+#: ui/content/warnings/premade/content_warning_horror_elements.tres
+msgid "WARNING_VIEWER_DISCRETION"
+msgstr "WARNING_VIEWER_DISCRETION"
+
+#: ui/content/warnings/premade/content_warning_resemblance.tres
+msgid "WARNING_RESEMBLANCE_CONTENT"
+msgstr "WARNING_RESEMBLANCE_CONTENT"
+
+#: ui/content/warnings/premade/content_warning_suicide.tres
+msgid "WARNING_SUICIDE_ADVICE"
+msgstr "WARNING_SUICIDE_ADVICE"
+
+#: ui/content/warnings/premade/content_warning_horror_elements.tres
+msgid "WARNING_HORROR_ELEMENTS"
+msgstr "WARNING_HORROR_ELEMENTS"
