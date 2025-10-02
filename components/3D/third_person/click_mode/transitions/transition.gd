@@ -2,7 +2,6 @@ class_name ThirdPersonNeutralToMovementTransition extends NeutralMachineTransiti
 
 
 func should_transition() -> bool:
-	
 	return to_state is ThirdPersonClickModeMovementState and \
 		 to_state.actor.can_move_to_next_click_position(parameters.next_position)
 

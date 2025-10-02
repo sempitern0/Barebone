@@ -1,6 +1,5 @@
 class_name ThirdPersonClickModeProjectilePredictionState extends ThirdPersonClickModeBaseState
 
-
 @export var prediction_distance: float = 10.0
 @export var confirm_input_action: StringName = &"confirm_throw"
 @export var cancel_input_action: StringName = &"ui_cancel"

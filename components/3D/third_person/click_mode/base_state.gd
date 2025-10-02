@@ -1,3 +1,3 @@
 class_name ThirdPersonClickModeBaseState extends MachineState
 
-@export var actor: ThirdPersonController
+@export var actor: ThirdPersonClickController

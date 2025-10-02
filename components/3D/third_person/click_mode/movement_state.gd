@@ -2,7 +2,6 @@ class_name ThirdPersonClickModeMovementState extends ThirdPersonClickModeBaseSta
 
 @export var speed: float = 5.0
 
-
 var direction: Vector3
 var next_position: Vector3
 
@@ -13,7 +12,7 @@ func handle_unhandled_input(event: InputEvent) -> void:
 	
 
 func enter() -> void:
-	if not actor.smooth_rotation:
+	if actor.skin_rotation_speed == 0:
 		actor.look_at(
 			Vector3(next_position.x, actor.global_position.y, next_position.z),
 			Vector3.UP
@@ -25,7 +24,7 @@ func physics_update(delta: float) -> void:
 	direction = actor.global_position.direction_to(actor.navigation_agent_3d.get_next_path_position())
 	
 	if actor.smooth_rotation:
-		actor.rotation.y = lerp_angle(actor.rotation.y, atan2(-direction.x, -direction.z), delta * actor.smooth_rotation_lerp_speed)
+		actor.rotation.y = lerp_angle(actor.rotation.y, atan2(-direction.x, -direction.z), delta * actor.skin_rotation_speed)
 	
 	actor.velocity = direction * speed
 
