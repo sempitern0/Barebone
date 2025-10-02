@@ -1,6 +1,52 @@
 import os, re, subprocess
 
 ## Install gettext before run when using windows https://mlocati.github.io/articles/gettext-iconv-windows.html
+## Recommended to run this script inside the Godot project
+
+GODOT_PREFIXES_TO_EXCLUDE = (
+    "NORMAL_",
+    "SCREEN_",
+    "CONNECT_",
+    "BLEND_",
+    "LOOP_",
+    "PRESET_",
+    "WRITE_",
+    "SIZE_",
+    "CULL_",
+    "SHADOW_",
+    "SCALING_",
+    "SHADING_",
+    "ENV_",
+    "CACHE_",
+    "PROJECTION_",
+    "PROPERTY_",
+    "FLAG_",
+    "TIMER_",
+    "PROCESS_",
+    "CURSOR_",
+    "BILLBOARD_",
+    "DAMP",
+    "NOTIFICATION_",
+    "SPACE_",
+    "KEY_",
+    "JOY_",
+    "FREEZE_",
+    "TRANSPARENCY_",
+    "EASE_",
+    "TRANS_",
+    "MOUSE_",
+    "TYPE_",
+    "THREAD_",
+    "AUTOWRAP_",
+    "WINDOW_",
+    "VIEWPORT_",
+    "ERROR_",
+    "ERR_",
+    "BYTE_",
+    "MSAA_",
+    "CONTENT_",
+    "SCALE_",
+)
 
 
 def create_template_pot_file(translation_keys: dict):
@@ -32,6 +78,7 @@ def find_translation_keys(dirpath: str):
         for root, _, files in os.walk(dirpath, topdown=True, followlinks=False):
             for file in list(filter(included_files_filter, files)):
                 filepath = os.path.join(root, file)
+
                 scan_file_for_translation_keys(filepath)
 
 
@@ -83,49 +130,7 @@ def included_files_filter(file: str) -> bool:
 
 
 def _contains_godot_prefixes(filename: str) -> bool:
-    godot_prefixes_to_exclude = [
-        "NORMAL_",
-        "SCREEN_",
-        "CONNECT_",
-        "BLEND_",
-        "LOOP_",
-        "PRESET_",
-        "WRITE_",
-        "SIZE_",
-        "CULL_",
-        "SHADOW_",
-        "SHADING_",
-        "ENV_",
-        "CACHE_",
-        "PROJECTION_",
-        "TIMER_",
-        "PROCESS_",
-        "CURSOR_",
-        "NOTIFICATION_",
-        "SPACE_",
-        "KEY_",
-        "JOY_",
-        "FREEZE_",
-        "TRANSPARENCY_",
-        "EASE_",
-        "TRANS_",
-        "MOUSE_",
-        "TYPE_",
-        "THREAD_",
-        "AUTOWRAP_",
-        "WINDOW_",
-        "ERROR_",
-        "ERR_",
-        "BYTE_",
-        "MSAA_",
-        "SCALE_",
-    ]
-
-    for prefix in godot_prefixes_to_exclude:
-        if filename.startswith(prefix):
-            return True
-
-    return False
+    return filename.startswith(GODOT_PREFIXES_TO_EXCLUDE)
 
 
 def scan_file_for_translation_keys(filepath: str):
@@ -163,7 +168,7 @@ def translation_keys_from(value: str):
     return re.findall(r"\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b", value)
 
 
-locales = ["en", "es", "fr", "de", "it", "pt", "ru"]
+locales = ["en", "es", "fr", "de", "it", "pt"]
 translation_template_name = "translations_template.pot"
 files_readed = []
 translation_keys = {}
