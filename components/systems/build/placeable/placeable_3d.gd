@@ -4,15 +4,20 @@ class_name Placeable3D extends Node3D
 @export var id: StringName
 @export var display_name: StringName
 @export_multiline var description: String
-@export var placement_area: PlacementArea3D
-@export var placement_offset: Vector3 = Vector3.ZERO
-@export var snap_enabled: bool = false 
-@export var snap_step: Vector3 = Vector3(1.0, 0, 1.0)
-@export var snap_offset: Vector3 = Vector3.ZERO 
-@export var drag_mode: DragMode = DragMode.Manual
 @export_category("Camera")
 @export var origin_camera: Camera3D
 @export var drag_distance_from_camera: float = 50.0
+@export_category("Placement")
+@export var placement_area: PlacementArea3D
+@export var placement_offset: Vector3 = Vector3.ZERO
+@export var drag_mode: DragMode = DragMode.OneClick
+@export_category("Snap")
+@export var snap_enabled: bool = false 
+@export var snap_step: Vector3 = Vector3(1.0, 0, 1.0)
+@export var snap_offset: Vector3 = Vector3.ZERO 
+@export_category("Rotation")
+@export var can_be_rotated: bool = true
+@export_range(0.0, 180.0, 0.01, "radians_as_degrees") var rotation_step: float
 @export_category("Materials")
 @export var use_validation_materials: bool = true
 @export var valid_place_material: StandardMaterial3D 
@@ -20,8 +25,8 @@ class_name Placeable3D extends Node3D
 
 
 enum DragMode {
-	ClickToDrag, ## Keep pressed the collisionable to drag it
-	Manual ## Change manually via code the "placing" variable to activate the drag
+	KeepPressed, ## Keep pressed the collisionable to drag it
+	OneClick ## One click to drag around the placeable without keep pressing any input.
 }
 
 var placement_is_valid: bool = false
@@ -48,12 +53,12 @@ func _ready() -> void:
 	_update_collisionables()
 	_update_meshes()
 	
-	set_process_unhandled_input(placing)
 	set_physics_process(placing)
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	handle_drag_motion()
+	handle_rotation(delta)
 	
 	
 func handle_drag_motion():
@@ -66,7 +71,6 @@ func handle_drag_motion():
 		
 		var ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, to)
 		ray_query.exclude = excluded_rids
-	
 		ray_query.collide_with_areas = false
 		ray_query.collide_with_bodies = true
 		
@@ -74,6 +78,7 @@ func handle_drag_motion():
 		
 		if result.has("position"):
 			var target_position: Vector3 = result.position
+			global_position = target_position
 			
 			if snap_enabled:
 				var snapped_position: Vector3 = (target_position - snap_offset).snapped(snap_step) + snap_offset
@@ -82,12 +87,19 @@ func handle_drag_motion():
 					snapped_position.y = target_position.y
 					
 				global_position = snapped_position
-			else:
-				global_position = target_position
 				
 			global_position += placement_offset
 
 
+func handle_rotation(delta: float = get_physics_process_delta_time()) -> void:
+	if can_be_rotated and rotation_step > 0:
+		if OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateLeft):
+			rotation.y += rotation_step
+				
+		elif OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateRight):
+			rotation.y -= rotation_step
+
+	
 func apply_placement_validation_material(valid: bool = placement_is_valid) -> void:
 	if (valid_place_material and valid) or (not valid and invalid_place_material):
 		for mesh: MeshInstance3D in meshes:

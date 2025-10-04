@@ -9,6 +9,7 @@ const grabbables_collision_layer: int = 16
 const bullets_collision_layer: int = 32
 const arrows_collision_layer: int = 64
 const hitboxes_collision_layer: int = 128
+const placeables_collision_layer: int = 256
 #endregion
 
 
