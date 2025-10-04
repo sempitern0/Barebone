@@ -1,6 +1,9 @@
 @icon("res://components/systems/build/placeable/placeable.svg")
 class_name Placeable3D extends Node3D
 
+@export var id: StringName
+@export var display_name: StringName
+@export_multiline var description: String
 @export var target: Node3D
 @export var placement_area: PlacementArea3D
 @export var height_offset: float = 0.0
