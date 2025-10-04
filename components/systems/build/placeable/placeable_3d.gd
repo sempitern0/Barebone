@@ -4,11 +4,8 @@ class_name Placeable3D extends Node3D
 @export var id: StringName
 @export var display_name: StringName
 @export_multiline var description: String
-@export var target: Node3D
 @export var placement_area: PlacementArea3D
-## Internal collisionable objects to be excluded on the ray query to drag in the world
-@export var collisionables: Array[CollisionObject3D] = []
-@export var offset: Vector3 = Vector3.ZERO
+@export var placement_offset: Vector3 = Vector3.ZERO
 @export var drag_mode: DragMode = DragMode.Manual
 @export_category("Camera")
 @export var origin_camera: Camera3D
@@ -25,10 +22,10 @@ var placing: bool = false:
 			placing = value
 			set_physics_process(placing)
 			
+var excluded_rids: Array[RID] = []
 			
+		
 func _ready() -> void:
-	assert(target != null and target is Node3D, "Placeable3D: This placeable does not have a target Node3D assigned")
-
 	if origin_camera == null:
 		origin_camera = get_viewport().get_camera_3d()
 	
@@ -37,11 +34,14 @@ func _ready() -> void:
 	else:
 		placement_area.call_deferred("disable")
 		
+	_update_collisionables()
 	set_process_unhandled_input(placing)
 	set_physics_process(placing)
 
-	handle_drag_motion()
 
+func _physics_process(delta: float) -> void:
+	handle_drag_motion()
+	
 	
 func handle_drag_motion():
 	if origin_camera and placing:
@@ -52,9 +52,7 @@ func handle_drag_motion():
 		var to: Vector3 = origin_camera.project_position(mouse_position, drag_distance_from_camera)
 		
 		var ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, to)
-		ray_query.exclude = collisionables.map(
-			func(collisionable: CollisionObject3D): return collisionable.get_rid()
-		)
+		ray_query.exclude = excluded_rids
 	
 		ray_query.collide_with_areas = false
 		ray_query.collide_with_bodies = true
@@ -62,5 +60,13 @@ func handle_drag_motion():
 		var result: Dictionary = world_space.intersect_ray(ray_query)
 	
 		if result.has("position"):
-			target.global_position = result.position
-			target.global_position += offset
+			global_position = result.position
+			global_position += placement_offset
+
+
+func _update_collisionables() -> void:
+	excluded_rids.clear()
+	
+	for child: Node in OmniKitNodeTraversal.get_all_children(self):
+		if child is CollisionObject3D:
+			excluded_rids.append(child.get_rid())
