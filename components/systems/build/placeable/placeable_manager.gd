@@ -28,6 +28,10 @@ func spawn(id: StringName) -> void:
 	if not placeables.has(id):
 		push_warning("PlaceableManager: The placeable with id %s does not exists or is not assigned to a Placeable3D scene" % id)
 		return
+	
+	if not ResourceLoader.exists(placeables[id].resource_path):
+		push_warning("PlaceableManager: The placeable with id %s does not have a valid Resource to load" % id)
+		return
 		
 	var placeable: Placeable3D = placeables[id].instantiate() as Placeable3D
 	
