@@ -47,6 +47,7 @@ enabled=PackedStringArray("res://addons/acoustic/plugin.cfg", "res://addons/mach
 
 folder_colors={
 "res://addons/": "gray",
+"res://assets/": "pink",
 "res://autoload/": "yellow",
 "res://components/": "red",
 "res://localization/": "orange",
