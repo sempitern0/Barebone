@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ck4kweaolh7cd"
-path="res://.godot/imported/placeable.svg-86f354b53a6ef6fc9871348f1ba7b85c.ctex"
+uid="uid://526bgg14tdc3"
+path="res://.godot/imported/placement_area.svg-0a71a175d4976974b32bcc647d7ed1d6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://components/systems/build/placeable/placeable.svg"
-dest_files=["res://.godot/imported/placeable.svg-86f354b53a6ef6fc9871348f1ba7b85c.ctex"]
+source_file="res://components/systems/build/placeable/icons/placement_area.svg"
+dest_files=["res://.godot/imported/placement_area.svg-0a71a175d4976974b32bcc647d7ed1d6.ctex"]
 
 [params]
 

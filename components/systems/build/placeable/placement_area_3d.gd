@@ -1,4 +1,4 @@
-@icon("res://components/systems/build/placeable/placement_area.svg")
+@icon("res://components/systems/build/placeable/icons/placement_area.svg")
 class_name PlacementArea3D extends Area3D
 
 enum PlacementType {
