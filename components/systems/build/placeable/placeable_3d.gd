@@ -19,7 +19,9 @@ signal placed
 @export var snap_offset: Vector3 = Vector3.ZERO 
 @export_category("Rotation")
 @export var can_be_rotated: bool = true
-## The radian rotation per second to apply in the placeable as is frame rate independent.
+## Apply the entire rotation when the action input to rotate is pressed.
+@export var direct_input_rotation: bool = false 
+## When direct_input_rotation is false, this defines the radian rotation per second to apply in the placeable as is frame rate independent.
 @export_range(0.0, 180.0, 0.01, "radians_as_degrees") var rotation_step: float
 @export_category("Materials")
 @export var use_validation_materials: bool = true
@@ -76,6 +78,12 @@ func _unhandled_input(_event: InputEvent) -> void:
 		else:
 			queue_free()
 
+	if placing and direct_input_rotation:
+		if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.RotateLeft):
+			rotation.y += rotation_step
+		elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.RotateRight):
+			rotation.y -= rotation_step
+
 
 func _ready() -> void:
 	if origin_camera == null:
@@ -98,7 +106,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	handle_drag_motion()
-	handle_rotation(delta)
+	
+	if not direct_input_rotation:
+		handle_rotation(delta)
 	
 	apply_placement_validation_material()
 	

@@ -49,7 +49,7 @@ func is_valid() -> bool:
 			))
 	
 	return other_placement_areas.is_empty() and raycast_position_validators.all(
-		func(raycast: RayCast3D): return raycast.is_colliding()
+		func(raycast: RayCast3D): return raycast and raycast.is_colliding()
 		)
 
 
