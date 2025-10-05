@@ -12,7 +12,7 @@ signal placed
 @export_category("Placement")
 @export var placement_area: PlacementArea3D
 @export var placement_offset: Vector3 = Vector3.ZERO
-@export var drag_mode: DragMode = DragMode.OneClick
+@export var align_with_surface_normal: bool = false
 @export_category("Snap")
 @export var snap_enabled: bool = false 
 @export var snap_step: Vector3 = Vector3(1.0, 0, 1.0)
@@ -28,11 +28,6 @@ signal placed
 @export var valid_place_material: StandardMaterial3D 
 @export var invalid_place_material: StandardMaterial3D
 
-
-enum DragMode {
-	KeepPressed, ## Keep pressed the collisionable to drag it
-	OneClick ## One click to drag around the placeable without keep pressing any input.
-}
 
 ## Variable to lock this placeable once is placed on the world
 var locked: bool = false
@@ -63,6 +58,7 @@ var placing: bool = false:
 var excluded_rids: Array[RID] = []
 var meshes: Array[MeshInstance3D] = []
 var last_transform: Transform3D
+var surface_normal: Vector3 = Vector3.UP
 
 
 func _unhandled_input(_event: InputEvent) -> void:
@@ -130,6 +126,30 @@ func handle_drag_motion():
 		
 		if result.has("position"):
 			var target_position: Vector3 = result.position
+			
+			if align_with_surface_normal:
+				surface_normal = result.normal if result.has("normal") else Vector3.UP
+				var xform: Transform3D = global_transform
+				xform = xform.looking_at(
+					target_position + -xform.basis.z.slide(Vector3.UP).normalized(), 
+					surface_normal 
+				)
+				
+				var up: Vector3 = xform.basis.y.normalized()
+				var right: Vector3 = xform.basis.x.normalized()
+
+				var forward: Vector3 = -global_transform.basis.z
+				forward = (forward - up * forward.dot(up)).normalized()
+				right = up.cross(forward).normalized()
+				
+				xform.basis = Basis(right, up, -forward)
+				global_transform.basis = xform.basis.orthonormalized()
+	
+				if placement_offset.y != 0:
+					# Move along the surface normal by the height offset amount
+					var offset_vector = surface_normal.normalized() * placement_offset.y
+					target_position += offset_vector
+			
 			global_position = target_position
 			
 			if snap_enabled:
