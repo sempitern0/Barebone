@@ -329,7 +329,7 @@ func load_keybindings() -> void:
 		## Update default action values to take into account new input maps loaded from the last project update
 		if action == GameSettings.DefaultInputMapActionsSetting:
 			for default_action: StringName in GameSettings.DefaultSettings[GameSettings.DefaultInputMapActionsSetting]:
-				if not InputMap.has_action(default_action):
+				if not InputMap.has_action(default_action) or InputMap.action_get_events(default_action).is_empty():
 					GameSettings.DefaultSettings[GameSettings.DefaultInputMapActionsSetting].erase(default_action)
 			
 			continue

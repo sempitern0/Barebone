@@ -45,6 +45,7 @@ const SecondaryWeapon: StringName = &"secondary_weapon"
 const ItemLeft: StringName = &"item_left"
 const ItemRight: StringName = &"item_right"
 const ToggleInventory: StringName = &"toggle_inventory"
+const ConfirmPlacement: StringName = &"confirm_placement"
 
 const PerformanceMetrics: StringName = &"performance_metrics"
 const FirstPersonDebug: StringName = &"first_person_debug"

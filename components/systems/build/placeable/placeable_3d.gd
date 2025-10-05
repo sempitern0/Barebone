@@ -29,16 +29,38 @@ enum DragMode {
 	OneClick ## One click to drag around the placeable without keep pressing any input.
 }
 
-var placement_is_valid: bool = false
 var placing: bool = false:
 	set(value):
 		if placing != value:
 			placing = value
+	
+			if placing:
+				placement_area.enable()
+			else:
+				placement_area.disable()
+				remove_placement_validation_material()
+				
+			set_process_unhandled_input(placing)
 			set_physics_process(placing)
-			call_deferred("apply_placement_validation_material", placement_is_valid)
 			
+
 var excluded_rids: Array[RID] = []
 var meshes: Array[MeshInstance3D] = []
+var last_transform: Transform3D
+
+
+func _input(event: InputEvent) -> void:
+	if placement_area.placement_is_valid and OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ConfirmPlacement):
+		last_transform = global_transform
+		placing = false
+	
+	elif OmniKitInputHelper.action_just_pressed_and_exists(&"ui_cancel"):
+		placing = false
+		
+		if last_transform:
+			global_transform = last_transform
+		else:
+			queue_free()
 
 
 func _ready() -> void:
@@ -46,19 +68,22 @@ func _ready() -> void:
 		origin_camera = get_viewport().get_camera_3d()
 	
 	if placing:
-		placement_area.call_deferred("enable")
+		placement_area.enable()
 	else:
-		placement_area.call_deferred("disable")
+		placement_area.disable()
 		
 	_update_collisionables()
 	_update_meshes()
 	
+	set_process_unhandled_input(placing)
 	set_physics_process(placing)
 
 
 func _physics_process(delta: float) -> void:
 	handle_drag_motion()
 	handle_rotation(delta)
+	
+	apply_placement_validation_material()
 	
 	
 func handle_drag_motion():
@@ -94,23 +119,28 @@ func handle_drag_motion():
 func handle_rotation(delta: float = get_physics_process_delta_time()) -> void:
 	if can_be_rotated and rotation_step > 0:
 		if OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateLeft):
-			rotation.y += rotation_step
+			rotation.y += rotation_step * delta
 				
 		elif OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateRight):
-			rotation.y -= rotation_step
+			rotation.y -= rotation_step * delta
 
 	
-func apply_placement_validation_material(valid: bool = placement_is_valid) -> void:
-	if (valid_place_material and valid) or (not valid and invalid_place_material):
-		for mesh: MeshInstance3D in meshes:
-			mesh.set_surface_override_material(0, valid_place_material if valid else invalid_place_material)
+func apply_placement_validation_material(valid: bool = placement_area.placement_is_valid) -> void:
+	if meshes.size():
+		
+		if valid_place_material and valid:
+			for mesh: MeshInstance3D in meshes:
+				mesh.set_surface_override_material(0, valid_place_material)
+		
+		elif not valid and invalid_place_material: 
+			for mesh: MeshInstance3D in meshes:
+				mesh.set_surface_override_material(0, invalid_place_material)
 		
 
 func remove_placement_validation_material() -> void:
-	if use_validation_materials:
-		for mesh: MeshInstance3D in meshes:
-			mesh.set_surface_override_material(0, null)
-		
+	for mesh: MeshInstance3D in meshes:
+		mesh.set_surface_override_material(0, null)
+	
 
 func _update_collisionables() -> void:
 	excluded_rids.clear()
