@@ -1,6 +1,8 @@
 @icon("res://components/systems/build/placeable/icons/placeable.svg")
 class_name Placeable3D extends Node3D
 
+signal placed
+
 @export var id: StringName
 @export var display_name: StringName
 @export_multiline var description: String
@@ -29,20 +31,31 @@ enum DragMode {
 	OneClick ## One click to drag around the placeable without keep pressing any input.
 }
 
+## Variable to lock this placeable once is placed on the world
+var locked: bool = false
 var placing: bool = false:
 	set(value):
+		if locked:
+			return
+			
 		if placing != value:
+			var previous_placing: bool = placing
 			placing = value
-	
+			
+			if previous_placing and not placing:
+				placed.emit()
+			else:
+				placement_area.make_selectable(false)
+				
 			if placing:
 				placement_area.enable()
 			else:
 				placement_area.disable()
 				remove_placement_validation_material()
 				
-			set_process_unhandled_input(placing)
+			set_process_input(placing)
 			set_physics_process(placing)
-			
+	
 
 var excluded_rids: Array[RID] = []
 var meshes: Array[MeshInstance3D] = []
@@ -75,8 +88,11 @@ func _ready() -> void:
 	_update_collisionables()
 	_update_meshes()
 	
-	set_process_unhandled_input(placing)
+	set_process_input(placing)
 	set_physics_process(placing)
+	
+	placement_area.selected.connect(on_placement_area_selected)
+	placed.connect(on_placed)
 
 
 func _physics_process(delta: float) -> void:
@@ -141,6 +157,14 @@ func remove_placement_validation_material() -> void:
 	for mesh: MeshInstance3D in meshes:
 		mesh.set_surface_override_material(0, null)
 	
+	
+func lock() -> void:
+	locked = true
+
+	
+func unlock() -> void:
+	locked = false
+
 
 func _update_collisionables() -> void:
 	excluded_rids.clear()
@@ -156,3 +180,12 @@ func _update_meshes() -> void:
 	for child: Node in OmniKitNodeTraversal.get_all_children(self):
 		if child is MeshInstance3D:
 			meshes.append(child)
+
+
+func on_placement_area_selected() -> void:
+	placing = true
+	
+	
+func on_placed() -> void:
+	await Globals.wait(0.2)
+	placement_area.make_selectable(true)

@@ -1,6 +1,7 @@
 @icon("res://components/systems/build/placeable/icons/placement_area.svg")
 class_name PlacementArea3D extends Area3D
 
+signal selected
 ## Where this placement area belongs
 @export_flags_3d_physics var placement_layers: int = 0
 ## Other surfaces that can be detected
@@ -34,7 +35,7 @@ func _ready() -> void:
 	priority = 1
 	collision_layer = placement_layers
 	collision_mask = surface_masks
-	
+
 
 func _physics_process(_delta: float) -> void:
 	placement_is_valid = is_valid()
@@ -52,15 +53,27 @@ func is_valid() -> bool:
 		)
 
 
+func make_selectable(selectable: bool = true) -> void:
+	if selectable and not input_event.is_connected(on_input_event):
+		input_event.connect(on_input_event, CONNECT_DEFERRED)
+	
+	elif input_event.is_connected(on_input_event):
+		input_event.disconnect(on_input_event)
+		
+		
 func enable() -> void:
 	call_deferred("set_physics_process", true)
 	set_deferred("monitorable", false)
 	set_deferred("monitoring", true)
-	show()
 
 
 func disable() -> void:
 	call_deferred("set_physics_process", false)
 	set_deferred("monitorable", true)
 	set_deferred("monitoring", false)
-	hide()
+
+
+func on_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
+	if OmniKitInputHelper.is_mouse_left_click(event):
+		get_viewport().set_input_as_handled()
+		selected.emit()
