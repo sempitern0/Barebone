@@ -19,6 +19,7 @@ signal placed
 @export var snap_offset: Vector3 = Vector3.ZERO 
 @export_category("Rotation")
 @export var can_be_rotated: bool = true
+## The radian rotation per second to apply in the placeable as is frame rate independent.
 @export_range(0.0, 180.0, 0.01, "radians_as_degrees") var rotation_step: float
 @export_category("Materials")
 @export var use_validation_materials: bool = true
@@ -62,12 +63,12 @@ var meshes: Array[MeshInstance3D] = []
 var last_transform: Transform3D
 
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(_event: InputEvent) -> void:
 	if placement_area.placement_is_valid and OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ConfirmPlacement):
 		last_transform = global_transform
 		placing = false
 	
-	elif OmniKitInputHelper.action_just_pressed_and_exists(&"ui_cancel"):
+	elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.CancelPlacement):
 		placing = false
 		
 		if last_transform:

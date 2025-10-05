@@ -54,11 +54,13 @@ func is_valid() -> bool:
 
 
 func make_selectable(selectable: bool = true) -> void:
-	if selectable and not input_event.is_connected(on_input_event):
-		input_event.connect(on_input_event, CONNECT_DEFERRED)
+	if selectable:
+		if not input_event.is_connected(on_input_event):
+			input_event.connect(on_input_event, CONNECT_DEFERRED)
 	
-	elif input_event.is_connected(on_input_event):
-		input_event.disconnect(on_input_event)
+	else:
+		if input_event.is_connected(on_input_event):
+			input_event.disconnect(on_input_event)
 		
 		
 func enable() -> void:
