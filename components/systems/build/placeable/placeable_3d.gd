@@ -2,7 +2,11 @@
 class_name Placeable3D extends Node3D
 
 signal placed
+signal placement_started
+signal placement_canceled
 
+## This node can be a child of the target using composition so assign it here.
+@export var target: Node3D
 @export var id: StringName
 @export var display_name: StringName
 @export_multiline var description: String
@@ -48,6 +52,7 @@ var placing: bool = false:
 				
 			if placing:
 				placement_area.enable()
+				placement_started.emit()
 			else:
 				placement_area.disable()
 				remove_placement_validation_material()
@@ -69,6 +74,7 @@ func _unhandled_input(_event: InputEvent) -> void:
 	
 	elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.CancelPlacement):
 		placing = false
+		placement_canceled.emit()
 		
 		if last_transform:
 			global_transform = last_transform
@@ -86,6 +92,10 @@ func _ready() -> void:
 	if origin_camera == null:
 		origin_camera = get_viewport().get_camera_3d()
 	
+	if target == null:
+		target = self
+		
+		
 	if placing:
 		placement_area.enable()
 	else:
