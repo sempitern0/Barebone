@@ -13,6 +13,7 @@ signal placed
 @export var placement_area: PlacementArea3D
 @export var placement_offset: Vector3 = Vector3.ZERO
 @export var align_with_surface_normal: bool = false
+@export_range(0.0, 180.0, 0.01, "radians_as_degrees") var max_align_surface_normal_angle: float
 @export_category("Snap")
 @export var snap_enabled: bool = false 
 @export var snap_step: Vector3 = Vector3(1.0, 0, 1.0)
@@ -111,44 +112,19 @@ func _physics_process(delta: float) -> void:
 	
 func handle_drag_motion():
 	if origin_camera and placing:
-		var mouse_position: Vector2 = get_viewport().get_mouse_position()
+		var world_projection_result: OmniKitRaycastResult = world_projected_position()
+		surface_normal = world_projection_result.normal if world_projection_result.normal else Vector3.UP
 		
-		var world_space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
-		var from: Vector3 = origin_camera.project_ray_origin(mouse_position)
-		var to: Vector3 = origin_camera.project_position(mouse_position, drag_distance_from_camera)
-		
-		var ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, to)
-		ray_query.exclude = excluded_rids
-		ray_query.collide_with_areas = false
-		ray_query.collide_with_bodies = true
-		
-		var result: Dictionary = world_space.intersect_ray(ray_query)
-		
-		if result.has("position"):
-			var target_position: Vector3 = result.position
+		if world_projection_result.position:
+			var target_position: Vector3 = world_projection_result.position
 			
 			if align_with_surface_normal:
-				surface_normal = result.normal if result.has("normal") else Vector3.UP
-				var xform: Transform3D = global_transform
-				xform = xform.looking_at(
-					target_position + -xform.basis.z.slide(Vector3.UP).normalized(), 
-					surface_normal 
-				)
-				
-				var up: Vector3 = xform.basis.y.normalized()
-				var right: Vector3 = xform.basis.x.normalized()
-
-				var forward: Vector3 = -global_transform.basis.z
-				forward = (forward - up * forward.dot(up)).normalized()
-				right = up.cross(forward).normalized()
-				
-				xform.basis = Basis(right, up, -forward)
-				global_transform.basis = xform.basis.orthonormalized()
-	
-				if placement_offset.y != 0:
-					# Move along the surface normal by the height offset amount
-					var offset_vector = surface_normal.normalized() * placement_offset.y
-					target_position += offset_vector
+				global_transform.basis = align_placeable_with_surface_normal(world_projection_result).basis
+			
+			if placement_offset.y != 0:
+			# Move along the surface normal by the height offset amount
+				var offset_vector = surface_normal.normalized() * placement_offset.y
+				target_position += offset_vector
 			
 			global_position = target_position
 			
@@ -171,6 +147,49 @@ func handle_rotation(delta: float = get_physics_process_delta_time()) -> void:
 		elif OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateRight):
 			rotation.y -= rotation_step * delta
 
+
+func world_projected_position() -> OmniKitRaycastResult:
+	var mouse_position: Vector2 = get_viewport().get_mouse_position()
+		
+	var world_space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
+	var from: Vector3 = origin_camera.project_ray_origin(mouse_position)
+	var to: Vector3 = origin_camera.project_position(mouse_position, drag_distance_from_camera)
+	
+	var ray_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, to)
+	ray_query.exclude = excluded_rids
+	ray_query.collide_with_areas = false
+	ray_query.collide_with_bodies = true
+	
+	var result: Dictionary = world_space.intersect_ray(ray_query)
+	
+	return OmniKitRaycastResult.new(result)
+
+
+func align_placeable_with_surface_normal(world_projection_result: OmniKitRaycastResult) -> Transform3D:
+	var target_position: Vector3 = world_projection_result.position
+	var xform: Transform3D = global_transform
+	
+	surface_normal = world_projection_result.normal if world_projection_result.normal else Vector3.UP
+	var angle_to_up: float = surface_normal.angle_to(Vector3.UP)
+
+	if max_align_surface_normal_angle > 0 and angle_to_up > max_align_surface_normal_angle:
+		surface_normal = Vector3.UP.slerp(surface_normal, max_align_surface_normal_angle / angle_to_up).normalized()
+	
+	xform = xform.looking_at(
+		target_position + -xform.basis.z.slide(Vector3.UP).normalized(), 
+		surface_normal 
+	)
+	
+	var up: Vector3 = xform.basis.y.normalized()
+	var right: Vector3 = xform.basis.x.normalized()
+
+	var forward: Vector3 = -global_transform.basis.z
+	forward = (forward - up * forward.dot(up)).normalized()
+	right = up.cross(forward).normalized()
+	
+	xform.basis = Basis(right, up, -forward).orthonormalized()
+
+	return xform
 	
 func apply_placement_validation_material(valid: bool = placement_area.placement_is_valid) -> void:
 	if meshes.size():
