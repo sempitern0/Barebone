@@ -9,11 +9,7 @@ class_name PlaceableManager extends Node
 ## Example: const Fridge: StringName = &"fridge"
 const TestFurniture: StringName = &"test"
 
-var placeables: Dictionary[StringName, PackedScene] = {
-	TestFurniture: preload("uid://c27as6ww6qr2g")
-}
-
-
+var placeables: Dictionary[StringName, PackedScene] = {}
 var current_placeable: Placeable3D
 
 
