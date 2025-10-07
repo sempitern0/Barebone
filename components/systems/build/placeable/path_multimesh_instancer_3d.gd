@@ -45,7 +45,7 @@ func assign_mesh(mesh: Mesh) -> void:
 
 
 func _update_multimesh():
-	if multimesh_instance and multimesh_instance.mesh:
+	if multimesh_instance and multimesh_instance.multimesh:
 		var path_length: float = curve.get_baked_length()
 		var count: int = floori(path_length / distance_between_meshes)
 
