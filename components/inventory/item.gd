@@ -59,6 +59,7 @@ enum Category {
 
 @export var id: StringName
 @export var name: StringName
+@export var abbreviation: StringName
 @export_multiline var description: String
 @export var icon: Texture2D
 @export var material_type: MaterialType = MaterialType.Neutral
