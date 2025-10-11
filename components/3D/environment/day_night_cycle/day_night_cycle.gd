@@ -16,6 +16,7 @@ const MinutesPerHour: float = 60.0
 @export var sun: DirectionalLight3D
 @export var sun_configuration: DayNightCycleSunConfiguration
 @export var sky_configuration: DayNightCycleSkyConfiguration
+@export var show_stars_at_night: bool = true
 @export_category("Time")
 ## Translated seconds into real life minute. This means that each 5 seconds a minute pass in the game.
 @export var real_life_seconds_to_game_minute: float = 5.0:
@@ -220,8 +221,9 @@ func update_sky(hour: int = current_hour, minute: int = current_minute) -> void:
 					sky_material.set_shader_parameter("ground_horizon_color", sky_configuration.ground_horizon_color_gradient.sample(time_sample))
 					sky_material.set_shader_parameter("ground_bottom_color", sky_configuration.ground_bottom_color_gradient.sample(time_sample))
 					sky_material.set_shader_parameter("sky_cover_modulate", sky_configuration.clouds_color_gradient.sample(time_sample))
-			
-		
+					sky_material.set_shader_parameter("stars", show_stars_at_night and is_night())
+
+
 func update_day_zone(hour: int = current_hour) -> void:
 	if not is_dawn() and hour >= dawn_hour and hour < day_hour:
 		current_day_zone = DayZone.Dawn

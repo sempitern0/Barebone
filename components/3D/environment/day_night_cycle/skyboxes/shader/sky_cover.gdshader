@@ -36,6 +36,20 @@ uniform float horizon_blend_strength : hint_range(0, 1) = 0.05; // Control blend
 uniform float horizon_blend_brightness : hint_range(0.0, 1.0) = .3;
 uniform float horizon_blend_width : hint_range(0.0, 0.5) = 0.1; // Width of the horizon blend region
 
+group_uniforms Stars;
+uniform bool stars = true;
+uniform float star_density : hint_range(0.0, 1.0) = 0.01;
+uniform float star_size_randomness : hint_range(0.0, 3.0) = 1.0;
+uniform float star_brightness : hint_range(0.0, 5.0) = 1.5;
+uniform float star_twinkle_speed : hint_range(0.0, 10.0) = 0.01; 
+uniform vec4 star_color : source_color = vec4(1.0, 1.0, 1.0, 1.0); 
+
+float hash(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+
 void sky() {
     float v_angle = acos(clamp(EYEDIR.y, -1.0, 1.0));
     float c = (1.0 - v_angle / (PI * 0.5));
@@ -137,8 +151,45 @@ void sky() {
     vec3 ground = mix(ground_horizon_color.rgb, ground_bottom_color.rgb, clamp(1.0 - pow(1.0 - c, 1.0 / ground_curve), 0.0, 1.0));
     ground *= ground_energy;
 
-	// Uncomment for flat horizon blend
-    //COLOR = mix(ground, sky, step(0.0, EYEDIR.y)) * exposure;
-	float horizon_blend = smoothstep(-0.05, 0.1, EYEDIR.y);
-	COLOR = mix(ground, sky, horizon_blend) * exposure;
+	
+	if (stars) {
+    // Solo visibles en la parte superior (no en el suelo)
+	    float night_factor = clamp(1.0 - LIGHT0_ENERGY * 0.5, 0.0, 1.0);
+
+	     if (EYEDIR.y > 0.0 && night_factor > 0.0) {
+	        // Coordenadas esféricas para fijar las estrellas al cielo
+	        float azimuth = atan(EYEDIR.x, EYEDIR.z) / (2.0 * PI) + 0.5;
+	        float altitude = acos(clamp(EYEDIR.y, -1.0, 1.0)) / PI;
+	        vec2 uv = vec2(azimuth, altitude) * 512.0;
+
+	        // Hash base para celda actual
+	        vec2 id = floor(uv);
+	        vec2 local = fract(uv) - 0.5;
+	        float h = hash(id);
+
+	        // Determina si hay una estrella en esta celda
+	        float has_star = step(1.0 - star_density, h);
+
+	        // Randomiza el tamaño según el hash y el parámetro de control
+	        float size_variation = mix(1.0, 1.0 + star_size_randomness * (h - 0.5), has_star);
+
+	        // Forma circular con falloff suave (no cuadrados)
+	        float dist = length(local) * 2.0 / size_variation;
+	        float shape = smoothstep(0.3, 0.0, dist);
+
+	        // Parpadeo dinámico
+	        float twinkle = 0.6 + 0.4 * sin(TIME * star_twinkle_speed + h * 100.0);
+
+	        // Atenúa hacia el cénit para dar sensación de profundidad
+	        float depth_fade = smoothstep(0.0, 0.8, 1.0 - abs(EYEDIR.y));
+
+	        // Intensidad final
+	        float star_intensity = has_star * shape * twinkle * depth_fade;
+
+	        // Añadimos el color final
+	        sky += star_intensity * star_brightness * star_color.rgb * night_factor;
+    	}
+	}
+	
+	COLOR = mix(ground, sky, smoothstep(-0.05, 0.1, EYEDIR.y)) * exposure;
 }
