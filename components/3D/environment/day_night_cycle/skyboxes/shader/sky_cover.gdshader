@@ -40,6 +40,15 @@ uniform float horizon_blend_strength : hint_range(0, 1) = 0.05; // Control blend
 uniform float horizon_blend_brightness : hint_range(0.0, 1.0) = .3;
 uniform float horizon_blend_width : hint_range(0.0, 0.5) = 0.1; // Width of the horizon blend region
 
+group_uniforms Moon;
+uniform bool moon = true;
+uniform vec3 moon_direction = vec3(0.0, 0.5, -1.0);
+uniform float moon_size = 0.05;
+uniform float moon_brightness = 4.0;
+uniform vec4 moon_color : source_color = vec4(1.0, 0.95, 0.9, 1.0);
+uniform float moon_roughness : hint_range(0.0, 1.0) = 0.5; // Controla la rugosidad de la luna
+uniform sampler2D moon_texture : source_color, filter_linear, hint_default_white;
+
 group_uniforms Stars;
 uniform bool stars = true;
 uniform float star_density : hint_range(0.0, 1.0) = 0.01;
@@ -52,6 +61,30 @@ float hash(vec2 p) {
     p = fract(p * vec2(123.34, 456.21));
     p += dot(p, p + 45.32);
     return fract(p.x * p.y);
+}
+
+float noise(vec2 x) {
+    vec2 p = floor(x);
+    vec2 f = fract(x);
+    f = f * f * (3.0 - 2.0 * f);
+    vec2 a = vec2(1.0, 0.0);
+    return mix(mix(hash(p + a.yy), hash(p + a.xy), f.x),
+               mix(hash(p + a.yx), hash(p + a.xx), f.x), f.y);
+}
+
+
+float fbm(vec2 x) {
+    float _height = 0.0;
+    float amplitude = 0.5;
+    float frequency = 3.0;
+	
+    for (int i = 0; i < 6; i++) {
+        _height += noise(x * frequency) * amplitude;
+        amplitude *= 0.5;
+        frequency *= 2.0;
+    }
+	
+    return _height;
 }
 
 void sky() {
@@ -193,6 +226,31 @@ void sky() {
 	        // Añadimos el color final
 	        sky += star_intensity * star_brightness * star_color.rgb * night_factor;
     	}
+	}
+	
+	if (moon) {
+		vec3 moon_dir = normalize(moon_direction);
+		float moon_angle = acos(dot(normalize(EYEDIR), moon_dir));
+		float moon_falloff = smoothstep(moon_size, 0.0, moon_angle); // máscara de borde
+
+		// Convertir dirección 3D a coordenadas UV esféricas
+		float theta = atan(moon_dir.z, moon_dir.x);      // [-PI, PI]
+		float phi = asin(clamp(moon_dir.y, -1.0, 1.0)); // [-PI/2, PI/2]
+		vec2 uv = vec2(theta / (2.0 * PI) + 0.5, phi / PI + 0.5); // normalizado 0..1
+
+		// Muestreo de la textura de la luna
+		vec3 texture_color = texture(moon_texture, uv).rgb;
+
+		// Ruido/cráteres sobre la textura
+		float crater_noise = fbm(moon_dir.xz * 5.0); 
+		vec3 base_color = texture_color * (1.0 - crater_noise * moon_roughness);
+
+		// Iluminación: la luna refleja la luz del sol
+		float light_intensity = max(dot(moon_dir, normalize(vec3(1.0, 1.0, 1.0))), 0.0);
+		vec3 illuminated_color = base_color * (0.3 + 0.7 * light_intensity); // brillo relativo
+
+		// Mezcla final con máscara de borde
+		sky += illuminated_color * moon_brightness * moon_falloff;
 	}
 	
 	COLOR = mix(ground, sky, smoothstep(-0.05, 0.1, EYEDIR.y)) * exposure;

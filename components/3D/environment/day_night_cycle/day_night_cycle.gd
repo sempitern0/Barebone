@@ -17,6 +17,7 @@ const MinutesPerHour: float = 60.0
 @export var sun_configuration: DayNightCycleSunConfiguration
 @export var sky_configuration: DayNightCycleSkyConfiguration
 @export var show_stars_at_night: bool = true
+@export var show_moon_at_night: bool = true
 @export_category("Time")
 ## Translated seconds into real life minute. This means that each 5 seconds a minute pass in the game.
 @export var real_life_seconds_to_game_minute: float = 5.0:
@@ -200,7 +201,7 @@ func update_sun(hour: int = current_hour, minute: int = current_minute) -> void:
 		## Optimization to not render dynamic shadows when the sun is not in the screen
 		var normalized_angle: float = fmod(sun_angle, 360.0)
 		sun.shadow_enabled = normalized_angle > 169.0 and normalized_angle < 360.0
-
+		
 
 func update_sky(hour: int = current_hour, minute: int = current_minute) -> void:
 	if world_environment and world_environment.environment:
@@ -222,6 +223,20 @@ func update_sky(hour: int = current_hour, minute: int = current_minute) -> void:
 					sky_material.set_shader_parameter("ground_bottom_color", sky_configuration.ground_bottom_color_gradient.sample(time_sample))
 					sky_material.set_shader_parameter("sky_cover_modulate", sky_configuration.clouds_color_gradient.sample(time_sample))
 					sky_material.set_shader_parameter("stars", show_stars_at_night and is_night())
+					sky_material.set_shader_parameter("moon", show_moon_at_night and is_night())
+					
+					if show_moon_at_night and is_night():
+						var moon_angle: float = -sun.rotation_degrees.x + 180.0
+			
+						# Convierte ese ángulo a una dirección 3D
+						var moon_dir: Vector3 = Vector3(
+							cos(deg_to_rad(moon_angle)),
+							sin(deg_to_rad(moon_angle)),
+							0.0
+						).normalized()
+			
+						# Enviamos al shader
+						sky_material.set_shader_parameter("moon_direction", moon_dir)
 
 
 func update_day_zone(hour: int = current_hour) -> void:
