@@ -72,6 +72,8 @@ func physics_update(delta: float):
 		else:
 			FSM.change_state_to(WalkState)
 
+	detect_wall_jump()
+	
 	actor.move_and_slide()
 
 #region Detectors

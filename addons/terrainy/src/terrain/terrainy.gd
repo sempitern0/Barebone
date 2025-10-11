@@ -67,8 +67,18 @@ func generate_terrain_grid(terrain_grid_size: int = grid_size) -> void:
 	var grid_terrains: Array[Terrain] = []
 	
 	for index: int in terrain_grid_size:
-		var new_terrain: Terrain = Terrain.new()
-		new_terrain.configuration = _pick_weighted_grid_terrain_configuration(grid_terrain_configurations)
+		var selected_configuration: TerrainConfiguration = _pick_weighted_grid_terrain_configuration(grid_terrain_configurations)
+		var new_terrain: Terrain
+		
+		if selected_configuration is TerrainNoiseConfiguration:
+			new_terrain = TerrainNoise.new()
+		elif selected_configuration is TerrainNoiseTextureConfiguration:
+			new_terrain = TerrainNoiseTexture.new()
+		elif selected_configuration is TerrainHeightmapConfiguration:
+			new_terrain = TerrainHeightmap.new()
+		
+		new_terrain.configuration = selected_configuration
+			
 		grid_terrains.append(new_terrain)
 		grid_spawn_node.add_child(new_terrain)
 		new_terrain.position = Vector3.ZERO
@@ -89,21 +99,22 @@ func generate_terrain_grid(terrain_grid_size: int = grid_size) -> void:
 			var count: int = 1
 			
 			while not to_expand.is_empty() and count < terrain_grid_size and available_terrains.size() > 0:
-				var current: Terrain = to_expand.pop_front()
+				var current_terrain: Terrain = to_expand.pop_front()
 				
 				for direction: Vector3 in grid_directions:
-					if current.neighbours[direction] != null:
+					if current_terrain.neighbours[direction] != null:
 						continue  
 					
 					if available_terrains.is_empty():
 						break
 					
 					var next_terrain: Terrain = available_terrains.pop_front()
-					var result: bool = current.assign_neighbour(next_terrain, direction)
+					var result: bool = current_terrain.assign_neighbour(next_terrain, direction)
 					
 					if result:
 						count += 1
-						call_deferred("generate_side_terrain", current, next_terrain, direction)
+						call_deferred("generate_side_terrain", current_terrain, next_terrain, direction)
+						
 						to_expand.append(next_terrain)
 						placed_terrains.append(next_terrain)
 						
@@ -337,14 +348,15 @@ func on_terrain_surfaces_finished(terrain_surfaces: Dictionary[Terrain, SurfaceT
 		terrain.add_to_group(nav_source_group_name)
 		
 		if terrain.configuration.generate_mirror:
-			var terrain_mirror: Terrain = TerrainyCore.create_mirrored_terrain(terrain)
+			var mirror_terrain: Terrain = TerrainyCore.create_mirrored_terrain(terrain)
+			terrain.call_thread_safe("add_mirror_terrain", mirror_terrain)
 			
-			if terrain_mirror:
-				terrain.call_thread_safe("add_child", terrain_mirror)
-				call_thread_safe("_set_owner_to_edited_scene_root", terrain_mirror)
+			if mirror_terrain:
+				terrain.call_thread_safe("add_child", mirror_terrain)
+				call_thread_safe("_set_owner_to_edited_scene_root", mirror_terrain)
 				terrain.mirror.global_transform = terrain.global_transform
 				
-				generate_collisions(terrain.configuration.mirror_collision_type, terrain_mirror)
+				generate_collisions(terrain.configuration.mirror_collision_type, mirror_terrain)
 				
 		generate_collisions(terrain.configuration.collision_type, terrain)
 		

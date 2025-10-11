@@ -48,6 +48,8 @@ const GroupName: StringName = &"player"
 var motion_input: OmniKitMotionInput =  OmniKitMotionInput.new(self)
 var was_grounded: bool = false
 var is_grounded: bool = false
+var on_wall_only: bool = false
+var last_wall_normal: Vector3 = Vector3.ZERO
 
 
 func _enter_tree() -> void:
@@ -72,6 +74,10 @@ func _process(_delta: float) -> void:
 func _physics_process(_delta: float) -> void:
 	was_grounded = is_grounded
 	is_grounded = is_on_floor()
+	on_wall_only = is_on_wall_only()
+	
+	if on_wall_only:
+		last_wall_normal = get_wall_normal()
 
 
 func get_ground_speed() -> float:
@@ -99,6 +105,18 @@ func is_aiming() -> bool:
 		return weapon_left_hand.is_aiming()
 	else:
 		return false
+
+
+func can_wall_jump() -> bool:
+	if not wall_jump or not on_wall_only or last_wall_normal.is_zero_approx():
+		return false
+		
+	var camera_direction: Vector3 = camera_controller.camera.global_basis.z
+	
+	if last_wall_normal.dot(camera_direction) < 0:
+		return false
+
+	return true
 
 
 func on_motion_state_changed(_from: MachineState, next: MachineState) -> void:

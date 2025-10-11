@@ -58,10 +58,15 @@ func limit_fall_velocity() -> void:
 	else:
 		actor.velocity.x = max(sign(up_direction_opposite.x) * maximum_fall_velocity, actor.velocity.x)
 
-	
+
 func detect_jump() -> void:
 	if actor.jump and OmniKitInputHelper.action_just_pressed_and_exists(InputControls.JumpAction):
 		FSM.change_state_to(JumpState)
+
+
+func detect_wall_jump() -> void:
+	if actor.can_wall_jump() and OmniKitInputHelper.action_just_pressed_and_exists(InputControls.JumpAction):
+		FSM.change_state_to(WallJumpState)
 
 
 func detect_dash() -> void:

@@ -94,7 +94,7 @@ func physics_update(delta: float):
 		
 			
 	detect_fall_after_jump()
-	#detect_wall_jump()
+	detect_wall_jump()
 	#detect_wall_run()
 	
 	actor.move_and_slide()

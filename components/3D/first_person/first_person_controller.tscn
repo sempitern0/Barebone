@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://b54rkfq2731tb"]
+[gd_scene load_steps=37 format=3 uid="uid://b54rkfq2731tb"]
 
 [ext_resource type="Script" uid="uid://c2myvf0kfimbs" path="res://components/3D/first_person/first_person_controller.gd" id="1_64dg2"]
 [ext_resource type="Script" uid="uid://dhxxp8vvdnsqi" path="res://components/3D/first_person/motion/camera/camera_controller.gd" id="2_0rpms"]
@@ -18,6 +18,7 @@
 [ext_resource type="Script" uid="uid://bvsnhh2ootmeu" path="res://components/3D/first_person/motion/states/air/jump.gd" id="10_dwvxt"]
 [ext_resource type="Script" uid="uid://u0pkhqu3tipt" path="res://components/3D/first_person/motion/states/ground/slide.gd" id="10_e71sw"]
 [ext_resource type="Script" uid="uid://b3kinis3rjh3m" path="res://components/3D/first_person/hands/weapons/weapon_manager.gd" id="13_jvaen"]
+[ext_resource type="Script" uid="uid://fiehcpqmuwnq" path="res://components/3D/first_person/motion/states/air/wall_jump.gd" id="14_5qxob"]
 [ext_resource type="Script" uid="uid://mne6ofy5lpot" path="res://components/3D/interactions/interactors/raycast_interactor_3d.gd" id="15_gtlb3"]
 [ext_resource type="Script" uid="uid://b63tdtxlovti1" path="res://components/3D/first_person/motion/effects/fall_kick.gd" id="15_npdei"]
 [ext_resource type="Script" uid="uid://babg67rjb1v43" path="res://components/3D/first_person/motion/effects/damage_kick.gd" id="16_8a3fm"]
@@ -152,12 +153,11 @@ actor = NodePath("../../..")
 [node name="JumpState" type="Node" parent="MotionStateMachine/Air" node_paths=PackedStringArray("actor")]
 script = ExtResource("10_dwvxt")
 actor = NodePath("../../..")
-gravity_force = null
-air_speed = null
-air_side_speed = null
-air_acceleration = null
-air_friction = null
-maximum_fall_velocity = null
+
+[node name="WallJumpState" type="Node" parent="MotionStateMachine/Air" node_paths=PackedStringArray("actor")]
+script = ExtResource("14_5qxob")
+actor = NodePath("../../..")
+metadata/_custom_type_script = "uid://fiehcpqmuwnq"
 
 [node name="WeaponManager" type="Node" parent="." node_paths=PackedStringArray("actor", "camera_controller", "camera_recoil_node", "right_hand", "left_hand")]
 script = ExtResource("13_jvaen")
