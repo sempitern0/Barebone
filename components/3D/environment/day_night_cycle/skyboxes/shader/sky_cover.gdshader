@@ -21,6 +21,7 @@ uniform vec2 wind_offset_direction = vec2(0.5, 0.1); // Control direction of off
 uniform float wind_speed : hint_range(0.0, 25.0) = 1.0; // Speed of the noise movement over time
 
 // Cloud change settings
+uniform bool clouds_density = true; // Volumetric clouds
 uniform bool clouds_change = true; // Whether to change the cloud layer or not
 uniform float cloud_change_rate : hint_range(0.0, 5.0) = .40; // Rate at which the cloud effect changes
 
@@ -103,6 +104,15 @@ void sky() {
     // Blend between the original and flipped noise using cloud_blend_factor
     vec4 blended_noise_texture = mix(sky_cover_texture, flipped_noise, cloud_blend_factor);
 
+	if (clouds_density) {
+		float cloud_density = smoothstep(0.4, 0.8, blended_noise_texture.r);
+		float height_fade = clamp(1.0 - pow(EYEDIR.y, 4.0), 0.0, 1.0);
+		float final_density = cloud_density * height_fade;
+		vec3 modulated_cloud_color = mix(sky_cover_modulate.rgb, sky, 1.0 - final_density);
+		vec3 cloud_color = mix(sky, modulated_cloud_color, final_density);
+		sky = mix(sky, cloud_color, final_density * 0.5) * sky_cover_modulate.a;
+	}
+
     // Pole blending
     float base_pole_blend_factor = abs(EYEDIR.y);  // Original blend factor (circular)
     float noise_pole_blend = blended_noise_texture.r * pole_blend_shape;
@@ -120,13 +130,15 @@ void sky() {
     // Blend noise with brightness value based on the combined factor
     vec3 blended_noise = mix(blended_noise_texture.rgb, vec3(pole_blend_brightness), pole_blend_factor);
     blended_noise = mix(blended_noise, vec3(horizon_blend_brightness), horizon_blend_factor);
-
-    sky += (blended_noise * sky_cover_modulate.rgb) * blended_noise_texture.a * sky_cover_modulate.a * sky_energy;
+	sky += (blended_noise * sky_cover_modulate.rgb) * blended_noise_texture.a * sky_cover_modulate.a * sky_energy;
 
     // Ground blending
     c = (v_angle - (PI * 0.5)) / (PI * 0.5);
     vec3 ground = mix(ground_horizon_color.rgb, ground_bottom_color.rgb, clamp(1.0 - pow(1.0 - c, 1.0 / ground_curve), 0.0, 1.0));
     ground *= ground_energy;
 
-    COLOR = mix(ground, sky, step(0.0, EYEDIR.y)) * exposure;
+	// Uncomment for flat horizon blend
+    //COLOR = mix(ground, sky, step(0.0, EYEDIR.y)) * exposure;
+	float horizon_blend = smoothstep(-0.05, 0.1, EYEDIR.y);
+	COLOR = mix(ground, sky, horizon_blend) * exposure;
 }

@@ -5,23 +5,24 @@
 
 [resource]
 shader = ExtResource("1_gb1mi")
-shader_parameter/sky_top_color = Color(0.44567576, 0.63438946, 0.8288608, 1)
-shader_parameter/sky_horizon_color = Color(0.90482175, 0.7928844, 0.56296724, 1)
+shader_parameter/sky_top_color = Color(0.16797385, 0.043137252, 0.07091503, 1)
+shader_parameter/sky_horizon_color = Color(0.3702615, 0.14313728, 0.061764713, 1)
 shader_parameter/sky_curve = 0.15
 shader_parameter/sky_energy = 1.0
 shader_parameter/sky_cover = ExtResource("2_djdn3")
-shader_parameter/sky_cover_modulate = Color(0.87562615, 0.87562615, 0.87562615, 1)
-shader_parameter/ground_bottom_color = Color(0.1487849, 0.111523524, 0.09534234, 1)
-shader_parameter/ground_horizon_color = Color(0.6482707, 0.5336728, 0.40546018, 1)
+shader_parameter/sky_cover_modulate = Color(0.8611111, 0.8738562, 0.9091503, 1)
+shader_parameter/ground_bottom_color = Color(0.16993468, 0.060457524, 0.023202617, 1)
+shader_parameter/ground_horizon_color = Color(0.35915038, 0.09738563, 0.04313726, 1)
 shader_parameter/ground_curve = 0.02
 shader_parameter/ground_energy = 1.0
 shader_parameter/sun_angle_max = 0.5
 shader_parameter/sun_curve = 0.15
 shader_parameter/exposure = 1.0
 shader_parameter/wind_offset_direction = Vector2(0.5, 0.1)
-shader_parameter/wind_speed = 0.0
+shader_parameter/wind_speed = 0.050000002375
+shader_parameter/clouds_density = true
 shader_parameter/clouds_change = true
-shader_parameter/cloud_change_rate = 0.4
+shader_parameter/cloud_change_rate = 0.150000007125
 shader_parameter/pole_blend_shape = 0.05
 shader_parameter/pole_blend_strength = 0.05
 shader_parameter/pole_blend_brightness = 0.3
