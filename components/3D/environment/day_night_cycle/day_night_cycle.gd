@@ -201,11 +201,16 @@ func update_sun(hour: int = current_hour, minute: int = current_minute) -> void:
 		
 		if sun_gradient:
 			sun.light_color = sun_gradient.sample(current_time / HoursPerDay)
-		
+					
 		## We increase here the maximum hour to extend the visibility of the sun in the horizon
 		## With default values, the sunset happens more or less at 18:30, just increase the maximum hour
 		## to extend the sun visibility during the day (25.0 instead of 23.59)
-		sun.rotation_degrees.x = (current_time / 25.0) * 360.0 + 90.0
+		var sun_angle: float = (current_time / 25.0) * 360.0 + 90.0
+		sun.rotation_degrees.x = sun_angle
+		
+		## Optimization to not render dynamic shadows when the sun is not in the screen
+		var normalized_angle: float = fmod(sun_angle, 360.0)
+		sun.shadow_enabled = normalized_angle > 169.0 and normalized_angle < 360.0
 
 
 func update_sky(hour: int = current_hour, minute: int = current_minute) -> void:
@@ -254,6 +259,7 @@ func update_day_zone(hour: int = current_hour) -> void:
 	elif not is_night() and hour >= night_hour and hour <= 23:
 		current_day_zone = DayZone.Night
 		changed_day_zone.emit(DayZone.Dusk, DayZone.Night)
+
 
 func is_dawn() -> bool:
 	return current_day_zone == DayZone.Dawn;
