@@ -12,19 +12,23 @@ uniform vec4 ground_bottom_color : source_color = vec4(0.2, 0.169, 0.133, 1.0);
 uniform vec4 ground_horizon_color : source_color = vec4(0.646, 0.656, 0.67, 1.0);
 uniform float ground_curve : hint_range(0, 1) = 0.02;
 uniform float ground_energy = 1.0;
+
+group_uniforms Sun;
 uniform float sun_angle_max = 30.0;
 uniform float sun_curve : hint_range(0, 1) = 0.15;
 uniform float exposure : hint_range(0, 128) = 1.0;
 
+group_uniforms Wind;
 // Wind offset direction (x and y only)
 uniform vec2 wind_offset_direction = vec2(0.5, 0.1); // Control direction of offset (x, y)
 uniform float wind_speed : hint_range(0.0, 25.0) = 1.0; // Speed of the noise movement over time
 
-// Cloud change settings
+group_uniforms Clouds;
 uniform bool clouds_density = true; // Volumetric clouds
 uniform bool clouds_change = true; // Whether to change the cloud layer or not
 uniform float cloud_change_rate : hint_range(0.0, 5.0) = .40; // Rate at which the cloud effect changes
 
+group_uniforms Blending;
 // Pole blending parameters
 uniform float pole_blend_shape : hint_range(0.0, 2.0) = 0.05; // How much the noise affects the blend shape
 uniform float pole_blend_strength : hint_range(0, 1) = 0.05; // Control blending intensity at poles

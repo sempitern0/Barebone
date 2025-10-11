@@ -5,14 +5,14 @@
 
 [resource]
 shader = ExtResource("1_gb1mi")
-shader_parameter/sky_top_color = Color(0.0313726, 0.054902, 0.109804, 1)
-shader_parameter/sky_horizon_color = Color(0.0196078, 0.0352941, 0.0705882, 1)
+shader_parameter/sky_top_color = Color(0.13035631, 0.18782368, 0.33322528, 1)
+shader_parameter/sky_horizon_color = Color(0.19263908, 0.18738571, 0.19139731, 1)
 shader_parameter/sky_curve = 0.15
 shader_parameter/sky_energy = 1.0
 shader_parameter/sky_cover = ExtResource("2_djdn3")
-shader_parameter/sky_cover_modulate = Color(0.6607816, 0.6607816, 0.6867382, 1)
-shader_parameter/ground_bottom_color = Color(0.039952785, 0.043389834, 0.07267524, 1)
-shader_parameter/ground_horizon_color = Color(0.0588235, 0.0823529, 0.137255, 1)
+shader_parameter/sky_cover_modulate = Color(0.7304471, 0.7304471, 0.75886005, 1)
+shader_parameter/ground_bottom_color = Color(0.02296857, 0.030587435, 0.061062608, 1)
+shader_parameter/ground_horizon_color = Color(0.115094796, 0.11799843, 0.14153597, 1)
 shader_parameter/ground_curve = 0.02
 shader_parameter/ground_energy = 1.0
 shader_parameter/sun_angle_max = 0.5
@@ -30,7 +30,7 @@ shader_parameter/horizon_blend_shape = 0.05
 shader_parameter/horizon_blend_strength = 0.05
 shader_parameter/horizon_blend_brightness = 0.3
 shader_parameter/horizon_blend_width = 0.1
-shader_parameter/stars = true
+shader_parameter/stars = false
 shader_parameter/star_density = 0.01
 shader_parameter/star_size_randomness = 1.0
 shader_parameter/star_brightness = 1.5
