@@ -25,7 +25,7 @@ func enter() -> void:
 	
 	last_state = FSM.last_state()
 	base_speed = _calculate_base_speed(last_state)
-	
+
 	dash()
 	
 	
@@ -36,13 +36,14 @@ func exit(next: MachineState) -> void:
 	
 	if dash_timer.time_left > 0:
 		dash_timer.stop()
-	
+
 	
 func physics_update(delta: float) -> void:
-	super.physics_update(delta)
-	
+	if not actor.is_grounded:
+		apply_gravity(gravity_force, delta)
+
 	if last_state is GroundState:
-		#detect_slide()
+		detect_slide()
 		detect_jump()
 	
 	if current_dash < dash_times:
@@ -56,7 +57,6 @@ func physics_update(delta: float) -> void:
 func dash() -> void:
 	if is_instance_valid(dash_timer):
 		dash_timer.start(dash_time)
-	
 	
 	if last_state is GroundState:
 		base_speed = last_state.speed
@@ -82,7 +82,11 @@ func _calculate_base_speed(from_state: MachineState) -> float:
 
 
 func on_dash_timer_timeout() -> void:
-	if last_state is GroundState:
-		FSM.change_state_to(WalkState)
-	elif last_state is AirState:
+	if not actor.is_grounded:
 		FSM.change_state_to(FallState)
+		
+	elif actor.is_grounded:
+		if actor.motion_input.input_direction.is_zero_approx():
+			FSM.change_state_to(IdleState)
+		else:
+			FSM.change_state_to(WalkState)

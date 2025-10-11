@@ -139,6 +139,7 @@ actor = NodePath("../../..")
 [node name="DashState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
 script = ExtResource("9_baian")
 actor = NodePath("../../..")
+gravity_force = 0.1
 
 [node name="SlideState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
 script = ExtResource("10_e71sw")
