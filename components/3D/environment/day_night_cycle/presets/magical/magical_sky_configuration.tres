@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DayNightCycleSkyConfiguration" load_steps=8 format=3 uid="uid://bf6cfeyk1qfye"]
+
+[ext_resource type="Gradient" uid="uid://wiyxlcbeb8oc" path="res://components/3D/environment/day_night_cycle/presets/magical/resources/magical_sky_clouds_color_gradient.tres" id="1_r23vl"]
+[ext_resource type="Gradient" uid="uid://cxsxe8rorcy3n" path="res://components/3D/environment/day_night_cycle/presets/magical/resources/magical_sky_ground_bottom_color.tres" id="2_r3vvu"]
+[ext_resource type="Gradient" uid="uid://dgv8316uj58nd" path="res://components/3D/environment/day_night_cycle/presets/magical/resources/magical_sky_ground_horizon_color.tres" id="3_1agi5"]
+[ext_resource type="Gradient" uid="uid://caxs3wi6wgva5" path="res://components/3D/environment/day_night_cycle/presets/magical/resources/magical_sky_horizon_color_gradient.tres" id="4_1qfmm"]
+[ext_resource type="Curve" uid="uid://dgpoek8vd3dnk" path="res://components/3D/environment/day_night_cycle/presets/magical/resources/magical_sky_light_intensity.tres" id="5_kkopi"]
+[ext_resource type="Script" uid="uid://c0vum3se80tr1" path="res://components/3D/environment/day_night_cycle/configurations/sky_configuration.gd" id="6_cce02"]
+[ext_resource type="Gradient" uid="uid://wmk70sj0igb6" path="res://components/3D/environment/day_night_cycle/presets/magical/resources/magical_sky_top_color_gradient.tres" id="7_kl378"]
+
+[resource]
+script = ExtResource("6_cce02")
+light_intensity = ExtResource("5_kkopi")
+top_color_gradient = ExtResource("7_kl378")
+horizon_color_gradient = ExtResource("4_1qfmm")
+ground_horizon_color_gradient = ExtResource("3_1agi5")
+ground_bottom_color_gradient = ExtResource("2_r3vvu")
+clouds_color_gradient = ExtResource("1_r23vl")
+metadata/_custom_type_script = "uid://c0vum3se80tr1"

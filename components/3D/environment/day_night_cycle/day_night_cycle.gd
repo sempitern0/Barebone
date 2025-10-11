@@ -14,6 +14,8 @@ const MinutesPerHour: float = 60.0
 		set_process(enabled)
 @export var world_environment: WorldEnvironment
 @export var sun: DirectionalLight3D
+@export var sun_configuration: DayNightCycleSunConfiguration
+@export var sky_configuration: DayNightCycleSkyConfiguration
 @export_category("Time")
 ## Translated seconds into real life minute. This means that each 5 seconds a minute pass in the game.
 @export var real_life_seconds_to_game_minute: float = 5.0:
@@ -45,18 +47,6 @@ const MinutesPerHour: float = 60.0
 @export_range(0, 23, 1) var day_hour: int = 12
 @export_range(0, 23, 1) var dusk_hour: int = 18
 @export_range(0, 23, 1) var night_hour: int = 21
-@export_category("Sun")
-## Curve where "x" value is the hour of the day and "Y" the sun light energy
-@export var sun_intensity: Curve
-## Gradient 
-@export var sun_gradient: Gradient
-@export_category("Sky")
-@export var sky_light_intensity: Curve
-@export var sky_top_color_gradient: Gradient
-@export var sky_horizon_color_gradient: Gradient 
-@export var sky_ground_horizon_color_gradient: Gradient
-@export var sky_ground_bottom_color_gradient: Gradient
-@export var sky_clouds_color_gradient: Gradient
 
 enum DayZone {
 	Dawn,
@@ -196,11 +186,9 @@ func update_sun(hour: int = current_hour, minute: int = current_minute) -> void:
 	if sun:
 		var current_time: float = hour + (minute / MinutesPerHour)
 		
-		if sun_intensity:
-			sun.light_energy = sun_intensity.sample(current_time)
-		
-		if sun_gradient:
-			sun.light_color = sun_gradient.sample(current_time / HoursPerDay)
+		if sun_configuration:
+			sun.light_energy = sun_configuration.intensity.sample(current_time)
+			sun.light_color = sun_configuration.color_gradient.sample(current_time / HoursPerDay)
 					
 		## We increase here the maximum hour to extend the visibility of the sun in the horizon
 		## With default values, the sunset happens more or less at 18:30, just increase the maximum hour
@@ -224,23 +212,14 @@ func update_sky(hour: int = current_hour, minute: int = current_minute) -> void:
 				var current_time: float = hour + (minute / MinutesPerHour)
 				var time_sample: float =  current_time / HoursPerDay
 				
-				if sky_light_intensity:
-					world_environment.environment.background_energy_multiplier = sky_light_intensity.sample(current_time)
+				if sky_configuration:
+					world_environment.environment.background_energy_multiplier = sky_configuration.light_intensity.sample(current_time)
 				
-				if sky_top_color_gradient:
-					sky_material.set_shader_parameter("sky_top_color", sky_top_color_gradient.sample(time_sample))
-				
-				if sky_horizon_color_gradient:
-					sky_material.set_shader_parameter("sky_horizon_color", sky_horizon_color_gradient.sample(time_sample))
-				
-				if sky_ground_horizon_color_gradient:
-					sky_material.set_shader_parameter("ground_horizon_color", sky_ground_horizon_color_gradient.sample(time_sample))
-
-				if sky_ground_bottom_color_gradient:
-					sky_material.set_shader_parameter("ground_bottom_color", sky_ground_bottom_color_gradient.sample(time_sample))
-			
-				if sky_clouds_color_gradient:
-					sky_material.set_shader_parameter("sky_cover_modulate", sky_clouds_color_gradient.sample(time_sample))
+					sky_material.set_shader_parameter("sky_top_color", sky_configuration.top_color_gradient.sample(time_sample))
+					sky_material.set_shader_parameter("sky_horizon_color", sky_configuration.horizon_color_gradient.sample(time_sample))
+					sky_material.set_shader_parameter("ground_horizon_color", sky_configuration.ground_horizon_color_gradient.sample(time_sample))
+					sky_material.set_shader_parameter("ground_bottom_color", sky_configuration.ground_bottom_color_gradient.sample(time_sample))
+					sky_material.set_shader_parameter("sky_cover_modulate", sky_configuration.clouds_color_gradient.sample(time_sample))
 			
 		
 func update_day_zone(hour: int = current_hour) -> void:

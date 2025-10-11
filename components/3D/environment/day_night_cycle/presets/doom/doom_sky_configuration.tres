@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DayNightCycleSkyConfiguration" load_steps=8 format=3 uid="uid://dc8lpq1ypcoms"]
+
+[ext_resource type="Gradient" uid="uid://ca2h0riulgyf5" path="res://components/3D/environment/day_night_cycle/presets/doom/resources/doom_sky_clouds_color_gradient.tres" id="1_g1vvd"]
+[ext_resource type="Gradient" uid="uid://b05awyvgvcv8p" path="res://components/3D/environment/day_night_cycle/presets/doom/resources/doom_sky_ground_bottom_color.tres" id="2_pmsk8"]
+[ext_resource type="Gradient" uid="uid://dtd2olk7tr4xr" path="res://components/3D/environment/day_night_cycle/presets/doom/resources/doom_sky_ground_horizon_color.tres" id="3_m23b2"]
+[ext_resource type="Gradient" uid="uid://bxq6pic31alxx" path="res://components/3D/environment/day_night_cycle/presets/doom/resources/doom_sky_horizon_color_gradient.tres" id="4_vtkka"]
+[ext_resource type="Curve" uid="uid://da8r5sqw0kiv4" path="res://components/3D/environment/day_night_cycle/presets/doom/resources/doom_sky_light_intensity.tres" id="5_12rav"]
+[ext_resource type="Script" uid="uid://c0vum3se80tr1" path="res://components/3D/environment/day_night_cycle/configurations/sky_configuration.gd" id="6_00fq7"]
+[ext_resource type="Gradient" uid="uid://da7117qbqbl47" path="res://components/3D/environment/day_night_cycle/presets/doom/resources/doom_sky_top_color_gradient.tres" id="7_j52n8"]
+
+[resource]
+script = ExtResource("6_00fq7")
+light_intensity = ExtResource("5_12rav")
+top_color_gradient = ExtResource("7_j52n8")
+horizon_color_gradient = ExtResource("4_vtkka")
+ground_horizon_color_gradient = ExtResource("3_m23b2")
+ground_bottom_color_gradient = ExtResource("2_pmsk8")
+clouds_color_gradient = ExtResource("1_g1vvd")
+metadata/_custom_type_script = "uid://c0vum3se80tr1"

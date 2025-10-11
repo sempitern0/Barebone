@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="DayNightCycleSkyConfiguration" load_steps=7 format=3 uid="uid://ujmev658eph4"]
+
+[ext_resource type="Gradient" uid="uid://xrloc8770pny" path="res://components/3D/environment/day_night_cycle/presets/cursed/resources/cursed_sky_clouds_color_gradient.tres" id="1_4igjr"]
+[ext_resource type="Script" uid="uid://c0vum3se80tr1" path="res://components/3D/environment/day_night_cycle/configurations/sky_configuration.gd" id="1_j6ryp"]
+[ext_resource type="Curve" uid="uid://dr3puihgefjt8" path="res://components/3D/environment/day_night_cycle/presets/cursed/resources/cursed_sky_light_intensity.tres" id="2_g6of8"]
+[ext_resource type="Gradient" uid="uid://ceuvsqvm0a6s8" path="res://components/3D/environment/day_night_cycle/presets/cursed/resources/cursed_sky_ground_bottom_color.tres" id="2_thma7"]
+[ext_resource type="Gradient" uid="uid://bmpowkyajeek6" path="res://components/3D/environment/day_night_cycle/presets/cursed/resources/cursed_sky_horizon_color_gradient.tres" id="3_3bwtq"]
+[ext_resource type="Gradient" uid="uid://cbtguym7xqivw" path="res://components/3D/environment/day_night_cycle/presets/cursed/resources/cursed_sky_top_color_gradient.tres" id="6_3e0wm"]
+
+[resource]
+script = ExtResource("1_j6ryp")
+light_intensity = ExtResource("2_g6of8")
+top_color_gradient = ExtResource("6_3e0wm")
+horizon_color_gradient = ExtResource("3_3bwtq")
+ground_horizon_color_gradient = ExtResource("3_3bwtq")
+ground_bottom_color_gradient = ExtResource("2_thma7")
+clouds_color_gradient = ExtResource("1_4igjr")
+metadata/_custom_type_script = "uid://c0vum3se80tr1"

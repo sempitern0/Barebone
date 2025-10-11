@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="DayNightCycleSkyConfiguration" load_steps=8 format=3 uid="uid://4j2os0pt3ef3"]
+
+[ext_resource type="Gradient" uid="uid://fq8kgdon4txl" path="res://components/3D/environment/day_night_cycle/presets/stormy/resources/stormy_sky_clouds_color_gradient.tres" id="1_x7mfp"]
+[ext_resource type="Gradient" uid="uid://bvnjhth3vao07" path="res://components/3D/environment/day_night_cycle/presets/stormy/resources/stormy_sky_ground_bottom_color_gradient.tres" id="2_f7bth"]
+[ext_resource type="Gradient" uid="uid://b28tdjcgjf0c0" path="res://components/3D/environment/day_night_cycle/presets/stormy/resources/stormy_sky_ground_horizon_color_gradient.tres" id="3_cie1a"]
+[ext_resource type="Gradient" uid="uid://chil16w83sqmb" path="res://components/3D/environment/day_night_cycle/presets/stormy/resources/stormy_sky_horizon_color_gradient.tres" id="4_fahoe"]
+[ext_resource type="Curve" uid="uid://duoaujubh0icu" path="res://components/3D/environment/day_night_cycle/presets/stormy/resources/stormy_sky_light_intensity.tres" id="5_ppcst"]
+[ext_resource type="Script" uid="uid://c0vum3se80tr1" path="res://components/3D/environment/day_night_cycle/configurations/sky_configuration.gd" id="6_1rtau"]
+[ext_resource type="Gradient" uid="uid://cbru80s2pdydw" path="res://components/3D/environment/day_night_cycle/presets/stormy/resources/stormy_sky_top_color_gradient.tres" id="7_bild2"]
+
+[resource]
+script = ExtResource("6_1rtau")
+light_intensity = ExtResource("5_ppcst")
+top_color_gradient = ExtResource("7_bild2")
+horizon_color_gradient = ExtResource("4_fahoe")
+ground_horizon_color_gradient = ExtResource("3_cie1a")
+ground_bottom_color_gradient = ExtResource("2_f7bth")
+clouds_color_gradient = ExtResource("1_x7mfp")
+metadata/_custom_type_script = "uid://c0vum3se80tr1"

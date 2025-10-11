@@ -111,9 +111,7 @@ func can_wall_jump() -> bool:
 	if not wall_jump or not on_wall_only or last_wall_normal.is_zero_approx():
 		return false
 		
-	var camera_direction: Vector3 = camera_controller.camera.global_basis.z
-	
-	if last_wall_normal.dot(camera_direction) < 0:
+	if last_wall_normal.dot(head.global_basis.z) < 0:
 		return false
 
 	return true

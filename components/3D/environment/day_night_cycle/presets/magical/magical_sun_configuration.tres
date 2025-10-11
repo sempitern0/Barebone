@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DayNightCycleSunConfiguration" load_steps=4 format=3 uid="uid://diqvmboesmejf"]
+
+[ext_resource type="Script" uid="uid://dpwdht8emdyip" path="res://components/3D/environment/day_night_cycle/configurations/sun_configuration.gd" id="1_0ut8v"]
+[ext_resource type="Gradient" uid="uid://crcopiu4w1o33" path="res://components/3D/environment/day_night_cycle/presets/magical/resources/magical_sun_gradient.tres" id="1_wu4d5"]
+[ext_resource type="Curve" uid="uid://bo6r8vwofxupm" path="res://components/3D/environment/day_night_cycle/presets/magical/resources/magical_sun_intensity.tres" id="2_fcnm3"]
+
+[resource]
+script = ExtResource("1_0ut8v")
+intensity = ExtResource("2_fcnm3")
+color_gradient = ExtResource("1_wu4d5")
+metadata/_custom_type_script = "uid://dpwdht8emdyip"
