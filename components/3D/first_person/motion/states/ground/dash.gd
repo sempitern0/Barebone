@@ -82,7 +82,7 @@ func _calculate_base_speed(from_state: MachineState) -> float:
 
 
 func on_dash_timer_timeout() -> void:
-	if not actor.is_grounded:
+	if actor.is_falling():
 		FSM.change_state_to(FallState)
 		
 	elif actor.is_grounded:
