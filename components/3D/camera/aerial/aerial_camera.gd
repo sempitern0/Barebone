@@ -5,7 +5,7 @@
 class_name AerialCamera extends Node3D
 
 signal changed_movement_mode(new_mode: MovementMode)
-signal movement_free_started(last_transform: AerialCameraTransform)
+
 
 class AerialCameraTransform:
 	var last_transform: Transform3D
@@ -148,6 +148,8 @@ var target_zoom: float
 func _ready() -> void:
 	if camera == null:
 		camera = OmniKitNodeTraversal.first_node_of_type(self, Camera3D.new())
+	
+	assert(camera != null and camera is Camera3D, "AerialCamera3D: This node needs a Camera3D.")
 	
 	camera_rotation_x.rotation_degrees.x = vertical_rotation_angle
 	
