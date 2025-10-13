@@ -19,6 +19,22 @@ signal changed_movement_mode(new_mode: MovementMode)
 	set(value):
 		vertical_rotation_angle = value
 		camera_rotation_pivot.rotation_degrees.x = vertical_rotation_angle
+@export_range(-180, 180.0, 0.01, "degrees") var min_vertical_rotation_angle: float = -1.0:
+	set(value):
+		min_vertical_rotation_angle = value
+		camera_rotation_pivot.rotation_degrees.x = clampf(
+			camera_rotation_pivot.rotation_degrees.x, 
+			min_vertical_rotation_angle, 
+			max_vertical_rotation_angle
+			)
+@export_range(-180, 180.0, 0.01, "degrees") var max_vertical_rotation_angle: float = -89.0:
+	set(value):
+		max_vertical_rotation_angle = value
+		camera_rotation_pivot.rotation_degrees.x = clampf(
+			camera_rotation_pivot.rotation_degrees.x, 
+			min_vertical_rotation_angle, 
+			max_vertical_rotation_angle
+			)
 
 @export var movement_mode: MovementMode = MovementMode.Free:
 	set(value):
@@ -36,18 +52,25 @@ signal changed_movement_mode(new_mode: MovementMode)
 @export var smooth_rotation_lerp: float = 6.0
 @export_category("Drag")
 @export var smooth_drag: bool = true
+## When enabled, drag speed dynamically scales based on the current zoom level.
+## The camera pans faster when zoomed out and slower when zoomed in.
+@export var zoom_based_drag_speed: bool = true
 @export var smooth_drag_lerp: float = 6.0
 @export var drag_speed: float = 0.03
 @export_category("Edge panning")
-## When enabled, the camera moves when the mouse reachs viewport boundaries
+## Moves the camera when the mouse cursor reaches the viewport borders.
+## Useful for RTS-style navigation.
 @export var edge_panning: bool = true
+## Mouse modes that allow edge panning detection.
 @export var edge_panning_mouse_modes: Array[Input.MouseMode] = [
 	Input.MOUSE_MODE_CONFINED,
 	Input.MOUSE_MODE_CONFINED_HIDDEN,
 	Input.MOUSE_MODE_VISIBLE
 ]
-## An extra margin to detect the viewport boundaries
+
+## Margin (in pixels) from the viewport borders to trigger edge panning.
 @export var edge_size: float = 5.0
+## Movement speed applied while edge panning.
 @export var scroll_speed: float = 0.25
 @export_category("Zoom")
 @export var smooth_zoom: bool = true
@@ -56,8 +79,8 @@ signal changed_movement_mode(new_mode: MovementMode)
 @export var zoom_out_perspective_step: float = 2.0
 @export var min_zoom_position_z: float = 15
 @export var max_zoom_position_z: float = 9.0
-## This curve controls how the camera rotation is modified when zooomin in-out, no curve means
-## the camera rotation is not modified when zooming
+## Optional curve that modifies vertical tilt dynamically as the camera zooms.
+## Leave empty to keep tilt constant during zoom.
 @export var perspective_zoom_curve: Curve
 @export_category("Ortographic zoom")
 @export var zoom_in_ortographic_step: float = 2.5
@@ -67,8 +90,8 @@ signal changed_movement_mode(new_mode: MovementMode)
 
 
 enum MovementMode {
-	Free,
-	Drag
+	Free, ## Responds to input direction (WASD or stick)
+	Drag ## Moves following mouse drag motion
 }
 
 var screen_size: Vector2
@@ -140,7 +163,7 @@ func _ready() -> void:
 	
 	OmniKitInputHelper.show_mouse_cursor()
 	camera_rotation_pivot.rotation_degrees.x = vertical_rotation_angle
-	
+
 	screen_size = OmniKitWindowManager.screen_size()
 	screen_ratio = OmniKitWindowManager.screen_ratio()
 	
@@ -195,6 +218,11 @@ func _process(delta: float) -> void:
 				perspective_zoom_curve.sample(camera_zoom_pivot.position.z), 
 				delta * smooth_zoom_lerp
 				)
+			
+			camera_rotation_pivot.rotation_degrees.x = clampf(
+				camera_rotation_pivot.rotation_degrees.x, 
+				max_vertical_rotation_angle, 
+				min_vertical_rotation_angle)
 
 
 func camera_movement(direction: Vector2, delta: float = get_process_delta_time()) -> void:
@@ -214,8 +242,14 @@ func drag_camera_movement(mouse_relative: Vector2) -> void:
 	right_vector =  Basis(Vector3.UP, camera_rotation_pivot.global_rotation.y).x
 	forward_vector = Vector3(offset.x, 0, offset.z).normalized()
 	
-	target_position += right_vector * -mouse_relative.x * drag_speed \
-		+ forward_vector * -mouse_relative.y * drag_speed / screen_ratio;
+	if zoom_based_drag_speed:
+		var zoom_factor: float = remap(camera_zoom_pivot.position.z, max_zoom_position_z, min_zoom_position_z, 0.5, 1.5)
+		
+		target_position += right_vector * -mouse_relative.x * (drag_speed * zoom_factor) \
+			+ forward_vector * -mouse_relative.y * (drag_speed * zoom_factor) / screen_ratio;
+	else:
+		target_position += right_vector * -mouse_relative.x * drag_speed \
+			+ forward_vector * -mouse_relative.y * drag_speed  / screen_ratio;
 
 
 func edge_panning_movement(speed: float = scroll_speed) -> void:
