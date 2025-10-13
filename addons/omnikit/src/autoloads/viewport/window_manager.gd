@@ -31,6 +31,8 @@ const AspectRatio16_9: Vector2i = Vector2i(16,9)
 const AspectRatio16_10: Vector2i = Vector2i(16, 10)
 const AspectRatio21_9: Vector2i = Vector2i(21, 9)
 
+signal size_changed
+
 var resolutions: Dictionary[StringName, Array] = {
 	Resolution_Mobile: [
 		Vector2i(320, 480),  # Older smartphones
@@ -283,4 +285,5 @@ func adapt_parallax_to_vertical_viewport(parallax: Parallax2D, viewport: Rect2 =
 ## This callback center the screen when the display resolution is changed in-game
 func on_size_changed() -> void:
 	center_window_position()
+	size_changed.emit()
 #endregion

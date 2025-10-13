@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://cgq0ys4r8qo7s"]
+
+[ext_resource type="Script" uid="uid://di5v7vyc37ylh" path="res://components/3D/camera/aerial/aerial_camera.gd" id="1_am5dm"]
+
+[node name="AerialCamera" type="Node3D" node_paths=PackedStringArray("camera_rotation_pivot", "camera_zoom_pivot")]
+script = ExtResource("1_am5dm")
+camera_rotation_pivot = NodePath("CameraRotation")
+camera_zoom_pivot = NodePath("CameraRotation/CameraZoom")
+metadata/_custom_type_script = "uid://di5v7vyc37ylh"
+
+[node name="CameraRotation" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.9999999, 0, 0, 0, 0.9999999, 0, 0, 0)
+
+[node name="CameraZoom" type="Node3D" parent="CameraRotation"]

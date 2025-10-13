@@ -1,22 +1,13 @@
 ## This node usually is placed in the center of the scenario we want to move around with panning
 ## and place the camera upwards relative to this node position
-## SETUP: AerialCamera > CameraRotationX (Node3D) > CameraZoomPivot (Node3D, Set the position.y and apply vertical angle here) > Camera3D
+## SETUP: AerialCamera (Only update the position) 
+##                    -> CameraRotation (Node3D, apply desired rotation(xy) here) 
+##						-> CameraZoomPivot(Node3D, Set position.z to manage the camera elevation)
+##						   -> Camera3D (This script never touches the camera transform directly)
 @icon("res://components/3D/camera/aerial/aerial_camera.svg")
 class_name AerialCamera extends Node3D
 
 signal changed_movement_mode(new_mode: MovementMode)
-
-
-class AerialCameraTransform:
-	var last_transform: Transform3D
-	var camera_size: float
-	var camera_fov: float
-	
-	func _init(_transform: Transform3D, _camera_size: float, _camera_fov: float) -> void:
-		last_transform = _transform
-		camera_size = _camera_size
-		camera_fov = _camera_fov
-
 
 @export var camera: Camera3D
 @export var camera_rotation_pivot: Node3D
@@ -35,18 +26,17 @@ class AerialCameraTransform:
 			movement_mode = value
 			set_process(not is_locked)
 			changed_movement_mode.emit(movement_mode)
-
-@export var rotate_button: MouseButton = MOUSE_BUTTON_RIGHT
-@export var drag_button: MouseButton = MOUSE_BUTTON_LEFT
 @export_category("Movement")
 @export var movement_speed: float = 0.3
 @export var smooth_movement: bool = true
 @export var smooth_movement_lerp: float = 8.0
 @export_category("Rotation")
-@export var rotation_speed: float = 0.1
+@export var rotation_speed: float = 5.0
 @export var smooth_rotation: bool = true
 @export var smooth_rotation_lerp: float = 6.0
 @export_category("Drag")
+@export var smooth_drag: bool = true
+@export var smooth_drag_lerp: float = 6.0
 @export var drag_speed: float = 0.03
 @export_category("Edge panning")
 ## When enabled, the camera moves when the mouse reachs viewport boundaries
@@ -60,15 +50,12 @@ class AerialCameraTransform:
 @export var edge_size: float = 5.0
 @export var scroll_speed: float = 0.25
 @export_category("Zoom")
-@export var zoom_in_button: MouseButton = MOUSE_BUTTON_WHEEL_UP
-@export var zoom_out_button: MouseButton = MOUSE_BUTTON_WHEEL_DOWN
 @export var smooth_zoom: bool = true
 @export var smooth_zoom_lerp: float = 6.0
-@export_category("Perspective zoom")
 @export var zoom_in_perspective_step: float = 2.0
 @export var zoom_out_perspective_step: float = 2.0
-@export var min_zoom_position_z: float = -5.0
-@export var max_zoom_position_z: float = 5.0
+@export var min_zoom_position_z: float = 15
+@export var max_zoom_position_z: float = 9.0
 ## This curve controls how the camera rotation is modified when zooomin in-out, no curve means
 ## the camera rotation is not modified when zooming
 @export var perspective_zoom_curve: Curve
@@ -89,6 +76,7 @@ var screen_ratio: float
 var dragging: bool = false
 var rotating: bool = false
 
+## Panning camera drag
 var right_vector: Vector3
 var forward_vector: Vector3
 
@@ -109,20 +97,27 @@ var target_zoom: float
 
 
 func _input(event: InputEvent) -> void:
-	if OmniKitInputHelper.is_mouse_wheel_up_or_down(event):
+	if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomInCamera) or \
+		OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomOutCamera):
+			
 		match camera.projection:
 			Camera3D.ProjectionType.PROJECTION_ORTHOGONAL:
-				target_zoom = camera.size + (zoom_in_ortographic_step * -1.0 if OmniKitInputHelper.is_mouse_wheel_up(event) else zoom_out_ortographic_step * 1.0)
+				if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomInCamera):
+					target_zoom = camera.size + zoom_in_ortographic_step * -1.0 
+					
+				elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomOutCamera):
+					target_zoom = camera.size + zoom_in_ortographic_step * 1.0
+					
 				target_zoom = clampf(target_zoom, min_zoom_size, max_zoom_size)
 				
 				if not smooth_zoom:
 					camera.size = target_zoom
 				
 			Camera3D.ProjectionType.PROJECTION_PERSPECTIVE:
-				if OmniKitInputHelper.is_mouse_wheel_up(event):
+				if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomInCamera):
 					target_zoom -= zoom_in_perspective_step
 					
-				elif OmniKitInputHelper.is_mouse_wheel_down(event):
+				elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomOutCamera):
 					target_zoom += zoom_out_perspective_step
 					
 				target_zoom = clampf(target_zoom, max_zoom_position_z, min_zoom_position_z)
@@ -130,22 +125,14 @@ func _input(event: InputEvent) -> void:
 				if not smooth_zoom:
 					camera_zoom_pivot.position.z = target_zoom
 					
-		#dragging = movement_mode_is_drag() and event.pressed and event.button_index == drag_button
 	
 	if event is InputEventMouseMotion:
-		## pan camera
-		#if dragging:
-			#target_position += transform.basis.x * -event.relative.x * drag_speed \
-				#+ forward_vector * -event.relative.y * drag_speed / screen_ratio;
-		
+		if dragging:
+			drag_camera_movement(event.relative)
+	
 		if rotating:
-			if smooth_rotation:
-				target_rotation += -event.relative.x * (mouse_sensitivity / 1000) * rotation_speed
-			else:
-				camera_rotation_pivot.rotate_y(-event.relative.x * (mouse_sensitivity / 1000) * rotation_speed)
+			rotate_camera(event.relative, rotation_speed, mouse_sensitivity)
 				
-			#update_move_vectors()
-
 
 func _ready() -> void:
 	if camera == null:
@@ -157,9 +144,8 @@ func _ready() -> void:
 	screen_size = OmniKitWindowManager.screen_size()
 	screen_ratio = OmniKitWindowManager.screen_ratio()
 	
-	#update_move_vectors()
-	#set_process(not is_locked)
-	#set_process_input(not is_locked)
+	set_process(not is_locked)
+	set_process_input(not is_locked)
 	
 	target_position = position
 	target_rotation = camera_rotation_pivot.rotation.y
@@ -173,17 +159,25 @@ func _ready() -> void:
 			
 	mouse_sensitivity = SettingsManager.get_accessibility_section(GameSettings.MouseSensivitySetting)
 	SettingsManager.updated_setting_section.connect(on_setting_section_updated)
+	OmniKitWindowManager.size_changed.connect(on_window_size_changed)
 
 
 func _process(delta: float) -> void:
 	rotating = OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateAerialCamera)
+	dragging = movement_mode_is_drag() and OmniKitInputHelper.action_pressed_and_exists(InputControls.DragAerialCamera)
 	
 	if edge_panning and Input.mouse_mode in edge_panning_mouse_modes:
 		edge_panning_movement(scroll_speed)
-			#
+	
 	if movement_mode_is_free():
 		motion_input.update()
 		camera_movement(motion_input.input_direction, delta)
+	
+	elif movement_mode_is_drag():
+		if smooth_drag:
+			position = position.lerp(target_position, delta * smooth_drag_lerp)
+		else:
+			position = target_position
 	
 	if smooth_rotation:
 		camera_rotation_pivot.rotation.y = lerp(camera_rotation_pivot.rotation.y, target_rotation, delta * smooth_rotation_lerp)
@@ -194,9 +188,13 @@ func _process(delta: float) -> void:
 				camera.size = lerp(camera.size, target_zoom, delta * smooth_zoom_lerp)
 			Camera3D.ProjectionType.PROJECTION_PERSPECTIVE:
 				camera_zoom_pivot.position.z = lerpf(camera_zoom_pivot.position.z, target_zoom, delta * smooth_zoom_lerp)
-				
-					#if perspective_zoom_curve:
-						#camera.rotation_degrees.x = lerp(camera.rotation_degrees.x, perspective_zoom_curve.sample(camera.position.z), delta * smooth_zoom_lerp) 
+
+		if perspective_zoom_curve:
+			camera_rotation_pivot.rotation_degrees.x = lerpf(
+				camera_rotation_pivot.rotation_degrees.x,
+				perspective_zoom_curve.sample(camera_zoom_pivot.position.z), 
+				delta * smooth_zoom_lerp
+				)
 
 
 func camera_movement(direction: Vector2, delta: float = get_process_delta_time()) -> void:
@@ -209,7 +207,16 @@ func camera_movement(direction: Vector2, delta: float = get_process_delta_time()
 		position = position.lerp(target_position, delta * smooth_movement_lerp)
 	else:
 		position = target_position
-		
+
+
+func drag_camera_movement(mouse_relative: Vector2) -> void:
+	var offset: Vector3 = camera.global_position - global_position
+	right_vector =  Basis(Vector3.UP, camera_rotation_pivot.global_rotation.y).x
+	forward_vector = Vector3(offset.x, 0, offset.z).normalized()
+	
+	target_position += right_vector * -mouse_relative.x * drag_speed \
+		+ forward_vector * -mouse_relative.y * drag_speed / screen_ratio;
+
 
 func edge_panning_movement(speed: float = scroll_speed) -> void:
 	var mouse_position: Vector2 = get_viewport().get_mouse_position()
@@ -227,20 +234,14 @@ func edge_panning_movement(speed: float = scroll_speed) -> void:
 		
 	var movement_direction: Vector3 = (Basis(Vector3.UP, camera_rotation_pivot.global_rotation.y) * scroll_direction).normalized()
 	target_position += movement_direction * speed
-	
-### We want to have a vector that translates our camera, this is used when the movement is drag
-#func update_move_vectors() -> void:
-	#var offset: Vector3 = camera.global_position - global_position
-	#right_vector = camera.transform.basis.x
-	#forward_vector = Vector3(offset.x, 0, offset.z).normalized()
-#
 
-#func apply_transform(aerial_camera_transform: AerialCameraTransform) -> void:
-	#target_position = to_local(aerial_camera_transform.last_transform.origin)
-	#global_transform = aerial_camera_transform.last_transform
-	#camera.size = aerial_camera_transform.camera_size
-	#camera.fov = aerial_camera_transform.camera_fov
-	#
+
+func rotate_camera(mouse_relative: Vector2, speed: float = rotation_speed, mouse_sens: float = mouse_sensitivity) -> void:
+	if smooth_rotation:
+		target_rotation += -mouse_relative.x * (mouse_sens / 1000) * speed
+	else:
+		camera_rotation_pivot.rotate_y(-mouse_relative.x * (mouse_sens / 1000) * speed)
+	
 
 func lock() -> void:
 	is_locked = true
@@ -262,3 +263,8 @@ func on_setting_section_updated(_section: String, key: String, value: Variant) -
 	match key:
 		GameSettings.MouseSensivitySetting:
 			mouse_sensitivity = value
+
+
+func on_window_size_changed() -> void:
+	screen_size = OmniKitWindowManager.screen_size()
+	screen_ratio = OmniKitWindowManager.screen_ratio()
