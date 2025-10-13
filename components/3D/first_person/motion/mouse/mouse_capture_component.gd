@@ -53,6 +53,8 @@ func _ready() -> void:
 	controller_joystick_sensitivity = SettingsManager.get_accessibility_section(GameSettings.ControllerSensivitySetting)
 	invert_x_axis = SettingsManager.get_accessibility_section(GameSettings.InvertXAxisSetting)
 	invert_y_axis = SettingsManager.get_accessibility_section(GameSettings.InvertYAxisSetting)
+	
+	SettingsManager.updated_setting_section.connect(on_setting_section_updated)
 
 
 func _process(_delta: float) -> void:

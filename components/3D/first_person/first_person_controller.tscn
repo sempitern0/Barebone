@@ -68,7 +68,7 @@ offset_right = 20.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
-metadata/_edit_lock_ = true
+mouse_filter = 2
 
 [node name="Reticle" type="Control" parent="ReticleUI/CenterContainer"]
 layout_mode = 2
