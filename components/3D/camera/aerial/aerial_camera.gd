@@ -13,8 +13,8 @@ signal changed_movement_mode(new_mode: MovementMode)
 @export var camera_rotation_pivot: Node3D
 @export var camera_zoom_pivot: Node3D
 
-## For a true isometric projection use arctan(1/sqrt(2)) = 35.264.
-## This configuration  45-45 rule leads to a dimetric projection.
+## For a true isometric projection use arctan(1 / sqrt(2) ) = 35.264º.
+## The configuration 45º- 45º rule leads to a dimetric projection.
 @export_range(-180, 0, 0.01, "degrees") var vertical_rotation_angle: float = -35.264:
 	set(value):
 		vertical_rotation_angle = value
@@ -126,12 +126,12 @@ func _input(event: InputEvent) -> void:
 		match camera.projection:
 			Camera3D.ProjectionType.PROJECTION_ORTHOGONAL:
 				if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomInCamera):
-					target_zoom = camera.size + zoom_in_ortographic_step * -1.0 
+					target_zoom -= zoom_in_ortographic_step
 					
 				elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomOutCamera):
-					target_zoom = camera.size + zoom_in_ortographic_step * 1.0
+					target_zoom += zoom_in_ortographic_step
 					
-				target_zoom = clampf(target_zoom, min_zoom_size, max_zoom_size)
+				target_zoom = clampf(target_zoom, max_zoom_size, min_zoom_size)
 				
 				if not smooth_zoom:
 					camera.size = target_zoom
