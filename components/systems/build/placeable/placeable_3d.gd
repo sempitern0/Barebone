@@ -29,7 +29,6 @@ signal placement_canceled
 ## When direct_input_rotation is false, this defines the radian rotation per second to apply in the placeable as is frame rate independent.
 @export_range(0.0, 180.0, 0.01, "radians_as_degrees") var rotation_step: float
 @export_category("Materials")
-@export var use_validation_materials: bool = true
 @export var valid_place_material: StandardMaterial3D 
 @export var invalid_place_material: StandardMaterial3D
 
@@ -95,7 +94,6 @@ func _ready() -> void:
 	if target == null:
 		target = self
 		
-		
 	if placing:
 		placement_area.enable()
 	else:
@@ -136,7 +134,7 @@ func handle_drag_motion():
 				var offset_vector = surface_normal.normalized() * placement_offset.y
 				target_position += offset_vector
 			
-			global_position = target_position
+			target.global_position = target_position
 			
 			if snap_enabled:
 				var snapped_position: Vector3 = (target_position - snap_offset).snapped(snap_step) + snap_offset
@@ -144,18 +142,18 @@ func handle_drag_motion():
 				if snap_step.y == 0:
 					snapped_position.y = target_position.y
 					
-				global_position = snapped_position
+				target.global_position = snapped_position
 				
-			global_position += placement_offset
+			target.global_position += placement_offset
 
 
 func handle_rotation(delta: float = get_physics_process_delta_time()) -> void:
 	if can_be_rotated and rotation_step > 0:
 		if OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateLeft):
-			rotation.y += rotation_step * delta
+			target.rotation.y += rotation_step * delta
 				
 		elif OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateRight):
-			rotation.y -= rotation_step * delta
+			target.rotation.y -= rotation_step * delta
 
 
 func world_projected_position() -> OmniKitRaycastResult:
@@ -177,7 +175,7 @@ func world_projected_position() -> OmniKitRaycastResult:
 
 func align_placeable_with_surface_normal(world_projection_result: OmniKitRaycastResult) -> Transform3D:
 	var target_position: Vector3 = world_projection_result.position
-	var xform: Transform3D = global_transform
+	var xform: Transform3D = target.global_transform
 	
 	surface_normal = world_projection_result.normal if world_projection_result.normal else Vector3.UP
 	var angle_to_up: float = surface_normal.angle_to(Vector3.UP)
@@ -200,7 +198,8 @@ func align_placeable_with_surface_normal(world_projection_result: OmniKitRaycast
 	xform.basis = Basis(right, up, -forward).orthonormalized()
 
 	return xform
-	
+
+
 func apply_placement_validation_material(valid: bool = placement_area.placement_is_valid) -> void:
 	if meshes.size():
 		
@@ -229,7 +228,7 @@ func unlock() -> void:
 func _update_collisionables() -> void:
 	excluded_rids.clear()
 	
-	for child: Node in OmniKitNodeTraversal.get_all_children(self):
+	for child: Node in OmniKitNodeTraversal.get_all_children(target):
 		if child is CollisionObject3D:
 			excluded_rids.append(child.get_rid())
 			
@@ -237,7 +236,7 @@ func _update_collisionables() -> void:
 func _update_meshes() -> void:
 	meshes.clear()
 	
-	for child: Node in OmniKitNodeTraversal.get_all_children(self):
+	for child: Node in OmniKitNodeTraversal.get_all_children(target):
 		if child is MeshInstance3D:
 			meshes.append(child)
 
