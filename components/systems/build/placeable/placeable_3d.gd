@@ -16,6 +16,8 @@ signal placement_requested
 @export_category("Placement")
 @export var placement_area: PlacementArea3D
 @export var placement_offset: Vector3 = Vector3.ZERO
+## Value 1 block the axis when placing
+@export var axis_lock: Vector3 = Vector3.ZERO
 @export var align_with_surface_normal: bool = false
 @export var can_be_repositioned: bool = true
 ## Set to zero to have no limit of this placeable in the world

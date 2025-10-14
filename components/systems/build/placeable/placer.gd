@@ -92,6 +92,15 @@ func _handle_placement(placeable: Placeable3D = current_placeable) -> void:
 				var offset_vector = surface_normal.normalized() * placeable.placement_offset.y
 				target_position += offset_vector
 			
+			if placeable.axis_lock.y:
+				target_position.y = 0
+			
+			if placeable.axis_lock.x:
+				target_position.x = 0
+			
+			if placeable.axis_lock.z:
+				target_position.z = 0
+			
 			placeable.target.global_position = target_position
 			
 			if placeable.snap_enabled:
