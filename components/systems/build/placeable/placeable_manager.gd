@@ -49,6 +49,7 @@ func spawn(id: StringName) -> void:
 	
 	placer.cancel_placement()
 	world.add_child(placeable.target)
+	placeable.target.position = placer.world_projected_position().position
 	placer.call_deferred("start_placement", placeable)
 	
 	
