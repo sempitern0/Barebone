@@ -3,6 +3,8 @@ class_name Placer3D extends Node
 signal placed(placeable: Placeable3D, repositioned: bool)
 signal placement_started(placeable: Placeable3D)
 signal placement_canceled(placeable: Placeable3D)
+signal placement_invalid(placeable: Placeable3D)
+
 
 @export var origin_camera: Camera3D
 @export var drag_distance_from_camera: float = 100.0
@@ -25,9 +27,11 @@ var surface_normal: Vector3 = Vector3.UP
 
 
 func _unhandled_input(_event: InputEvent) -> void:
-	if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ConfirmPlacement) \
-		and current_placeable.is_valid():
+	if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ConfirmPlacement):
+		if current_placeable.is_valid():
 			place(current_placeable)
+		else:
+			placement_invalid.emit(current_placeable)
 			
 	elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.CancelPlacement):
 		cancel_placement()
@@ -51,9 +55,7 @@ func _physics_process(delta: float) -> void:
 
 
 func start_placement(placeable: Placeable3D) -> void:
-	if current_placeable:
-		cancel_placement()
-		
+	cancel_placement()
 	current_placeable = placeable
 	current_placeable.placing = true
 
@@ -68,8 +70,9 @@ func cancel_placement() -> void:
 func place(placeable: Placeable3D = current_placeable) -> void:
 	if placeable:
 		placeable.placed.emit() 
-		placed.emit(placeable, placeable.last_transform != null)
-	
+		placed.emit(placeable, not placeable.new)
+		placeable.new = false
+		
 	current_placeable = null
 	
 
@@ -117,7 +120,6 @@ func _handle_smooth_rotation(placeable: Placeable3D = current_placeable, delta: 
 				
 		elif OmniKitInputHelper.action_pressed_and_exists(InputControls.RotateRight):
 			placeable.target.rotation.y -= placeable.rotation_step * delta
-
 
 
 func _align_placeable_with_surface_normal(world_projection_result: OmniKitRaycastResult, placeable: Placeable3D = current_placeable) -> Transform3D:

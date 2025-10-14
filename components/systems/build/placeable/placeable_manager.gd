@@ -13,7 +13,6 @@ signal placement_rejected(placeable: Placeable3D, reason: String)
 #endregion
 
 var available_placeables: Dictionary[StringName, PackedScene] = {
-	&"cubo": preload("uid://bf40rr33g3eat")
 }
 
 var world_placeables: Dictionary[StringName, Array] = {} ## Array[Placeable3D]
@@ -77,7 +76,6 @@ func on_placed_placeable(placeable: Placeable3D, repositioned: bool) -> void:
 		
 		if placeable.can_be_repositioned and not placeable.placement_requested.is_connected(on_replacement_requested.bind(placeable)):
 			placeable.placement_requested.connect(on_replacement_requested.bind(placeable))
-			
 
 func on_replacement_requested(placeable: Placeable3D) -> void:
 	placer.start_placement(placeable)

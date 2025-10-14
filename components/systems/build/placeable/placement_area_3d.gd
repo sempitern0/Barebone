@@ -33,7 +33,12 @@ func _ready() -> void:
 	monitorable = false
 	monitoring = true
 	priority = 1
-	collision_layer = placement_layers
+	
+	if placement_layers == 0:
+		collision_layer |= Globals.placeables_collision_layer
+	else:
+		collision_layer = placement_layers
+		
 	collision_mask = surface_masks
 
 
@@ -42,26 +47,28 @@ func _physics_process(_delta: float) -> void:
 
 
 func is_valid() -> bool:
-	var other_placement_areas: Array[PlacementArea3D] 
-	other_placement_areas.assign(get_overlapping_areas()\
-		.filter(func(area: Area3D): 
-			return area is PlacementArea3D and OmniKitArrayHelper.intersected_elements(stackable_with, area.stackable_with).is_empty()
-			))
-	
-	return other_placement_areas.is_empty() and raycast_position_validators.all(
-		func(raycast: RayCast3D): return raycast and raycast.is_colliding()
-		)
+	if monitoring:
+		var other_placement_areas: Array[PlacementArea3D] 
+		other_placement_areas.assign(get_overlapping_areas()\
+			.filter(func(area: Area3D): 
+				return area is PlacementArea3D and OmniKitArrayHelper.intersected_elements(stackable_with, area.stackable_with).is_empty()
+				))
+		
+		return other_placement_areas.is_empty() and raycast_position_validators.all(
+			func(raycast: RayCast3D): return raycast and raycast.is_colliding()
+			)
+			
+	return false
 
 
 func make_selectable(selectable: bool = true) -> void:
 	if selectable:
 		if not input_event.is_connected(on_input_event):
 			input_event.connect(on_input_event, CONNECT_DEFERRED)
-	
 	else:
 		if input_event.is_connected(on_input_event):
 			input_event.disconnect(on_input_event)
-		
+
 		
 func enable() -> void:
 	call_deferred("set_physics_process", true)
@@ -75,7 +82,7 @@ func disable() -> void:
 	set_deferred("monitoring", false)
 
 
-func on_input_event(_camera: Node, event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
-	if OmniKitInputHelper.is_mouse_left_click(event):
+func on_input_event(_camera: Node, _event: InputEvent, _event_position: Vector3, _normal: Vector3, _shape_idx: int) -> void:
+	if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ConfirmPlacement):
 		get_viewport().set_input_as_handled()
 		selected.emit()

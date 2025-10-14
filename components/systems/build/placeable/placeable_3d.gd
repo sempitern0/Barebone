@@ -40,23 +40,21 @@ signal placement_requested
 var locked: bool = false
 var placing: bool = false:
 	set(value):
-		if locked:
-			return
-			
 		if placing != value:
 			placing = value
 			
 			if placing:
-				placement_started.emit()
+				placement_area.enable()
 			else:
 				remove_placement_validation_material()
+				placement_area.disable()
 				
 			set_physics_process(placing)
 	
-
 var excluded_rids: Array[RID] = []
 var meshes: Array[MeshInstance3D] = []
 var last_transform: Transform3D
+var new: bool = true
 
 
 func _enter_tree() -> void:
@@ -78,8 +76,8 @@ func _ready() -> void:
 	set_physics_process(placing)
 	
 	placement_area.selected.connect(on_placement_area_selected)
-	placement_started.emit(on_placement_started)
-	placement_canceled.emit(on_placement_canceled)
+	placement_started.connect(on_placement_started)
+	placement_canceled.connect(on_placement_canceled)
 	placed.connect(on_placed)
 
 
@@ -135,10 +133,10 @@ func _update_meshes() -> void:
 func on_placement_area_selected() -> void:
 	if can_be_repositioned and not placing and not locked:
 		placement_requested.emit()
-	
-	
+
+
 func on_placed() -> void:
-	last_transform = global_transform
+	last_transform = target.global_transform
 	placing = false
 	
 	if can_be_repositioned:
@@ -153,11 +151,12 @@ func on_placement_started() -> void:
 	
 
 func on_placement_canceled() -> void:
-	placing = false
-	
 	if last_transform:
-		global_transform = last_transform
+		target.global_transform = last_transform
 		await Globals.wait(0.2)
 		placement_area.make_selectable(true)
 	else:
 		target.queue_free()
+	
+	placing = false
+	
