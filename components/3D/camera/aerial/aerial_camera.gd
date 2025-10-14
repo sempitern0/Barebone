@@ -112,6 +112,8 @@ var is_locked: bool = false:
 
 var motion_input: OmniKitMotionInput = OmniKitMotionInput.new()
 var mouse_sensitivity: float = 0.05
+var invert_x_axis: bool = false
+var invert_y_axis: bool = false
 
 ### This values are used for the linear interpolation in the _process
 var target_position: Vector3 
@@ -181,6 +183,9 @@ func _ready() -> void:
 			target_zoom = camera_zoom_pivot.position.z
 			
 	mouse_sensitivity = SettingsManager.get_accessibility_section(GameSettings.MouseSensivitySetting)
+	invert_x_axis = SettingsManager.get_accessibility_section(GameSettings.InvertXAxisSetting)
+	invert_y_axis = SettingsManager.get_accessibility_section(GameSettings.InvertYAxisSetting)
+	
 	SettingsManager.updated_setting_section.connect(on_setting_section_updated)
 	OmniKitWindowManager.size_changed.connect(on_window_size_changed)
 
@@ -238,6 +243,11 @@ func camera_movement(direction: Vector2, delta: float = get_process_delta_time()
 
 
 func drag_camera_movement(mouse_relative: Vector2) -> void:
+	if invert_x_axis:
+		mouse_relative.x = -mouse_relative.x
+	if invert_y_axis:
+		mouse_relative.y = -mouse_relative.y
+		
 	var offset: Vector3 = camera.global_position - global_position
 	right_vector =  Basis(Vector3.UP, camera_rotation_pivot.global_rotation.y).x
 	forward_vector = Vector3(offset.x, 0, offset.z).normalized()
@@ -271,6 +281,11 @@ func edge_panning_movement(speed: float = scroll_speed) -> void:
 
 
 func rotate_camera(mouse_relative: Vector2, speed: float = rotation_speed, mouse_sens: float = mouse_sensitivity) -> void:
+	if invert_x_axis:
+		mouse_relative.x = -mouse_relative.x
+	if invert_y_axis:
+		mouse_relative.y = -mouse_relative.y
+
 	if smooth_rotation:
 		target_rotation += -mouse_relative.x * (mouse_sens / 1000) * speed
 	else:
@@ -293,12 +308,18 @@ func movement_mode_is_drag() -> bool:
 	return movement_mode == MovementMode.Drag
 
 
+func on_window_size_changed() -> void:
+	screen_size = OmniKitWindowManager.screen_size()
+	screen_ratio = OmniKitWindowManager.screen_ratio()
+
+
 func on_setting_section_updated(_section: String, key: String, value: Variant) -> void:
 	match key:
 		GameSettings.MouseSensivitySetting:
 			mouse_sensitivity = value
-
-
-func on_window_size_changed() -> void:
-	screen_size = OmniKitWindowManager.screen_size()
-	screen_ratio = OmniKitWindowManager.screen_ratio()
+		#GameSettings.ControllerSensivitySetting:
+			#controller_joystick_sensitivity = value
+		GameSettings.InvertXAxisSetting:
+			invert_x_axis = value
+		GameSettings.InvertYAxisSetting:
+			invert_y_axis = value
