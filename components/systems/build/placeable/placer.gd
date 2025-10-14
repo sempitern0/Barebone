@@ -78,7 +78,7 @@ func place(placeable: Placeable3D = current_placeable) -> void:
 
 func _handle_placement(placeable: Placeable3D = current_placeable) -> void:
 	if placeable:
-		var world_projection_result: OmniKitRaycastResult = world_projected_position(placeable.excluded_rids)
+		var world_projection_result: OmniKitRaycastResult = world_projected_position(origin_camera, placeable.excluded_rids)
 		surface_normal = world_projection_result.normal if world_projection_result.normal else Vector3.UP
 		
 		if world_projection_result.position:
@@ -149,10 +149,10 @@ func _align_placeable_with_surface_normal(world_projection_result: OmniKitRaycas
 	return xform
 
 
-func world_projected_position(excluded_rids: Array[RID] = []) -> OmniKitRaycastResult:
+func world_projected_position(camera: Camera3D = origin_camera, excluded_rids: Array[RID] = []) -> OmniKitRaycastResult:
 	var mouse_position: Vector2 = get_viewport().get_mouse_position()
 		
-	var world_space: PhysicsDirectSpaceState3D = origin_camera.get_world_3d().direct_space_state
+	var world_space: PhysicsDirectSpaceState3D = camera.get_world_3d().direct_space_state
 	var from: Vector3 = origin_camera.project_ray_origin(mouse_position)
 	var to: Vector3 = origin_camera.project_position(mouse_position, drag_distance_from_camera)
 	
