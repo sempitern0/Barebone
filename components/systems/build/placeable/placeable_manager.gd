@@ -13,7 +13,6 @@ signal placement_rejected(placeable: Placeable3D, reason: String)
 #endregion
 
 var available_placeables: Dictionary[StringName, PackedScene] = {
-	&"cubo": preload("uid://bf40rr33g3eat")
 }
 
 var world_placeables: Dictionary[StringName, Array] = {} ## Array[Placeable3D]
