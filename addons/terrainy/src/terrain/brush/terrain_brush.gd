@@ -15,12 +15,19 @@ class_name TerrainBrush extends Node3D
 @export_range(0.1, 10, 0.1) var brush_strength: float = 1.5
 ## Smooth the painting using the falloff
 @export var use_falloff: bool = true
-@export var brush_texture: Texture2D
-@export var decal: Decal
+@export var brush_texture: Texture2D:
+	set(new_texture):
+		brush_texture = new_texture
+		
+		if visual_brush_decal and is_node_ready():
+			visual_brush_decal.assign_texture(brush_texture)
+			
+@export var visual_brush_decal: VisualBrushDecal
 
 var cached_brush_textures: Dictionary[Texture2D, Dictionary] = {}
 
 enum Modes {
+	Waiting,
 	RaiseTerrain,
 	LowerTerrain
 }
@@ -29,8 +36,6 @@ var painting: bool = false:
 	set(value):
 		if painting != value:
 			painting = value
-			
-			decal.visible = painting
 			
 			if not painting and last_terrain:
 				last_terrain.regenerate_collision()
@@ -67,40 +72,35 @@ func _ready() -> void:
 			"size": brush_texture.get_size()
 		}
 		
-		if decal:
-			decal.texture_albedo = brush_texture
-	
-	decal.visible = painting
+		if visual_brush_decal:
+			visual_brush_decal.assign_texture(brush_texture)
+			visual_brush_decal.show()
 
 
 func _process(_delta: float) -> void:
-	if painting:
 		var result: OmniKitRaycastResult = OmniKitCamera3DHelper.project_raycast_to_mouse(origin_camera, 200.0, Globals.world_collision_layer)
-
+		
 		if result.position and result.collider:
-			decal.show()
-			decal.global_position = result.position
-			decal.adjust_to_normal(result.normal)
-			decal.size = Vector3.ONE * brush_radius * 2.0 # diámetro
-			#decal.texture = brush_texture
-			#decal.fade_after = 0 # mantener fijo
-			
-			match current_mode:
-				Modes.RaiseTerrain:
-					deform_terrain(
-						result.collider.get_parent(), 
-						result.position, 
-						brush_radius, 
-						brush_strength ## Positive strength raise the terrain
-					)
-						
-				Modes.LowerTerrain:
-					deform_terrain(
-						result.collider.get_parent(), 
-						result.position, 
-						brush_radius, 
-						brush_strength * -1.0 ## Negative strength lower the terrain
-					)
+			if visual_brush_decal:
+				visual_brush_decal.display(result.position, result.normal, brush_radius)
+				
+			if painting:
+				match current_mode:
+					Modes.RaiseTerrain:
+						deform_terrain(
+							result.collider.get_parent(), 
+							result.position, 
+							brush_radius, 
+							brush_strength ## Positive strength raise the terrain
+						)
+							
+					Modes.LowerTerrain:
+						deform_terrain(
+							result.collider.get_parent(), 
+							result.position, 
+							brush_radius, 
+							brush_strength * -1.0 ## Negative strength lower the terrain
+						)
 		
 func deform_terrain(terrain: Terrain, point: Vector3, radius: float = brush_radius, strength: float = brush_strength) -> void:
 	if terrain.mesh == null:
@@ -147,6 +147,10 @@ func deform_terrain(terrain: Terrain, point: Vector3, radius: float = brush_radi
 
 func change_mode_to(new_mode: Modes) -> void:
 	current_mode = new_mode
+
+
+func change_mode_to_waiting() -> void:
+	change_mode_to(Modes.Waiting)
 	
 	
 func change_mode_to_raise_terrain() -> void:
