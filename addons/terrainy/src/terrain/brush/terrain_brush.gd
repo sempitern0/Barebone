@@ -33,7 +33,7 @@ var painting: bool = false:
 			decal.visible = painting
 			
 			if not painting and last_terrain:
-				last_terrain.create_trimesh_collision()
+				last_terrain.regenerate_collision()
 				last_terrain = null
 				
 var current_mode: Modes = Modes.RaiseTerrain

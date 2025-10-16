@@ -178,10 +178,12 @@ func set_terrain_size_on_plane_mesh(configuration: TerrainConfiguration, plane_m
 
 func generate_collisions(collision_type: TerrainyCore.CollisionType, terrain: Terrain) -> void:
 	if collision_type == TerrainyCore.CollisionType.Trimesh:
-		terrain.create_trimesh_collision()
+		terrain.regenerate_collision()
 	elif collision_type == TerrainyCore.CollisionType.ConcavePolygon:
 		var static_body: StaticBody3D = StaticBody3D.new()
 		static_body.name = "%sStaticBody" % "Terrain" if terrain.name.is_empty() else terrain.name
+		
+		terrain.static_body = static_body
 		
 		var collision_shape: CollisionShape3D = CollisionShape3D.new()
 		collision_shape.name = "%sCollisionShape" % "Terrain" if terrain.name.is_empty() else terrain.name

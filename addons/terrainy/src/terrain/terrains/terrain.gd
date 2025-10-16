@@ -20,6 +20,8 @@ var grid_positioned: bool = false:
 			add_to_group(GridGroupName)
 			
 var mirror: Terrain
+var static_body: StaticBody3D
+
 var neighbours: Dictionary[Vector3, Terrain] = {
 	Vector3.FORWARD: null,
 	Vector3.BACK: null,
@@ -91,6 +93,14 @@ func add_mirror_terrain(mirror_terrain: Terrain) -> void:
 		mirror = mirror_terrain
 
 
+func regenerate_collision() -> void:
+	for body: StaticBody3D in OmniKitNodeTraversal.find_nodes_of_type(self, StaticBody3D.new()):
+		body.queue_free()
+		
+	create_trimesh_collision()
+	static_body = OmniKitNodeTraversal.first_node_of_type(self, StaticBody3D.new())
+	
+	
 func assign_neighbour(neighbour_terrain: Terrain, direction: Vector3) -> bool:
 	if direction in ValidNeighboursDirections \
 		and neighbours[direction] == null \
