@@ -16,6 +16,7 @@ class_name TerrainBrush extends Node3D
 ## Smooth the painting using the falloff
 @export var use_falloff: bool = true
 @export var brush_texture: Texture2D
+@export var decal: Decal
 
 var cached_brush_textures: Dictionary[Texture2D, Dictionary] = {}
 
@@ -28,6 +29,8 @@ var painting: bool = false:
 	set(value):
 		if painting != value:
 			painting = value
+			
+			decal.visible = painting
 			
 			if not painting and last_terrain:
 				last_terrain.create_trimesh_collision()
@@ -63,6 +66,11 @@ func _ready() -> void:
 			"height": image.get_height(),
 			"size": brush_texture.get_size()
 		}
+		
+		if decal:
+			decal.texture_albedo = brush_texture
+	
+	decal.visible = painting
 
 
 func _process(_delta: float) -> void:
@@ -70,6 +78,13 @@ func _process(_delta: float) -> void:
 		var result: OmniKitRaycastResult = OmniKitCamera3DHelper.project_raycast_to_mouse(origin_camera, 200.0, Globals.world_collision_layer)
 
 		if result.position and result.collider:
+			decal.show()
+			decal.global_position = result.position
+			decal.adjust_to_normal(result.normal)
+			decal.size = Vector3.ONE * brush_radius * 2.0 # diámetro
+			#decal.texture = brush_texture
+			#decal.fade_after = 0 # mantener fijo
+			
 			match current_mode:
 				Modes.RaiseTerrain:
 					deform_terrain(

@@ -1,5 +1,6 @@
 class_name OmniKitSmartDecal extends Decal
 
+@export var use_size_limits: bool = false
 ## The minimum size this decal can have. Set both min_size and max_size to not apply a random range between them
 @export var min_size: Vector3 = Vector3.ONE
 ## The maximum size this decal can have. Set both min_size and max_size to not apply a random range between them
@@ -17,7 +18,8 @@ class_name OmniKitSmartDecal extends Decal
 
 
 func _enter_tree() -> void:
-	adjust_size()
+	if use_size_limits:
+		adjust_size()
 
 
 func adjust_size() -> void:
