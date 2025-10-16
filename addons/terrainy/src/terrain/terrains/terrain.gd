@@ -84,11 +84,11 @@ func apply_radial_shape_on_vertex(configuration: TerrainConfiguration, vertex: V
 
 
 func add_mirror_terrain(mirror_terrain: Terrain) -> void:
-	if mirror and mirror.is_inside_tree():
-		mirror.queue_free()
-		
-	mirror = mirror_terrain
-
+	if mirror_terrain != mirror:
+		if mirror and mirror.is_inside_tree():
+			mirror.queue_free()
+			
+		mirror = mirror_terrain
 
 
 func assign_neighbour(neighbour_terrain: Terrain, direction: Vector3) -> bool:

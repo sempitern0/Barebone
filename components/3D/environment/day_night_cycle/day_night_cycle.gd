@@ -76,9 +76,7 @@ var time: float = 0.0:
 var time_rate: float = 0.0
 
 
-func _ready() -> void:
-	set_process(false)
-	
+func _ready() -> void:	
 	_update_time_rate()
 	update_current_time(start_hour, start_minute)
 	_update_time_sampler()

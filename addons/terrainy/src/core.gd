@@ -205,13 +205,12 @@ static func create_mirrored_terrain(original_terrain: Terrain) -> Terrain:
 			st.generate_tangents()
 			st.commit(mirror_array)
 
-	var mirror_terrain: Terrain = original_terrain.duplicate()
+	var mirror_terrain: Terrain = original_terrain.duplicate() if original_terrain.mirror == null else original_terrain.mirror
 	mirror_terrain.configuration = original_terrain.configuration
 	mirror_terrain.name = "%sMirror" % original_terrain.name
 	mirror_terrain.mesh = mirror_array
 	mirror_terrain.transform = original_terrain.transform
 	mirror_terrain.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	
 	
 	if original_terrain.configuration.mirror_material:
 		original_terrain.configuration.mirror_material.cull_mode = BaseMaterial3D.CULL_DISABLED

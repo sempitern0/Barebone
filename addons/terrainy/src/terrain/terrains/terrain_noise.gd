@@ -32,6 +32,7 @@ func generate_surface() -> SurfaceTool:
 		vertex.y *= apply_radial_shape_on_vertex(configuration, vertex)
 
 		mesh_data_tool.set_vertex(vertex_idx, vertex)
+		
 
 	array_mesh.clear_surfaces()
 	mesh_data_tool.commit_to_surface(array_mesh)
@@ -40,5 +41,6 @@ func generate_surface() -> SurfaceTool:
 	surface.create_from(array_mesh, 0)
 	surface.generate_normals()
 	surface.generate_tangents()
+
 	
 	return surface

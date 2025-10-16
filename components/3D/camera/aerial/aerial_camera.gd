@@ -110,7 +110,6 @@ var is_locked: bool = false:
 		set_process(not is_locked)
 
 
-var motion_input: OmniKitMotionInput = OmniKitMotionInput.new()
 var mouse_sensitivity: float = 0.05
 var invert_x_axis: bool = false
 var invert_y_axis: bool = false
@@ -198,8 +197,10 @@ func _process(delta: float) -> void:
 		edge_panning_movement(scroll_speed)
 	
 	if movement_mode_is_free():
-		motion_input.update()
-		camera_movement(motion_input.input_direction, delta)
+		camera_movement(
+			Input.get_vector(InputControls.MoveLeft, InputControls.MoveRight, InputControls.MoveForward, InputControls.MoveBack), 
+			delta
+			)
 	
 	elif movement_mode_is_drag():
 		if smooth_drag:

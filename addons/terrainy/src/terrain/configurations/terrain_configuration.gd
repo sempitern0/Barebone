@@ -1,6 +1,11 @@
 @tool
 class_name TerrainConfiguration extends Resource
 
+@export var enable_caves: bool = false
+@export var cave_center: Vector3 = Vector3.ZERO
+@export var cave_radius: float = 10.0
+@export var cave_depth: float = 8.0
+@export var cave_noise: FastNoiseLite
 @export var id: StringName
 @export var name: StringName
 @export_multiline var description: String

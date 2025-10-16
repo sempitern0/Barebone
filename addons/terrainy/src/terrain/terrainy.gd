@@ -63,7 +63,7 @@ func generate_terrain_grid(terrain_grid_size: int = grid_size) -> void:
 	if grid_spawn_node == null:
 		push_warning("Terrainy->generate_terrain_grid: No grid spawn node detected to create the terrains, aborting...")
 		return
-		
+	
 	var grid_terrains: Array[Terrain] = []
 	
 	for index: int in terrain_grid_size:
@@ -113,7 +113,8 @@ func generate_terrain_grid(terrain_grid_size: int = grid_size) -> void:
 					
 					if result:
 						count += 1
-						call_deferred("generate_side_terrain", current_terrain, next_terrain, direction)
+						call_thread_safe("generate_side_terrain", current_terrain, next_terrain, direction)
+						call_deferred("create_mirror_terrain", current_terrain)
 						
 						to_expand.append(next_terrain)
 						placed_terrains.append(next_terrain)
@@ -339,6 +340,21 @@ func generate_side_terrain(origin_terrain: Terrain, new_terrain: Terrain, direct
 	new_terrain.mesh = st_final.commit()
 
 
+func create_mirror_terrain(base_terrain: Terrain) -> void:
+	if base_terrain.configuration.generate_mirror:
+		var mirror_terrain: Terrain = TerrainyCore.create_mirrored_terrain(base_terrain)
+		base_terrain.call_thread_safe("add_mirror_terrain", mirror_terrain)
+		
+		if mirror_terrain:
+			if not mirror_terrain.is_inside_tree():
+				base_terrain.call_thread_safe("add_child", mirror_terrain)
+				call_thread_safe("_set_owner_to_edited_scene_root", mirror_terrain)
+				
+			base_terrain.mirror.global_transform = base_terrain.global_transform
+			
+			generate_collisions(base_terrain.configuration.mirror_collision_type, mirror_terrain)
+
+
 func on_terrain_surfaces_finished(terrain_surfaces: Dictionary[Terrain, SurfaceTool]) -> void:
 	print("Terrainy: Generation of %d terrain surfaces is finished! " % terrain_surfaces.size())
 	
@@ -347,16 +363,7 @@ func on_terrain_surfaces_finished(terrain_surfaces: Dictionary[Terrain, SurfaceT
 		terrain.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		terrain.add_to_group(nav_source_group_name)
 		
-		if terrain.configuration.generate_mirror:
-			var mirror_terrain: Terrain = TerrainyCore.create_mirrored_terrain(terrain)
-			terrain.call_thread_safe("add_mirror_terrain", mirror_terrain)
-			
-			if mirror_terrain:
-				terrain.call_thread_safe("add_child", mirror_terrain)
-				call_thread_safe("_set_owner_to_edited_scene_root", mirror_terrain)
-				terrain.mirror.global_transform = terrain.global_transform
-				
-				generate_collisions(terrain.configuration.mirror_collision_type, mirror_terrain)
+		call_thread_safe("create_mirror_terrain", terrain)
 				
 		generate_collisions(terrain.configuration.collision_type, terrain)
 		
@@ -364,7 +371,7 @@ func on_terrain_surfaces_finished(terrain_surfaces: Dictionary[Terrain, SurfaceT
 	
 	terrain_generation_finished.emit(terrain_surfaces.keys())
 		
-
+	
 #region Helpers
 func _set_owner_to_edited_scene_root(node: Node) -> void:
 	if Engine.is_editor_hint():
