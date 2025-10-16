@@ -18,15 +18,18 @@ signal changed_movement_mode(new_mode: MovementMode)
 @export_range(-180, 0, 0.01, "degrees") var vertical_rotation_angle: float = -35.264:
 	set(value):
 		vertical_rotation_angle = value
-		camera_rotation_pivot.rotation_degrees.x = vertical_rotation_angle
+		if camera_rotation_pivot and is_node_ready():
+			camera_rotation_pivot.rotation_degrees.x = vertical_rotation_angle
 @export_range(-180, 180.0, 0.01, "degrees") var min_vertical_rotation_angle: float = -1.0:
 	set(value):
 		min_vertical_rotation_angle = value
-		camera_rotation_pivot.rotation_degrees.x = clampf(
-			camera_rotation_pivot.rotation_degrees.x, 
-			min_vertical_rotation_angle, 
-			max_vertical_rotation_angle
-			)
+		
+		if camera_rotation_pivot and is_node_ready():
+			camera_rotation_pivot.rotation_degrees.x = clampf(
+				camera_rotation_pivot.rotation_degrees.x, 
+				min_vertical_rotation_angle, 
+				max_vertical_rotation_angle
+				)
 @export_range(-180, 180.0, 0.01, "degrees") var max_vertical_rotation_angle: float = -89.0:
 	set(value):
 		max_vertical_rotation_angle = value

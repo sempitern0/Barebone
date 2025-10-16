@@ -11,12 +11,14 @@ func _enter_tree() -> void:
 	add_custom_type("Terrainy", "Node", preload("src/terrain/terrainy.gd"), preload("assets/icons/terrainy.svg"))
 	add_custom_type("ChunkRenderer", "Node", preload("src/chunk/chunk_renderer.gd"), preload("assets/icons/chunk_renderer.svg"))
 	add_custom_type("ChunkTerrain", "Node3D", preload("src/chunk/chunk_terrain.gd"), preload("assets/icons/chunk_terrain.svg"))
-	add_custom_type("TerrainNoise", "Node3D", preload("src/chunk/chunk_terrain.gd"), preload("assets/icons/terrain.svg"))
-	add_custom_type("TerrainNoiseTexture", "Node3D", preload("src/chunk/chunk_terrain.gd"), preload("assets/icons/terrain.svg"))
-	add_custom_type("TerrainHeightmap", "Node3D", preload("src/chunk/chunk_terrain.gd"), preload("assets/icons/terrain.svg"))
+	add_custom_type("TerrainNoise", "Node3D", preload("src/terrain/terrains/terrain_noise.gd"), preload("assets/icons/terrain.svg"))
+	add_custom_type("TerrainNoiseTexture", "Node3D", preload("src/terrain/terrains/terrain_noise_texture.gd"), preload("assets/icons/terrain.svg"))
+	add_custom_type("TerrainHeightmap", "Node3D", preload("src/terrain/terrains/terrain_heightmap.gd"), preload("assets/icons/terrain.svg"))
+	add_custom_type("TerrainBrush", "Node3D", preload("src/terrain/brush/terrain_brush.gd"), preload("assets/icons/terrain.svg"))
 
 
 func _exit_tree() -> void:
+	remove_custom_type("TerrainBrush")
 	remove_custom_type("TerrainHeightmap")
 	remove_custom_type("TerrainNoiseTexture")
 	remove_custom_type("TerrainNoise")

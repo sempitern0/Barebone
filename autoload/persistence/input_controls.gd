@@ -49,6 +49,7 @@ const ItemRight: StringName = &"item_right"
 const ToggleInventory: StringName = &"toggle_inventory"
 const ConfirmPlacement: StringName = &"confirm_placement"
 const CancelPlacement: StringName = &"cancel_placement"
+const PaintTerrain: StringName = &"paint_terrain"
 
 const PerformanceMetrics: StringName = &"performance_metrics"
 const FirstPersonDebug: StringName = &"first_person_debug"
