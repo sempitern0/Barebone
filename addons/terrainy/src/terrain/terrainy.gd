@@ -176,23 +176,23 @@ func set_terrain_size_on_plane_mesh(configuration: TerrainConfiguration, plane_m
 		plane_mesh.material = TerrainyCore.DefaultTerrainMaterial
 	
 
-func generate_collisions(collision_type: TerrainyCore.CollisionType, terrain_mesh: MeshInstance3D) -> void:
+func generate_collisions(collision_type: TerrainyCore.CollisionType, terrain: Terrain) -> void:
 	if collision_type == TerrainyCore.CollisionType.Trimesh:
-		terrain_mesh.create_trimesh_collision()
+		terrain.create_trimesh_collision()
 	elif collision_type == TerrainyCore.CollisionType.ConcavePolygon:
 		var static_body: StaticBody3D = StaticBody3D.new()
-		static_body.name = "TerrainStaticBody"
+		static_body.name = "%sStaticBody" % "Terrain" if terrain.name.is_empty() else terrain.name
 		
 		var collision_shape: CollisionShape3D = CollisionShape3D.new()
-		collision_shape.name = "TerrainCollisionShape"
+		collision_shape.name = "%sCollisionShape" % "Terrain" if terrain.name.is_empty() else terrain.name
 		
 		var concave_shape: ConcavePolygonShape3D = ConcavePolygonShape3D.new()
-		concave_shape.set_faces(terrain_mesh.mesh.get_faces())
+		concave_shape.set_faces(terrain.mesh.get_faces())
 		
 		collision_shape.shape = concave_shape
 		
 		static_body.call_thread_safe("add_child", collision_shape)
-		terrain_mesh.call_thread_safe("add_child", static_body)
+		terrain.call_thread_safe("add_child", static_body)
 		call_thread_safe("_set_owner_to_edited_scene_root", static_body)
 		call_thread_safe("_set_owner_to_edited_scene_root", collision_shape)
 
@@ -366,7 +366,7 @@ func on_terrain_surfaces_finished(terrain_surfaces: Dictionary[Terrain, SurfaceT
 		call_thread_safe("create_mirror_terrain", terrain)
 				
 		generate_collisions(terrain.configuration.collision_type, terrain)
-		
+			
 	create_navigation_region(navigation_region)
 	
 	terrain_generation_finished.emit(terrain_surfaces.keys())

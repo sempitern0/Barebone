@@ -28,11 +28,20 @@ func generate_surface() -> SurfaceTool:
 	for vertex_idx: int in mesh_data_tool.get_vertex_count():
 		var vertex: Vector3 = mesh_data_tool.get_vertex(vertex_idx)
 		## This operation is needed to avoid being generated symmetrically only using positive values and avoid errors when obtaining the pixel from the image
-		var x = vertex.x if vertex.x > 0 else width - absf(vertex.x)
-		var z = vertex.z if vertex.z > 0 else height - absf(vertex.z)
-		var falloff = calculate_falloff(configuration, vertex)
-
-		vertex.y = apply_elevation_curve(configuration, noise_image.get_pixel(x, z).r)
+		var x: float = vertex.x if vertex.x > 0 else width - absf(vertex.x)
+		var z: float = vertex.z if vertex.z > 0 else height - absf(vertex.z)
+		var falloff: float = calculate_falloff(configuration, vertex)
+		vertex.y = noise_image.get_pixel(x, z).r
+		
+		if configuration.use_elevation_curve and configuration.elevation_curve:
+			print("no entro")
+			if configuration.allow_negative_elevation_values:
+				var uv_height_factor = clampf(((vertex.x + vertex.z) / (configuration.size_depth * 2.0)) * 0.5 + 0.5, 0.0, 1.0)
+				vertex.y *= apply_elevation_curve(configuration, uv_height_factor) * configuration.max_terrain_height
+				vertex.y = clampf(vertex.y, -configuration.max_terrain_height, configuration.max_terrain_height)
+			else:
+				vertex.y *= apply_elevation_curve(configuration, vertex.y)
+		
 		vertex.y *= configuration.max_terrain_height * falloff
 		vertex.y *= apply_radial_shape_on_vertex(configuration, vertex)
 		

@@ -1,11 +1,6 @@
 @tool
 class_name TerrainConfiguration extends Resource
 
-@export var enable_caves: bool = false
-@export var cave_center: Vector3 = Vector3.ZERO
-@export var cave_radius: float = 10.0
-@export var cave_depth: float = 8.0
-@export var cave_noise: FastNoiseLite
 @export var id: StringName
 @export var name: StringName
 @export_multiline var description: String
@@ -40,9 +35,14 @@ class_name TerrainConfiguration extends Resource
 #@export var lod_reduction_factor: int = 2.0
 ### Step distance to camera to apply lod levels
 #@export var lod_distance_step: float = 150.0
-@export_group("Shape")
+@export_group("Elevation curve")
+@export var use_elevation_curve: bool = false
 ## Manage the maximum heights on a curve for this terrain generation
 @export var elevation_curve: Curve
+## To generate a more noticed mountain shapes that could be seen as a wall
+@export var allow_negative_elevation_values: bool = false
+@export_group("Fall off")
+@export var use_fall_off: bool = false
 ## Use an image to smooth the edges on this terrain. Useful if you want to connect other plots of land
 @export var falloff_texture: Texture2D
 @export_group("Radial")

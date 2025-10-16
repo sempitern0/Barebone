@@ -25,7 +25,17 @@ func generate_surface() -> SurfaceTool:
 		## Convert to a range of 0 ~ 1 instead of -1 ~ 1
 		var noise_y: float = TerrainyCore.get_noise_y_normalized(configuration.noise, vertex)
 		
-		noise_y = apply_elevation_curve(configuration, noise_y)
+		if configuration.use_elevation_curve and configuration.elevation_curve:
+			if configuration.allow_negative_elevation_values:
+				var uv_height_factor = clampf(((vertex.x + vertex.z) / (configuration.size_depth * 2.0)) * 0.5 + 0.5, 0.0, 1.0)
+				vertex.y = clampf(vertex.y, -configuration.max_terrain_height, configuration.max_terrain_height)
+				
+				noise_y = configuration.noise.get_noise_2d(vertex.x, vertex.z) \
+					* apply_elevation_curve(configuration, uv_height_factor) \
+					* configuration.max_terrain_height
+			else:
+				noise_y = apply_elevation_curve(configuration, noise_y)
+			
 		var falloff: float = calculate_falloff(configuration, vertex)
 		
 		vertex.y = noise_y * configuration.max_terrain_height * falloff
@@ -33,7 +43,6 @@ func generate_surface() -> SurfaceTool:
 
 		mesh_data_tool.set_vertex(vertex_idx, vertex)
 		
-
 	array_mesh.clear_surfaces()
 	mesh_data_tool.commit_to_surface(array_mesh)
 	

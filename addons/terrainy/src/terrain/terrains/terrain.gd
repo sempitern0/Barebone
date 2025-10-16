@@ -45,7 +45,7 @@ func generate_surface() -> SurfaceTool:
 func calculate_falloff(configuration: TerrainConfiguration, vertex: Vector3) -> float:
 	var falloff: float = 1.0
 	
-	if configuration.falloff_texture:
+	if configuration.use_fall_off and configuration.falloff_texture:
 		var falloff_image: Image = configuration.falloff_texture.get_image()
 		
 		## To avoid the error "cannot get_pixel on compressed image"
