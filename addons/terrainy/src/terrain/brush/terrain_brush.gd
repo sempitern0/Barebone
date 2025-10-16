@@ -8,11 +8,14 @@ class_name TerrainBrush extends Node3D
 		if is_node_ready():
 			set_process(origin_camera != null)
 			set_process_unhandled_input(origin_camera != null)
-			
-@export_range(0.1, 100.0, 0.1) var brush_radius: float = 15.0
-@export_range(0.1, 10, 0.1) var brush_strength: float = 1.5
-@export var brush_texture: Texture2D
 
+## The area of influence for the brush
+@export_range(0.1, 100.0, 0.1) var brush_radius: float = 15.0
+## The speed to apply the modifier on the terrain
+@export_range(0.1, 10, 0.1) var brush_strength: float = 1.5
+## Smooth the painting using the falloff
+@export var use_falloff: bool = true
+@export var brush_texture: Texture2D
 
 var cached_brush_textures: Dictionary[Texture2D, Dictionary] = {}
 
@@ -21,13 +24,28 @@ enum Modes {
 	LowerTerrain
 }
 
-var painting: bool = false
+var painting: bool = false:
+	set(value):
+		if painting != value:
+			painting = value
+			
+			if not painting and last_terrain:
+				last_terrain.create_trimesh_collision()
+				last_terrain = null
+				
 var current_mode: Modes = Modes.RaiseTerrain
+var last_terrain: Terrain
 
 
 func _unhandled_input(_event: InputEvent) -> void:
 	painting = OmniKitInputHelper.action_pressed_and_exists(InputControls.PaintTerrain)
-
+	
+	if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.Aim):
+		if current_mode == Modes.RaiseTerrain:
+			change_mode_to_lower_terrain()
+		else:
+			change_mode_to_raise_terrain()
+			
 
 func _ready() -> void:
 	set_process(origin_camera != null)
@@ -72,7 +90,9 @@ func _process(_delta: float) -> void:
 func deform_terrain(terrain: Terrain, point: Vector3, radius: float = brush_radius, strength: float = brush_strength) -> void:
 	if terrain.mesh == null:
 		return
-
+	
+	last_terrain = terrain
+	
 	var mdt: MeshDataTool = MeshDataTool.new()
 	mdt.create_from_surface(terrain.mesh, 0)
 	
@@ -86,10 +106,8 @@ func deform_terrain(terrain: Terrain, point: Vector3, radius: float = brush_radi
 		var offset: Vector3 = vertex - local_point
 
 		if dist_sq < radius_sq:
-			var falloff: float = 1.0 - (dist_sq / radius_sq)
-			falloff = falloff * falloff
-			
 			var texture_factor: float = 1.0
+			var falloff: float  = 1.0
 			
 			if brush_texture:
 				var brush_image: Image = cached_brush_textures[brush_texture].image
@@ -98,8 +116,13 @@ func deform_terrain(terrain: Terrain, point: Vector3, radius: float = brush_radi
 				uv = uv.clamp(Vector2.ZERO, Vector2.ONE)
 
 				texture_factor = brush_image.get_pixelv(uv * cached_brush_textures[brush_texture].size).r
+			
+			if use_falloff:
+				falloff = 1.0 - (dist_sq / radius_sq)
+				falloff = falloff * falloff ## More faster than pow()
 				
 			vertex.y += strength * falloff * texture_factor
+
 			mdt.set_vertex(vertex_index, vertex)
 	
 	var array_mesh: ArrayMesh = ArrayMesh.new()
