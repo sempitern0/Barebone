@@ -223,6 +223,40 @@ static func create_mirrored_terrain(original_terrain: Terrain) -> Terrain:
 	return mirror_terrain
 
 
+## The mesh generacion could be generated above the Terrain origin, 
+## this function solves this problem and center the generated mesh with the Terrain node position
+static func center_terrain_mesh_to_node_world_position_y(terrain: Terrain) -> void:
+	if terrain == null or terrain.mesh == null:
+		return
+
+	var aabb: AABB = terrain.mesh.get_aabb()
+	var center_local: Vector3 = aabb.position + aabb.size * 0.5
+
+	var center_world_y: float= terrain.global_transform.origin.y + center_local.y
+	var offset_world_y: float= terrain.global_position.y - center_world_y
+	var offset_local: Vector3 = terrain.to_local(terrain.global_transform.origin + Vector3(0, offset_world_y, 0)) - terrain.to_local(terrain.global_transform.origin)
+
+	# Aplicar solo en Y a los vértices
+	var mdt: MeshDataTool = MeshDataTool.new()
+	mdt.create_from_surface(terrain.mesh, 0)
+	
+	for vertex_index: int in range(mdt.get_vertex_count()):
+		var v: Vector3 = mdt.get_vertex(vertex_index)
+		v.y += offset_local.y
+		mdt.set_vertex(vertex_index, v)
+
+	var out_mesh: ArrayMesh = ArrayMesh.new()
+	mdt.commit_to_surface(out_mesh)
+
+	var st: SurfaceTool = SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.create_from(out_mesh, 0)
+	st.generate_normals()
+	st.generate_tangents()
+	
+	terrain.mesh = st.commit()
+	
+	
 static func _add_edge(edge_map: Dictionary, a: int, b: int) -> void:
 	# almacena clave undirected pero conserva la orientación 'a->b' la primera vez
 	var min_i: int = a if a < b else b

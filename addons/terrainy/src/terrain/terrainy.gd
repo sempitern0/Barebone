@@ -364,7 +364,8 @@ func on_terrain_surfaces_finished(terrain_surfaces: Dictionary[Terrain, SurfaceT
 		terrain.mesh = terrain_surfaces[terrain].commit() 
 		terrain.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		terrain.add_to_group(nav_source_group_name)
-		
+		TerrainyCore.center_terrain_mesh_to_node_world_position_y(terrain)
+
 		call_thread_safe("create_mirror_terrain", terrain)
 				
 		generate_collisions(terrain.configuration.collision_type, terrain)
