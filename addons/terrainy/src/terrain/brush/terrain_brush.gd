@@ -18,6 +18,7 @@ class_name TerrainBrush extends Node3D
 @export var brush_texture: Texture2D:
 	set(new_texture):
 		brush_texture = new_texture
+		_cache_brush_texture(brush_texture)
 		
 		if visual_brush_decal and is_node_ready():
 			visual_brush_decal.assign_texture(brush_texture)
@@ -29,7 +30,8 @@ var cached_brush_textures: Dictionary[Texture2D, Dictionary] = {}
 enum Modes {
 	Waiting,
 	RaiseTerrain,
-	LowerTerrain
+	LowerTerrain,
+	VertexPaint
 }
 
 var painting: bool = false:
@@ -43,6 +45,7 @@ var painting: bool = false:
 				
 var current_mode: Modes = Modes.RaiseTerrain
 var last_terrain: Terrain
+var current_paint_color_channel: Color = Color.RED
 
 
 func _unhandled_input(_event: InputEvent) -> void:
@@ -53,28 +56,20 @@ func _unhandled_input(_event: InputEvent) -> void:
 			change_mode_to_lower_terrain()
 		else:
 			change_mode_to_raise_terrain()
-			
+	
+	if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.DashAction):
+		current_paint_color_channel = [Color.WEB_GREEN, Color.BLUE_VIOLET].pick_random()
+
 
 func _ready() -> void:
 	set_process(origin_camera != null)
 	set_process_unhandled_input(origin_camera != null)
 	
-	if brush_texture:
-		var image: Image =  brush_texture.get_image()
+	_cache_brush_texture(brush_texture)
 		
-		if image.is_compressed():
-			image.decompress()
-			
-		cached_brush_textures[brush_texture] = {
-			"image": image,
-			"width": image.get_width(),
-			"height": image.get_height(),
-			"size": brush_texture.get_size()
-		}
-		
-		if visual_brush_decal:
-			visual_brush_decal.assign_texture(brush_texture)
-			visual_brush_decal.show()
+	if visual_brush_decal:
+		visual_brush_decal.assign_texture(brush_texture)
+		visual_brush_decal.show()
 
 
 func _process(_delta: float) -> void:
@@ -86,6 +81,15 @@ func _process(_delta: float) -> void:
 				
 			if painting:
 				match current_mode:
+					Modes.VertexPaint:
+						paint_terrain_vertex_color(
+							result.collider.get_parent(), 
+							result.position, 
+							brush_radius, 
+							brush_strength,
+							current_paint_color_channel
+						)
+						
 					Modes.RaiseTerrain:
 						deform_terrain(
 							result.collider.get_parent(), 
@@ -145,6 +149,70 @@ func deform_terrain(terrain: Terrain, point: Vector3, radius: float = brush_radi
 	terrain.mesh = array_mesh
 
 
+func paint_terrain_vertex_color(terrain: Terrain, point: Vector3, radius: float, strength: float, color: Color) -> void:
+	if terrain.mesh == null:
+		return
+	
+	last_terrain = terrain
+	
+	var mdt: MeshDataTool = MeshDataTool.new()
+	mdt.create_from_surface(terrain.mesh, 0)
+	
+	var local_point: Vector3 = terrain.to_local(point)
+	var radius_sq: float = radius * radius  
+
+	for vertex_index: int in mdt.get_vertex_count():
+		var vertex: Vector3 = mdt.get_vertex(vertex_index)
+		var dist_sq: float = vertex.distance_squared_to(local_point)
+		
+		var offset: Vector3 = vertex - local_point
+
+		if dist_sq < radius_sq:
+			var texture_factor: float = 1.0
+			var falloff: float  = 1.0
+			
+			if brush_texture:
+				var brush_image: Image = cached_brush_textures[brush_texture].image
+				
+				var uv: Vector2 = Vector2(offset.x, offset.z) / brush_radius * 0.5 + Vector2(0.5, 0.5)
+				uv = uv.clamp(Vector2.ZERO, Vector2.ONE)
+
+				texture_factor = brush_image.get_pixelv(uv * cached_brush_textures[brush_texture].size).r
+			
+			if use_falloff:
+				falloff = 1.0 - (dist_sq / radius_sq)
+				falloff = falloff * falloff ## More faster than pow()
+				
+			var vertex_color: Color = mdt.get_vertex_color(vertex_index)
+			vertex_color = vertex_color.lerp(color, strength * falloff * texture_factor)
+			
+			var total = vertex_color.r + vertex_color.g + vertex_color.b
+			if total > 1.0:
+				vertex_color /= total
+			
+			mdt.set_vertex_color(vertex_index, vertex_color)
+
+	var array_mesh: ArrayMesh = ArrayMesh.new()
+	mdt.commit_to_surface(array_mesh)
+	terrain.mesh = array_mesh
+	
+	
+
+func _cache_brush_texture(texture: Texture2D) -> void:
+	if texture:
+		var image: Image = texture.get_image()
+		
+		if image.is_compressed():
+			image.decompress()
+			
+		cached_brush_textures[texture] = {
+			"image": image,
+			"width": image.get_width(),
+			"height": image.get_height(),
+			"size": texture.get_size()
+		}
+		
+		
 func change_mode_to(new_mode: Modes) -> void:
 	current_mode = new_mode
 

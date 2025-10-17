@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cl3l0ut0cbexn"
-path.s3tc="res://.godot/imported/circle2.png-ffc3572acbea0d394f6cb0b2378206f8.s3tc.ctex"
+uid="uid://cvcw6ctvchloy"
+path.s3tc="res://.godot/imported/Dirt_20-256x256.png-005e936a3291e2ecf1f0739161d1ac16.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/terrainy/src/terrain/brush/textures/transparent/circle2.png"
-dest_files=["res://.godot/imported/circle2.png-ffc3572acbea0d394f6cb0b2378206f8.s3tc.ctex"]
+source_file="res://addons/terrainy/shaders/Dirt_20-256x256.png"
+dest_files=["res://.godot/imported/Dirt_20-256x256.png-005e936a3291e2ecf1f0739161d1ac16.s3tc.ctex"]
 
 [params]
 
