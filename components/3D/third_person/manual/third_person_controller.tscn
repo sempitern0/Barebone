@@ -53,8 +53,6 @@ spring_arm = NodePath("SpringArm3D")
 spring_relative_position = NodePath("SpringArm3D/SpringRelativePosition")
 camera = NodePath("Camera3D")
 mouse_capture = NodePath("../MouseCaptureComponent")
-min_vertical_angle = -1.2217304763960306
-max_vertical_angle = 0.08726646259971647
 
 [node name="SpringArm3D" type="SpringArm3D" parent="SpringCameraPivot"]
 collision_mask = 25
