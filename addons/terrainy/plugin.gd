@@ -14,7 +14,7 @@ func _enter_tree() -> void:
 	add_custom_type("TerrainNoise", "Node3D", preload("src/terrain/terrains/terrain_noise.gd"), preload("assets/icons/terrain.svg"))
 	add_custom_type("TerrainNoiseTexture", "Node3D", preload("src/terrain/terrains/terrain_noise_texture.gd"), preload("assets/icons/terrain.svg"))
 	add_custom_type("TerrainHeightmap", "Node3D", preload("src/terrain/terrains/terrain_heightmap.gd"), preload("assets/icons/terrain.svg"))
-	add_custom_type("TerrainBrush", "Node3D", preload("src/terrain/brush/terrain_brush.gd"), preload("assets/icons/terrain.svg"))
+	add_custom_type("TerrainBrush", "Node3D", preload("src/terrain/brush/terrain_brush.gd"), preload("assets/icons/brush.svg"))
 
 
 func _exit_tree() -> void:
