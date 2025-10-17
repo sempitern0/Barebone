@@ -26,7 +26,7 @@ enum InstanceMethod { RandomRejection, PoissonDiskSampling }
 			instance_method = value
 			scatter()
 ## Attemps to calculate the placement when using the current instance method
-@export_range(1, 10, 1) var max_attempts_per_instance: int = 3:
+@export_range(1, 10, 1) var max_attempts_per_instance: int = 5:
 	set(value):
 		if value != max_attempts_per_instance:
 			max_attempts_per_instance = value
@@ -50,12 +50,12 @@ func _ready() -> void:
 		set_ignore_transform_notification(true)
 	
 
-func scatter() -> void:
+func scatter(method: InstanceMethod = instance_method) -> void:
 	if not _prepare_multimesh():
 		push_error("[MultiMeshScatter]: The Scatter3D doesn't have an assigned mesh, aborting the operation.")
 		return
 		
-	match instance_method:
+	match method:
 		InstanceMethod.RandomRejection:
 			random_rejection_scatter()
 		InstanceMethod.PoissonDiskSampling:
@@ -85,10 +85,9 @@ func poisson_disk_sampling_scatter() -> void:
 		ScatterShapeType.Box:
 			final_points = poisson_points
 			
-	var num_instances_to_place = mini(final_points.size(), count)
-	multimesh.instance_count = num_instances_to_place
+	multimesh.instance_count = mini(final_points.size(), count)
 	
-	for i in range(num_instances_to_place):
+	for i in range(multimesh.instance_count):
 		var point_2d: Vector2 = final_points[i]
 		var target_position_centered: Vector3 = _poisson_point_2d_to_3d(point_2d)
 
@@ -106,8 +105,6 @@ func poisson_disk_sampling_scatter() -> void:
 
 
 func random_rejection_scatter() -> void:
-	multimesh.instance_count = count
-	
 	var placed_positions: Array[Vector3] = []
 
 	for i in range(count):
@@ -138,16 +135,17 @@ func random_rejection_scatter() -> void:
 			for prev: Vector3 in placed_positions:
 				if prev.distance_squared_to(target_position) < min_distance_between * min_distance_between:
 					valid = false
+					placed_positions.erase(prev)
 					break
-
-			if not valid:
-				continue 
-
-		placed_positions.append(target_position)
-
+		if valid:
+			placed_positions.append(target_position)
+	
+	multimesh.instance_count = mini(count, placed_positions.size())
+	
+	for i in multimesh.instance_count:
 		var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-			target_position + Vector3.UP * (scatter_size.y / 2.0),
-			target_position + Vector3.DOWN * (scatter_size.y / 2.0),
+			placed_positions[i] + Vector3.UP * (scatter_size.y / 2.0),
+			placed_positions[i] + Vector3.DOWN * (scatter_size.y / 2.0),
 			collision_masks
 		)
 			
