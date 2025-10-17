@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="OmniKitColorPalette" load_steps=2 format=3 uid="uid://jr7tuu5p0bxe"]
+
+[ext_resource type="Script" uid="uid://bdgfoc5auy1wg" path="res://addons/omnikit/src/helpers/color/color_palette.gd" id="1_jwbio"]
+
+[resource]
+script = ExtResource("1_jwbio")
+id = &"green_grass"
+name = &"Green grass"
+colors = PackedColorArray(0.29411766, 0.46666667, 0.2901961, 1, 0.43137255, 0.61960787, 0.36862746, 1, 0.24705882, 0.54901963, 0.30588236, 1, 0.38431373, 0.69803923, 0.43529412, 1)
+metadata/_custom_type_script = "uid://bdgfoc5auy1wg"
