@@ -5,7 +5,12 @@ extends MultiMeshInstance3D
 enum ScatterShapeType { Box, Sphere }
 enum InstanceMethod { RandomRejection, PoissonDiskSampling }
 
-@export var mesh_instance: MeshInstance3D
+@export var mesh_instance: MeshInstance3D:
+	set(value):
+		mesh_instance = value
+		scatter()
+@export_flags_3d_physics var collision_masks: int = 1
+		
 @export var scatter_shape: ScatterShapeType = ScatterShapeType.Sphere:
 	set(value):
 		scatter_shape = value
@@ -25,23 +30,30 @@ enum InstanceMethod { RandomRejection, PoissonDiskSampling }
 		if instance_method != value:
 			instance_method = value
 			scatter()
-## Attemps to calculate the placement when using the current instance method
+## More attemps means more precision when spawning meshes on the min distance provided.
 @export_range(1, 10, 1) var max_attempts_per_instance: int = 5:
 	set(value):
 		if value != max_attempts_per_instance:
 			max_attempts_per_instance = value
 			scatter()
+@export var correct_mesh_position: bool = true:
+	set(value):
+		if value != correct_mesh_position:
+			correct_mesh_position = value
+			scatter()
+
 @export var scatter_size: Vector3 = Vector3(10.0, 10.0, 10.0):
 	set(value):
 		if not value.is_equal_approx(scatter_size):
 			scatter_size = value.clamp(Vector3.ONE * 0.01, Vector3.ONE * 10000.0)
 			scatter()
-@export_flags_3d_physics var collision_masks: int = 1
 
 
-#func _notification(what: int) -> void:
-	#if what == NOTIFICATION_TRANSFORM_CHANGED:
-		#scatter()
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED:
+		pass
+
+var _mesh_half_height: float = 0.0
 
 
 func _ready() -> void:
@@ -51,6 +63,9 @@ func _ready() -> void:
 	
 
 func scatter(method: InstanceMethod = instance_method) -> void:
+	if not Engine.is_editor_hint():
+		return
+		
 	if not _prepare_multimesh():
 		push_error("[MultiMeshScatter]: The Scatter3D doesn't have an assigned mesh, aborting the operation.")
 		return
@@ -101,6 +116,11 @@ func poisson_disk_sampling_scatter() -> void:
 		
 		if hit.position:
 			var final_transform = Transform3D(Basis(), hit.position - global_position)
+			
+			if correct_mesh_position:
+				var corrected_position_global: Vector3 = hit.position + Vector3.UP * _mesh_half_height
+				final_transform = Transform3D(Basis(), corrected_position_global - global_position)
+			
 			multimesh.set_instance_transform(i, final_transform)
 
 
@@ -150,9 +170,14 @@ func random_rejection_scatter() -> void:
 		)
 			
 		var hit: OmniKitRaycastResult = OmniKitRaycastResult.new(get_world_3d().direct_space_state.intersect_ray(ray))
+		var final_transform: Transform3D = Transform3D(Basis(), hit.position - global_position)
+		
+		if correct_mesh_position:
+			var corrected_position_global: Vector3 = hit.position + Vector3.UP * _mesh_half_height
+			final_transform = Transform3D(Basis(), corrected_position_global - global_position)
 		
 		if hit.position:
-			multimesh.set_instance_transform(i, Transform3D(Basis(), hit.position - global_position))
+			multimesh.set_instance_transform(i, final_transform)
 
 
 func poisson_disk_points_2d(size: Vector2, radius: float, attempts: float = 5) -> Array[Vector2]:
@@ -216,5 +241,8 @@ func _prepare_multimesh() -> bool:
 		
 	if mesh_instance:
 		multimesh.mesh = mesh_instance.mesh
+		
+		if multimesh.mesh:
+			_mesh_half_height = multimesh.mesh.get_aabb().size.y / 2.0
 		
 	return multimesh.mesh != null
