@@ -1,3 +1,4 @@
+## Recommended to modulate the alpha to 70 to reduce the brightness when painting
 class_name VisualBrushDecal extends Decal
 
 
