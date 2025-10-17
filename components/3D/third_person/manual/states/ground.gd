@@ -33,7 +33,7 @@ func apply_gravity(force: float = gravity_force, delta: float = get_physics_proc
 
 func rotate_skin(target_direction: Vector3, delta: float = get_physics_process_delta_time()) -> void:
 	if actor.skin:
-		var target_angle: float = Vector3.BACK.signed_angle_to(target_direction, Vector3.UP)
+		var target_angle: float = Vector3.FORWARD.signed_angle_to(target_direction, Vector3.UP)
 		
 		if actor.skin_rotation_speed > 0:
 			actor.skin.global_rotation.y = lerp_angle(

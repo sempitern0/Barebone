@@ -25,8 +25,8 @@ func _ready():
 	assert(global_camera_3d is Camera3D, "EasyCamSwitch: Needs a Camera3D in scene to allow the transitions")
 	
 	global_camera_2d.enabled = false
-	global_camera_3d.clear_current()
 	global_camera_3d.process_mode = Node.PROCESS_MODE_DISABLED
+	global_camera_3d.clear_current()
 	
 	
 func transition_to_requested_camera_2d(from: Camera2D, to: Camera2D, duration: float = default_transition_duration, record_transition: bool = true):
