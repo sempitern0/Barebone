@@ -10,7 +10,6 @@ enum InstanceMethod { RandomRejection, PoissonDiskSampling }
 		mesh_instance = value
 		scatter()
 @export_flags_3d_physics var collision_masks: int = 1
-		
 @export var scatter_shape: ScatterShapeType = ScatterShapeType.Sphere:
 	set(value):
 		scatter_shape = value
@@ -96,7 +95,6 @@ func poisson_disk_sampling_scatter() -> void:
 				# Distancia del punto al centro del dominio (dominio 0,0 a size.x, size.z)
 				if point_2d.distance_squared_to(center_2d) <= radius_squared:
 					final_points.append(point_2d)
-					
 		ScatterShapeType.Box:
 			final_points = poisson_points
 			
@@ -115,11 +113,13 @@ func poisson_disk_sampling_scatter() -> void:
 		var hit: OmniKitRaycastResult = OmniKitRaycastResult.new(get_world_3d().direct_space_state.intersect_ray(ray))
 		
 		if hit.position:
-			var final_transform = Transform3D(Basis(), hit.position - global_position)
+			var final_position: Vector3 = hit.position - global_position
 			
 			if correct_mesh_position:
 				var corrected_position_global: Vector3 = hit.position + Vector3.UP * _mesh_half_height
-				final_transform = Transform3D(Basis(), corrected_position_global - global_position)
+				final_position = corrected_position_global - global_position
+			
+			var final_transform: Transform3D = Transform3D(Basis(), final_position)
 			
 			multimesh.set_instance_transform(i, final_transform)
 
@@ -170,13 +170,16 @@ func random_rejection_scatter() -> void:
 		)
 			
 		var hit: OmniKitRaycastResult = OmniKitRaycastResult.new(get_world_3d().direct_space_state.intersect_ray(ray))
-		var final_transform: Transform3D = Transform3D(Basis(), hit.position - global_position)
-		
-		if correct_mesh_position:
-			var corrected_position_global: Vector3 = hit.position + Vector3.UP * _mesh_half_height
-			final_transform = Transform3D(Basis(), corrected_position_global - global_position)
 		
 		if hit.position:
+			var final_position: Vector3 = hit.position - global_position
+			
+			if correct_mesh_position:
+				var corrected_position_global: Vector3 = hit.position + Vector3.UP * _mesh_half_height
+				final_position = corrected_position_global - global_position
+			
+			var final_transform: Transform3D = Transform3D(Basis(), final_position)
+			
 			multimesh.set_instance_transform(i, final_transform)
 
 
