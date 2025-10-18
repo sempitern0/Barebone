@@ -38,12 +38,6 @@ func _ready() -> void:
 	set_physics_process(enabled and (mouse_capture or is_isometric_mode))
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	# Toggle camera mode (bind to your desired input)
-	if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.Aim):
-		is_isometric_mode = !is_isometric_mode
-
-
 func _physics_process(delta: float) -> void:
 	if is_isometric_mode:
 		var target_rot_x: float = -absf(isometric_angle)

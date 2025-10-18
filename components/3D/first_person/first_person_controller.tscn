@@ -310,6 +310,9 @@ script = ExtResource("23_l1xma")
 floor_detector_raycast = NodePath("FloorDetectorRayCast")
 sound_queue = NodePath("AcousticSoundQueue")
 
+[node name="AudioRemoteTransform3D" type="RemoteTransform3D" parent="FootstepsManager3D"]
+remote_path = NodePath("../AcousticSoundQueue/AudioStreamPlayer3D")
+
 [node name="AcousticSoundQueue" type="Node" parent="FootstepsManager3D"]
 script = ExtResource("24_vsb1p")
 queue_count = 5

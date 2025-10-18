@@ -5,7 +5,6 @@ signal placement_rejected(placeable: Placeable3D, reason: String)
 ## The root node to instance the selected placeables
 @export var world: Node
 @export var placer: Placer3D
-@onready var aerial_camera: AerialCamera = $"../AerialCamera"
 
 
 #region Placeable IDs
