@@ -65,12 +65,11 @@ func rotate_camera_with_mouse() -> void:
 	if mouse_capture.mouse_input.is_zero_approx():
 		return
 	
-	actor.rotate_y(mouse_capture.twist_input)
-	camera_pivot.rotate_x(mouse_capture.pitch_input)
+	var target_y_rotation: float = limit_horizontal_rotation(actor.rotation.y + mouse_capture.twist_input)
+	var target_x_rotation: float = limit_vertical_rotation(camera_pivot.rotation.x + mouse_capture.pitch_input)
 	
-	actor.rotation.y = limit_horizontal_rotation(actor.rotation.y)
-	camera_pivot.rotation.x = limit_vertical_rotation(camera_pivot.rotation.x)
-
+	actor.rotation.y = target_y_rotation
+	camera_pivot.rotation.x = target_x_rotation
 
 #func rotate_camera_with_gamepad(_delta: float) -> void:
 	#var joystick_motion: Vector2 = actor.motion_input.input_right_motion_as_vector
