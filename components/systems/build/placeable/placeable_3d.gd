@@ -47,7 +47,7 @@ var placing: bool = false:
 			
 			if placing:
 				placement_area.enable()
-			else:
+			else:				
 				remove_placement_validation_material()
 				placement_area.disable()
 				
@@ -57,6 +57,8 @@ var excluded_rids: Array[RID] = []
 var meshes: Array[MeshInstance3D] = []
 var last_transform: Transform3D
 var new: bool = true
+
+var original_meshes_materials: Dictionary[MeshInstance3D, Material] = {}
 
 
 func _enter_tree() -> void:
@@ -93,19 +95,18 @@ func is_valid() -> bool:
 
 func apply_placement_validation_material(valid: bool = placement_area.placement_is_valid) -> void:
 	if meshes.size():
-		
 		if valid_place_material and valid:
 			for mesh: MeshInstance3D in meshes:
-				mesh.set_surface_override_material(0, valid_place_material)
+				mesh.material_override = valid_place_material
 		
 		elif not valid and invalid_place_material: 
 			for mesh: MeshInstance3D in meshes:
-				mesh.set_surface_override_material(0, invalid_place_material)
+				mesh.material_override = invalid_place_material
 		
 
 func remove_placement_validation_material() -> void:
 	for mesh: MeshInstance3D in meshes:
-		mesh.set_surface_override_material(0, null)
+		mesh.material_override = original_meshes_materials.get(mesh, null)
 	
 	
 func lock() -> void:
@@ -129,6 +130,7 @@ func _update_meshes() -> void:
 	
 	for child: Node in OmniKitNodeTraversal.get_all_children(target):
 		if child is MeshInstance3D:
+			original_meshes_materials[child as MeshInstance3D] = child.material_override
 			meshes.append(child)
 
 
@@ -161,4 +163,3 @@ func on_placement_canceled() -> void:
 		target.queue_free()
 	
 	placing = false
-	

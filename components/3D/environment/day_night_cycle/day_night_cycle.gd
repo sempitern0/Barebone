@@ -75,7 +75,6 @@ var current_hour: int = -1: ## Important to keep the default value on -1 to not 
 
 			@warning_ignore("narrowing_conversion")
 			var new_hour: int = clampi(value, 0, HoursPerDay - 1)
-			print("current hour %d and new hour %d" % [current_hour, new_hour])
 			changed_hour.emit(current_hour, new_hour)
 			current_hour = new_hour
 			

@@ -83,6 +83,16 @@ func _handle_placement(placeable: Placeable3D = current_placeable) -> void:
 		
 		if world_projection_result.position:
 			var target_position: Vector3 = world_projection_result.position
+			var camera_position: Vector3 = origin_camera.global_position
+			
+			## This sections clamps the placeable movement to not surpass the limits 
+			## of drag distance defined for the current camera
+			var dir_to_target: Vector3 = target_position - camera_position
+			var distance: float = dir_to_target.length()
+			
+			if distance > drag_distance_from_camera:
+				dir_to_target = dir_to_target.normalized() * drag_distance_from_camera
+				target_position = camera_position + dir_to_target
 			
 			if placeable.align_with_surface_normal:
 				placeable.target.global_transform.basis = _align_placeable_with_surface_normal(world_projection_result, current_placeable).basis

@@ -34,7 +34,7 @@ func generate_surface() -> SurfaceTool:
 		vertex.y = noise_image.get_pixel(x, z).r
 		
 		if configuration.use_elevation_curve and configuration.elevation_curve:
-			print("no entro")
+			
 			if configuration.allow_negative_elevation_values:
 				var uv_height_factor = clampf(((vertex.x + vertex.z) / (configuration.size_depth * 2.0)) * 0.5 + 0.5, 0.0, 1.0)
 				vertex.y *= apply_elevation_curve(configuration, uv_height_factor) * configuration.max_terrain_height
