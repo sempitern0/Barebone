@@ -3,15 +3,15 @@
 class_name DayNightCycle extends Node
 
 signal changed_day_zone(previous_zone: DayZone, new_zone: DayZone)
+signal changed_day(previous_day: int, new_day: int)
+signal changed_hour(previous_hour: int, new_hour: int)
+signal changed_minute(previous_minute: int, new_minute: int)
 
 const MinutesPerDay: float = 1440.0
 const HoursPerDay: float = 24.0
 const MinutesPerHour: float = 60.0
 
-@export var enabled: bool = true:
-	set(value):
-		enabled = value
-		set_process(enabled)
+@export var enabled: bool = true
 @export var world_environment: WorldEnvironment
 @export var sun: DirectionalLight3D
 @export var sun_configuration: DayNightCycleSunConfiguration
@@ -30,14 +30,14 @@ const MinutesPerHour: float = 60.0
 	set(value):
 		current_day = maxi(1, value)
 		
-@export_range(0, 23, 1) var start_hour: int = 0:
+@export_range(0, HoursPerDay - 1, 1) var start_hour: int = 0:
 	set(value):
 		start_hour = value
 		
 		if Engine.is_editor_hint():
 			change_hour(start_hour)
 			
-@export_range(0, 59, 1) var start_minute: int = 0:
+@export_range(0, MinutesPerHour - 1, 1) var start_minute: int = 0:
 	set(value):
 		start_minute = value
 		
@@ -45,10 +45,10 @@ const MinutesPerHour: float = 60.0
 			change_minute(start_minute)
 			
 @export_category("Zone hours")
-@export_range(0, 23, 1, "hour") var dawn_hour: int = 6
-@export_range(0, 23, 1) var day_hour: int = 12
-@export_range(0, 23, 1) var dusk_hour: int = 18
-@export_range(0, 23, 1) var night_hour: int = 21
+@export_range(0, HoursPerDay - 1, 1, "hour") var dawn_hour: int = 6
+@export_range(0, HoursPerDay - 1, 1) var day_hour: int = 12
+@export_range(0, HoursPerDay - 1, 1) var dusk_hour: int = 18
+@export_range(0, HoursPerDay - 1, 1) var night_hour: int = 21
 
 enum DayZone {
 	Dawn,
@@ -59,16 +59,45 @@ enum DayZone {
 
 var current_day: int = 1:
 	set(value):
-		current_day = maxi(1, value)
-var current_hour: int = 0:
+		if current_day != value:
+			var new_day: int = maxi(1, value)
+			changed_day.emit(current_day, new_day)
+			current_day = new_day
+			
+var current_hour: int = -1: ## Important to keep the default value on -1 to not trigger the round logic
 	set(value):
-		@warning_ignore("narrowing_conversion")
-		current_hour = clampi(value, 0, HoursPerDay - 1)
-var current_minute: int = 0:
+		if current_hour != value:
+			
+			if current_hour == (HoursPerDay - 1) and value == HoursPerDay:
+				update_day(current_day + 1)
+			elif current_hour == 0 and value == (HoursPerDay - 1):
+				update_day(current_day - 1)
+
+			@warning_ignore("narrowing_conversion")
+			var new_hour: int = clampi(value, 0, HoursPerDay - 1)
+			print("current hour %d and new hour %d" % [current_hour, new_hour])
+			changed_hour.emit(current_hour, new_hour)
+			current_hour = new_hour
+			
+var current_minute: int = -1:## Important to keep the default value on -1 to not trigger the round logic
 	set(value):
-		@warning_ignore("narrowing_conversion")
-		current_minute = clampi(value, 0, 100.0 - 1)
-var current_day_zone: DayZone = DayZone.Day
+		if current_minute != value:
+			if value == MinutesPerHour:
+				current_hour += 1
+			
+			elif current_minute == 0 and value == MinutesPerHour - 1:
+				current_hour -= 1
+				
+			@warning_ignore("narrowing_conversion")
+			var new_minute: int = clampi(value, 0,  MinutesPerHour - 1)
+			changed_minute.emit(current_minute, new_minute)
+			current_minute = new_minute
+			
+var current_day_zone: DayZone = DayZone.Day:
+	set(value):
+		if current_day_zone != value:
+			changed_day_zone.emit(current_day_zone, value)
+			current_day_zone = value
 
 var time: float = 0.0:
 	set(value):
@@ -76,12 +105,12 @@ var time: float = 0.0:
 var time_rate: float = 0.0
 
 
-func _ready() -> void:	
+func _ready() -> void:
 	_update_time_rate()
 	update_current_time(start_hour, start_minute)
 	_update_time_sampler()
-	call_deferred("set_process", enabled)
-
+	call_deferred("set_process", enabled and not Engine.is_editor_hint())
+	
 
 func _process(delta: float) -> void:
 	time += time_rate * delta
@@ -94,19 +123,6 @@ func _process(delta: float) -> void:
 
 		var hour = floor(total_minutes_in_day / MinutesPerHour)
 		var minute = fmod(total_minutes_in_day, MinutesPerHour)
-		
-		if round(minute) >= MinutesPerHour:
-			minute = 0
-			hour += 1
-
-		if hour >= HoursPerDay:
-			hour = 0
-			
-		if current_hour == 23 and hour == 0:
-			update_day(current_day + 1)
-		elif current_hour == 0 and hour == 23:
-			update_day(current_day - 1)
-		
 		update_current_time(hour, minute)
 
 
@@ -240,19 +256,15 @@ func update_sky(hour: int = current_hour, minute: int = current_minute) -> void:
 func update_day_zone(hour: int = current_hour) -> void:
 	if not is_dawn() and hour >= dawn_hour and hour < day_hour:
 		current_day_zone = DayZone.Dawn
-		changed_day_zone.emit(DayZone.Night, DayZone.Dawn)
 		
 	elif not is_day() and hour >= day_hour and hour < dusk_hour:
 		current_day_zone = DayZone.Day
-		changed_day_zone.emit(DayZone.Night, DayZone.Day)
 		
 	elif not is_dusk() and hour >= dusk_hour and hour < night_hour:
 		current_day_zone = DayZone.Dusk
-		changed_day_zone.emit(DayZone.Day, DayZone.Dusk)
 		
-	elif not is_night() and hour >= night_hour and hour <= 23:
+	elif not is_night() and hour >= night_hour and hour <= HoursPerDay - 1:
 		current_day_zone = DayZone.Night
-		changed_day_zone.emit(DayZone.Dusk, DayZone.Night)
 
 
 func is_dawn() -> bool:
@@ -268,7 +280,7 @@ func is_night() -> bool:
 	return current_day_zone == DayZone.Night;
 
 func is_am() -> bool:
-	return current_hour < 12
+	return current_hour < (HoursPerDay / 2)
 
 func is_pm() -> bool:
-	return current_hour >= 12
+	return current_hour >= (HoursPerDay / 2)
