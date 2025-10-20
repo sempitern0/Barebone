@@ -44,7 +44,7 @@ var painting: bool = false:
 				last_terrain = null
 				
 var current_mode: Modes = Modes.RaiseTerrain
-var last_terrain: Terrain
+var last_terrain: MeshInstance3D
 var current_paint_color_channel: Color = Color.RED
 
 
@@ -106,7 +106,7 @@ func _process(_delta: float) -> void:
 							brush_strength * -1.0 ## Negative strength lower the terrain
 						)
 		
-func deform_terrain(terrain: Terrain, point: Vector3, radius: float = brush_radius, strength: float = brush_strength) -> void:
+func deform_terrain(terrain: MeshInstance3D, point: Vector3, radius: float = brush_radius, strength: float = brush_strength) -> void:
 	if terrain.mesh == null:
 		return
 	
@@ -149,7 +149,7 @@ func deform_terrain(terrain: Terrain, point: Vector3, radius: float = brush_radi
 	terrain.mesh = array_mesh
 
 
-func paint_terrain_vertex_color(terrain: Terrain, point: Vector3, radius: float, strength: float, color: Color) -> void:
+func paint_terrain_vertex_color(terrain: MeshInstance3D, point: Vector3, radius: float, strength: float, color: Color) -> void:
 	if terrain.mesh == null:
 		return
 	

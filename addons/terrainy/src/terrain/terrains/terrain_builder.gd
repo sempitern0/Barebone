@@ -19,6 +19,11 @@ static func add_to_mirror_group(terrain_mesh: MeshInstance3D) -> void:
 		terrain_mesh.add_to_group(MirrorGroupName)
 	
 	
+static func add_to_grid_group(terrain_mesh: MeshInstance3D) -> void:
+	if not terrain_mesh.is_in_group(GridGroupName):
+		terrain_mesh.add_to_group(GridGroupName)
+	
+	
 static func generate_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainConfiguration) -> SurfaceTool:
 	if not is_instance_valid(target_mesh) or target_mesh.mesh == null:
 		printerr("TerrainBuilder->generate_surface: The target mesh %s is not valid" % target_mesh.name)
@@ -57,14 +62,14 @@ static func generate_noise_surface(target_mesh: MeshInstance3D, terrain_configur
 	for vertex_idx: int in mesh_data_tool.get_vertex_count():
 		var vertex: Vector3 = mesh_data_tool.get_vertex(vertex_idx)
 		## Convert to a range of 0 ~ 1 instead of -1 ~ 1
-		var noise_y: float = get_noise_y_normalized(terrain_configuration.noise, vertex)
+		var noise_y: float = get_noise_y_normalized(terrain_configuration.noise, vertex, terrain_configuration.world_offset)
 		
 		if terrain_configuration.use_elevation_curve and terrain_configuration.elevation_curve:
 			if terrain_configuration.allow_negative_elevation_values:
 				var uv_height_factor = clampf(((vertex.x + vertex.z) / (terrain_configuration.size_depth * 2.0)) * 0.5 + 0.5, 0.0, 1.0)
 				vertex.y = clampf(vertex.y, -terrain_configuration.max_terrain_height, terrain_configuration.max_terrain_height)
 				
-				noise_y = terrain_configuration.noise.get_noise_2d(vertex.x, vertex.z) \
+				noise_y = terrain_configuration.noise.get_noise_2d(vertex.x + terrain_configuration.world_offset.x, vertex.z + terrain_configuration.world_offset.y) \
 					* apply_elevation_curve(terrain_configuration, uv_height_factor) \
 					* terrain_configuration.max_terrain_height
 			else:
@@ -275,11 +280,10 @@ static func center_terrain_mesh_to_node_world_position_y(terrain: MeshInstance3D
 	var aabb: AABB = terrain.mesh.get_aabb()
 	var center_local: Vector3 = aabb.position + aabb.size * 0.5
 
-	var center_world_y: float= terrain.global_transform.origin.y + center_local.y
-	var offset_world_y: float= terrain.global_position.y - center_world_y
+	var center_world_y: float = terrain.global_transform.origin.y + center_local.y
+	var offset_world_y: float = terrain.global_position.y - center_world_y
 	var offset_local: Vector3 = terrain.to_local(terrain.global_transform.origin + Vector3(0, offset_world_y, 0)) - terrain.to_local(terrain.global_transform.origin)
 
-	# Aplicar solo en Y a los vértices
 	var mdt: MeshDataTool = MeshDataTool.new()
 	mdt.create_from_surface(terrain.mesh, 0)
 	
@@ -298,8 +302,8 @@ static func center_terrain_mesh_to_node_world_position_y(terrain: MeshInstance3D
 	st.generate_tangents()
 	
 	terrain.mesh = st.commit()
-
-
+	
+	
 static func create_mirrored_terrain(original_terrain: MeshInstance3D, terrain_configuration: TerrainConfiguration) -> MeshInstance3D:
 	if not is_instance_valid(original_terrain) or original_terrain.mesh == null:
 		printerr("TerrainBuilder->create_mirrored_terrain: The original terrain mesh does not have a valid Mesh assigned, aborting...")
@@ -479,12 +483,12 @@ static func create_mirrored_terrain(original_terrain: MeshInstance3D, terrain_co
 	return mirror_terrain
 	
 
-static func get_noise_y(selected_noise: FastNoiseLite, vertex: Vector3) -> float:
-	return selected_noise.get_noise_2d(vertex.x, vertex.z)
+static func get_noise_y(selected_noise: FastNoiseLite, vertex: Vector3, world_offset: Vector2 = Vector2.ZERO) -> float:
+	return selected_noise.get_noise_2d(vertex.x + world_offset.x, vertex.z + world_offset.y)
 	
 
-static func get_noise_y_normalized(selected_noise: FastNoiseLite, vertex: Vector3) -> float:
-	return (get_noise_y(selected_noise, vertex) + 1) / 2
+static func get_noise_y_normalized(selected_noise: FastNoiseLite, vertex: Vector3, world_offset: Vector2 = Vector2.ZERO) -> float:
+	return (get_noise_y(selected_noise, vertex, world_offset) + 1) / 2
 
 ## It takes four neighboring pixels and blends their values based on the vertex’s exact position, 
 ## creating a smoother transition between each pixel on the map.

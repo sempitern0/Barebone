@@ -1,6 +1,7 @@
 @tool
 class_name TerrainConfiguration extends Resource
 
+@export var world_offset: Vector2 = Vector2.ZERO
 @export var id: StringName
 @export var name: StringName
 @export_multiline var description: String
