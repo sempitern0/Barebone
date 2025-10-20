@@ -273,6 +273,7 @@ static func regenerate_terrain_collision(terrain_mesh: MeshInstance3D) -> void:
 	terrain_mesh.create_trimesh_collision()
 
 
+	
 static func center_terrain_mesh_to_node_world_position_y(terrain: MeshInstance3D) -> void:
 	if terrain == null or terrain.mesh == null:
 		return

@@ -1,12 +1,10 @@
 @tool
 class_name Terrainy extends Node
 
+signal terrain_generation_finished(terrains: Dictionary[MeshInstance3D, TerrainConfiguration])
 
 @export var button_Generate_Terrains: String
 @export var terrains: Dictionary[MeshInstance3D, TerrainConfiguration]= {}
-@export_category("Procedural")
-@export var procedural_grid_size: Vector2 = Vector2.ONE * 3
-@export var procedural_shared_noise: TerrainNoiseConfiguration
 @export_category("Navigation region")
 @export var nav_source_group_name: StringName = &"terrain_navigation_source"
 ## This navigation needs to set the value Source Geometry -> Group Explicit
@@ -24,26 +22,45 @@ var _started_count: int = 0
 var _finished_count: int = 0
 
 
-func generate_procedural_grid(size: Vector2i, config_template: TerrainConfiguration):
+func generate_procedural_grid(size: Vector2i, config_template: TerrainConfiguration, spawn_node: Node3D):
 	var generated_terrains: Dictionary[MeshInstance3D, TerrainConfiguration] = {}
+	
+	if spawn_node == null:
+		spawn_node = get_parent()
 	
 	for z: int in size.y:
 		for x: int in size.x:
-			var terrain_instance := MeshInstance3D.new()
-			call_thread_safe("add_child", terrain_instance)
-			
 			var configuration: TerrainNoiseConfiguration = config_template.duplicate()
-			configuration.world_offset = Vector2(x * configuration.size_width, z * configuration.size_depth)
-			
-			terrain_instance.name = "Terrain_%d_%d" % [x, z]
-			terrain_instance.global_position = Vector3(x * configuration.size_width, 0, z * configuration.size_depth)
-			TerrainBuilder.add_to_grid_group(terrain_instance)
-			
+			var terrain_instance: MeshInstance3D = prepare_procedural_terrain(Vector2i(x, z), configuration, spawn_node)
 			generated_terrains[terrain_instance] = configuration
 	
 	generate_terrains(generated_terrains, true)
 	
+
+func prepare_procedural_terrain(grid_position: Vector2i,  terrain_configuration: TerrainConfiguration, spawn_node: Node3D) -> MeshInstance3D:
+	var terrain_instance: MeshInstance3D = MeshInstance3D.new()
+	spawn_node.call_thread_safe("add_child", terrain_instance)
 	
+	terrain_configuration.world_offset = Vector2(
+		grid_position.x * terrain_configuration.size_width, 
+		grid_position.y * terrain_configuration.size_depth
+		)
+	
+	terrain_instance.name = "Terrain_%d_%d" % [grid_position.x, grid_position.y]
+	terrain_instance.set_meta(&"grid_position", Vector2i(grid_position))
+	
+	terrain_instance.global_position = Vector3(
+			grid_position.x * terrain_configuration.size_width, 
+			0,
+			grid_position.y * terrain_configuration.size_depth
+		)
+		
+	terrain_instance.set_meta(&"procedural", true)
+	TerrainBuilder.add_to_grid_group(terrain_instance)
+	
+	return terrain_instance
+
+
 func generate_terrains(selected_terrains: Dictionary[MeshInstance3D, TerrainConfiguration] = {}, procedural: bool = false) -> void:
 	_threads.clear()
 	_started_count = 0
@@ -178,9 +195,11 @@ func _finalize_threads() -> void:
 			if create_navigation_region_in_runtime:
 				create_navigation_region(navigation_region)
 				
+				
+	terrain_generation_finished.emit(pending_terrains)
 	pending_terrain_surfaces.clear()
 	pending_terrains.clear()
-
+	
 	print("Terrainy: Generation complete.")
 
 
@@ -219,6 +238,5 @@ func _free_children(node: Node) -> void:
 func _on_tool_button_pressed(text: String) -> void:
 	match text:
 		"Generate Terrains":
-			#generate_procedural_grid(procedural_grid_size, procedural_shared_noise)
 			generate_terrains(terrains)
 #endregion
