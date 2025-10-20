@@ -4,7 +4,21 @@ const DefaultTerrainMaterial: StandardMaterial3D = preload("uid://dnlh6yw1dkew1"
 const DefaultMirrorTerrainMaterial: StandardMaterial3D = preload("uid://8ku0pjn8b0p3")
 const DefaultMirrorNoise: FastNoiseLite = preload("uid://d0fdf4fw86ijk")
 
+const GroupName: StringName = &"terrains"
+const MirrorGroupName: StringName = &"mirror_terrains"
+const GridGroupName: StringName = &"grid_terrains"
 
+
+static func add_to_group(terrain_mesh: MeshInstance3D) -> void:
+	if not terrain_mesh.is_in_group(GroupName):
+		terrain_mesh.add_to_group(GroupName)
+	
+	
+static func add_to_mirror_group(terrain_mesh: MeshInstance3D) -> void:
+	if not terrain_mesh.is_in_group(MirrorGroupName):
+		terrain_mesh.add_to_group(MirrorGroupName)
+	
+	
 static func generate_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainConfiguration) -> SurfaceTool:
 	if not is_instance_valid(target_mesh) or target_mesh.mesh == null:
 		printerr("TerrainBuilder->generate_surface: The target mesh %s is not valid" % target_mesh.name)
@@ -74,7 +88,7 @@ static func generate_noise_surface(target_mesh: MeshInstance3D, terrain_configur
 	return surface
 
 
-static func generate_noise_texture_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainNoiseConfiguration) -> SurfaceTool:
+static func generate_noise_texture_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainNoiseTextureConfiguration) -> SurfaceTool:
 	if not is_instance_valid(target_mesh) or target_mesh.mesh == null:
 		printerr("TerrainBuilder->generate_noise_texture_surface: The target mesh %s is not valid" % target_mesh.name)
 		return
@@ -128,7 +142,7 @@ static func generate_noise_texture_surface(target_mesh: MeshInstance3D, terrain_
 	return surface
 	
 
-static func generate_heightmap_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainNoiseConfiguration) -> SurfaceTool:
+static func generate_heightmap_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainHeightmapConfiguration) -> SurfaceTool:
 	if not is_instance_valid(target_mesh) or target_mesh.mesh == null:
 		printerr("TerrainBuilder->generate_heightmap_surface: The target mesh %s is not valid" % target_mesh.name)
 		return
