@@ -4,18 +4,20 @@ class_name InfiniteTerrainRenderer extends Node3D
 @export var tracked_node: Node3D
 @export var procedural_shared_noise: TerrainNoiseConfiguration
 @export var initial_grid_size: Vector2i = Vector2i.ONE * 3
-@export var chunk_grid_size: Vector2i = Vector2i.ONE * 3
-@export var generation_distance: float = 300.0
-@export var unload_distance: float = 400.0
+@export var max_chunks_per_tick: int = 5
+@export var generation_distance: float = 100.0
+@export var unload_distance: float = 200.0
 @export var update_tick_time: float = 1.0:
 	set(value):
 		if value != update_tick_time:
 			update_tick_time = value
 			if update_tick_timer and update_tick_timer.is_inside_tree():
-				update_tick_timer.start(update_tick_time)
+				update_tick_timer.start(maxf(0.01, update_tick_time))
 
-var generated_chunks: Dictionary[Vector2i, MeshInstance3D] = {} 
-var _last_player_chunk: Vector2i = Vector2i(-999, -999)
+var generated_chunks: Dictionary[Vector2i, MeshInstance3D] = {}
+var pending_chunks: Array[Vector2i] = []
+
+var _last_player_chunk: Vector2i = Vector2i(-9999, -9999)
 
 var update_tick_timer: Timer
 var _processing_chunks: bool = false
@@ -23,7 +25,7 @@ var _processing_chunks: bool = false
 
 func _ready() -> void:
 	assert(terrainy != null, "ProceduralWorld: This node needs a Terrainy node assigned to generate the terrain chunks")
-	_prepare_tick_timer()
+	_prepare_tick_timer(update_tick_time)
 	
 	if initial_grid_size == Vector2i.ZERO:
 		terrainy.terrain_generation_finished.connect(on_terrain_chunk_generation_finished, CONNECT_DEFERRED)
@@ -54,12 +56,15 @@ func get_current_chunk_position() -> Vector2i:
 
 func stream_chunks_around_tracked_node(current_world_position: Vector3) -> void:
 	_processing_chunks = true
-	
+
+		
 	var chunks_to_generate: Array[Vector2i] = []
 	var chunks_to_unload: Array[Vector2i] = []
+	var range_x: int = ceili(generation_distance / procedural_shared_noise.size_width)
+	var range_z: int = ceili(generation_distance / procedural_shared_noise.size_depth)
 	
-	for z in range(-chunk_grid_size.y, chunk_grid_size.y): 
-		for x in range(-chunk_grid_size.x, chunk_grid_size.x):
+	for z in range(-range_z, range_z + 1): 
+		for x in range(-range_x, range_x + 1):
 			
 			var check_chunk: Vector2i = _last_player_chunk + Vector2i(x, z)
 			var chunk_origin: Vector3 = Vector3(
@@ -73,8 +78,10 @@ func stream_chunks_around_tracked_node(current_world_position: Vector3) -> void:
 			if dist <= generation_distance:
 				if generated_chunks.has(check_chunk):
 					generated_chunks[check_chunk].process_mode = Node.PROCESS_MODE_INHERIT
+					pending_chunks.erase(check_chunk)
 				else:
-					chunks_to_generate.append(check_chunk)
+					if not pending_chunks.has(check_chunk):
+						chunks_to_generate.append(check_chunk)
 		
 		for grid_pos: Vector2i in generated_chunks.keys():
 			var chunk_origin: Vector3 = Vector3(
@@ -94,23 +101,31 @@ func stream_chunks_around_tracked_node(current_world_position: Vector3) -> void:
 		if is_instance_valid(chunk) and not chunk.is_queued_for_deletion():
 			chunk.process_mode = Node.PROCESS_MODE_DISABLED
 	
-	
 	if chunks_to_generate.size():
-		var new_terrains: Dictionary[MeshInstance3D, TerrainConfiguration] = {}
+		pending_chunks.append_array(chunks_to_generate)
 			
-		for chunk_position: Vector2i in chunks_to_generate:
+		var new_terrains: Dictionary[MeshInstance3D, TerrainConfiguration] = {}
+		var chunk_positions_to_delete: Array[Vector2i] = []
+		
+		for chunk_index: int in mini(pending_chunks.size(), max_chunks_per_tick):
+			var chunk_position: Vector2i = pending_chunks[chunk_index]
 			var configuration: TerrainNoiseConfiguration = procedural_shared_noise.duplicate()
 			var terrain: MeshInstance3D = terrainy.prepare_procedural_terrain(chunk_position, configuration, self)
 			new_terrains[terrain] = configuration
 			generated_chunks[chunk_position] = terrain
-			
-		terrainy.call_deferred("generate_terrains", new_terrains, true)
+			chunk_positions_to_delete.append(chunk_position)
+		
+		for chunk_position_to_delete: Vector2i in chunk_positions_to_delete:
+			pending_chunks.erase(chunk_position_to_delete)
+		
+		terrainy.call_deferred("generate_terrains", new_terrains, self, true)
 
 
 func update_terrain_stream() -> void:
 	if _processing_chunks:
+		print("salto generacion")
 		return
-		
+	
 	var current_chunk: Vector2i = get_current_chunk_position()
 	
 	if current_chunk == _last_player_chunk:
@@ -122,10 +137,11 @@ func update_terrain_stream() -> void:
 	stream_chunks_around_tracked_node(tracked_node.global_position)
 
 
-func _prepare_tick_timer() -> void:
+func _prepare_tick_timer(wait_time: float) -> void:
 	if update_tick_timer == null:
-		update_tick_timer =  Timer.new()
-		update_tick_timer.wait_time = update_tick_time
+		update_tick_timer = Timer.new()
+		update_tick_timer.name = "ProceduralWorldTickTimer"
+		update_tick_timer.wait_time = wait_time
 		update_tick_timer.autostart = false
 		update_tick_timer.one_shot = false
 		update_tick_timer.timeout.connect(update_terrain_stream)

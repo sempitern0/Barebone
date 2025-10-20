@@ -25,14 +25,14 @@ static func add_to_grid_group(terrain_mesh: MeshInstance3D) -> void:
 	
 	
 static func generate_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainConfiguration) -> SurfaceTool:
-	if not is_instance_valid(target_mesh) or target_mesh.mesh == null:
+	if not is_instance_valid(target_mesh):
 		printerr("TerrainBuilder->generate_surface: The target mesh %s is not valid" % target_mesh.name)
 		return null
 		
 	if terrain_configuration == null:
 		printerr("TerrainBuilder->generate_surface: The terrain configuration is null for the mesh %s " % target_mesh.name)
 		return null
-		
+	
 	if terrain_configuration is TerrainNoiseConfiguration:
 		return generate_noise_surface(target_mesh, terrain_configuration)
 	elif terrain_configuration is TerrainNoiseTextureConfiguration:
@@ -44,14 +44,14 @@ static func generate_surface(target_mesh: MeshInstance3D, terrain_configuration:
 	
 	
 static func generate_noise_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainNoiseConfiguration) -> SurfaceTool:
-	if not is_instance_valid(target_mesh) or target_mesh.mesh == null:
+	if not is_instance_valid(target_mesh):
 		printerr("TerrainBuilder->generate_noise_surface: The target mesh %s is not valid" % target_mesh.name)
 		return
 		
 	var surface: SurfaceTool = SurfaceTool.new()
 	var mesh_data_tool: MeshDataTool = MeshDataTool.new()
 	
-	surface.create_from(target_mesh.mesh, 0)
+	surface.create_from(create_plane_mesh(terrain_configuration), 0)
 #
 	var array_mesh: ArrayMesh = surface.commit()
 	mesh_data_tool.create_from_surface(array_mesh, 0)
@@ -94,14 +94,14 @@ static func generate_noise_surface(target_mesh: MeshInstance3D, terrain_configur
 
 
 static func generate_noise_texture_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainNoiseTextureConfiguration) -> SurfaceTool:
-	if not is_instance_valid(target_mesh) or target_mesh.mesh == null:
+	if not is_instance_valid(target_mesh):
 		printerr("TerrainBuilder->generate_noise_texture_surface: The target mesh %s is not valid" % target_mesh.name)
 		return
 		
 	var surface: SurfaceTool = SurfaceTool.new()
 	var mesh_data_tool: MeshDataTool = MeshDataTool.new()
 	
-	surface.create_from(target_mesh.mesh, 0)
+	surface.create_from(create_plane_mesh(terrain_configuration), 0)
 #
 	var array_mesh: ArrayMesh = surface.commit()
 	mesh_data_tool.create_from_surface(array_mesh, 0)
@@ -148,14 +148,14 @@ static func generate_noise_texture_surface(target_mesh: MeshInstance3D, terrain_
 	
 
 static func generate_heightmap_surface(target_mesh: MeshInstance3D, terrain_configuration: TerrainHeightmapConfiguration) -> SurfaceTool:
-	if not is_instance_valid(target_mesh) or target_mesh.mesh == null:
+	if not is_instance_valid(target_mesh):
 		printerr("TerrainBuilder->generate_heightmap_surface: The target mesh %s is not valid" % target_mesh.name)
 		return
 		
 	var surface: SurfaceTool = SurfaceTool.new()
 	var mesh_data_tool: MeshDataTool = MeshDataTool.new()
 	
-	surface.create_from(target_mesh.mesh, 0)
+	surface.create_from(create_plane_mesh(terrain_configuration), 0)
 #
 	var array_mesh: ArrayMesh = surface.commit()
 	mesh_data_tool.create_from_surface(array_mesh, 0)
@@ -223,6 +223,20 @@ static func generate_heightmap_surface(target_mesh: MeshInstance3D, terrain_conf
 	surface.generate_tangents()
 	
 	return surface
+
+
+static func create_plane_mesh(terrain_configuration: TerrainConfiguration) -> PlaneMesh:
+	var plane_mesh: PlaneMesh = PlaneMesh.new()
+	plane_mesh.size = Vector2(terrain_configuration.size_width, terrain_configuration.size_depth)
+	plane_mesh.subdivide_depth = terrain_configuration.mesh_resolution
+	plane_mesh.subdivide_width = terrain_configuration.mesh_resolution
+	
+	if terrain_configuration.terrain_material:
+		plane_mesh.material = terrain_configuration.terrain_material
+	else:
+		plane_mesh.material = TerrainBuilder.DefaultTerrainMaterial
+	
+	return plane_mesh
 
 
 static func calculate_falloff(configuration: TerrainConfiguration, vertex: Vector3) -> float:
