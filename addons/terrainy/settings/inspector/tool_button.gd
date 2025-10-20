@@ -16,7 +16,7 @@ func _init(obj: Object, text:String):
 	var emoji: String = ""
 	
 	match text:
-		"Generate Terrain":
+		"Generate Terrains":
 			emoji = "⛰️"
 		"Generate Terrain Grid":
 			emoji = "🧮"

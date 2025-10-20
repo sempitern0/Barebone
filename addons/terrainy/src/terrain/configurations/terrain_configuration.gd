@@ -4,8 +4,6 @@ class_name TerrainConfiguration extends Resource
 @export var id: StringName
 @export var name: StringName
 @export_multiline var description: String
-## Collision type generation for the terrain meshes
-@export var collision_type: TerrainyCore.CollisionType = TerrainyCore.CollisionType.Trimesh
 ## More resolution means more detail (more dense vertex) in the terrain generation, this increases the mesh subdivisions it could reduce the performance in low-spec pcs
 @export_range(2, 2048, 2) var mesh_resolution: int = 64
 ## The depth size of the mesh (z) in godot units (meters)
@@ -25,6 +23,7 @@ class_name TerrainConfiguration extends Resource
 	set(value):
 		if value != max_terrain_height:
 			max_terrain_height = maxf(0.5, value)
+@export var generate_collision: bool = true
 ## The terrain material that will be applied on the surface
 @export var terrain_material: Material
 #@export_group("LODs") ## TODO - Pending until godot provide a solution for LODs on ArrayMesh created from SurfaceTool
@@ -52,7 +51,7 @@ class_name TerrainConfiguration extends Resource
 @export_group("Mirror Terrain")
 ## Generate a mirrored terrain below the original terrain mesh
 @export var generate_mirror: bool = false
-@export var mirror_collision_type: TerrainyCore.CollisionType = TerrainyCore.CollisionType.None
+@export var generate_mirror_collision: bool = true
 ## The mirror offset allows to avoid shadow artifacts when 2 meshes are glue together. 
 @export_range(0.01, 100.0, 0.01) var mirror_offset: float = 0.01
 ## The height to the bottom of the mirror mesh.
