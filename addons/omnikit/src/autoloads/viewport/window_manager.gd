@@ -206,14 +206,17 @@ func get_camera2d_frame(viewport: Viewport = get_viewport()) -> Rect2:
 #region Screenshot
 ## Recommended to call this method after await RenderingServer.frame_post_draw
 func screenshot(viewport: Viewport) -> Image:
-	var screenshot_image = viewport.get_texture().get_image()
+	var screenshot_image: Image = viewport.get_texture().get_image()
 	
-	assert(screenshot_image is Image, "OmniKitWindowManager::screenshot: The image output is null")
-
+	assert(screenshot_image != null, "OmniKitWindowManager::screenshot: The image output is null")
+	
+	screenshot_image.convert(Image.FORMAT_RGB8)
+	screenshot_image.fix_alpha_edges()
+	
 	return screenshot_image
 
 
-func screenshot_to_folder(folder: String = "%s/screenshots" % OS.get_user_data_dir(), viewport: Viewport = get_viewport()) -> Error:
+func screenshot_to_folder(viewport: Viewport = get_viewport(), folder: String = "%s/screenshots" % OS.get_user_data_dir()) -> Error:
 	var create_dir_error: Error = DirAccess.make_dir_recursive_absolute(folder)
 	
 	if create_dir_error != OK:
@@ -223,11 +226,14 @@ func screenshot_to_folder(folder: String = "%s/screenshots" % OS.get_user_data_d
 	await RenderingServer.frame_post_draw
 	
 	var screenshot_image: Image = screenshot(viewport)
-	var screenshot_save_error = screenshot_image.save_png("%s/%s.png" % [folder, Time.get_datetime_string_from_system().replace(":", "_")])
+	var screenshot_path: String = "%s/%s.png" % [folder, Time.get_datetime_string_from_system().replace(":", "_")]
+	var screenshot_save_error: Error = screenshot_image.save_png(screenshot_path)
 	
 	if screenshot_save_error != OK:
 		push_error("OmniKitWindowManager::screenshot_to_folder: Can't save screenshot image '%s'. Error: %s" % [folder, error_string(screenshot_save_error)])
-		
+	
+	print_rich("[b]OmniKitWindowManager::screenshot_to_folder:[/b] [color=green]Saved[/color] screenshot on path [color=yellow][i]%s[/i][/color]" % screenshot_path)
+
 	return screenshot_save_error
 
 ## Recommended to call this method after await RenderingServer.frame_post_draw
