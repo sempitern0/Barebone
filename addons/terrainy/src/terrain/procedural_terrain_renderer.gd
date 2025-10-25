@@ -24,7 +24,8 @@ var _processing_chunks: bool = false
 
 
 func _ready() -> void:
-	assert(terrainy != null, "ProceduralWorld: This node needs a Terrainy node assigned to generate the terrain chunks")
+	assert(terrainy != null, "InfiniteTerrainRenderer: This node needs a Terrainy node assigned to generate the terrain chunks, aborting...")
+	assert(procedural_shared_noise != null, "InfiniteTerrainRenderer: This node needs a TerrainConfiguration to geenrate the terrain chunks, aborting...")
 	_prepare_tick_timer(update_tick_time)
 	
 	if initial_grid_size == Vector2i.ZERO:
@@ -123,7 +124,6 @@ func stream_chunks_around_tracked_node(current_world_position: Vector3) -> void:
 
 func update_terrain_stream() -> void:
 	if _processing_chunks:
-		print("salto generacion")
 		return
 	
 	var current_chunk: Vector2i = get_current_chunk_position()
@@ -144,6 +144,7 @@ func _prepare_tick_timer(wait_time: float) -> void:
 		update_tick_timer.wait_time = wait_time
 		update_tick_timer.autostart = false
 		update_tick_timer.one_shot = false
+		update_tick_timer.ignore_time_scale = true
 		update_tick_timer.timeout.connect(update_terrain_stream)
 		
 		add_child(update_tick_timer)
