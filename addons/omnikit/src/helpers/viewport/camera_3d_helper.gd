@@ -84,7 +84,7 @@ static func project_raycast_to_mouse(
 
 
 static func camera_snap_to_grid(camera: Camera3D, target: Node3D, grid_size: float, ground_y_level: float = 0.0) -> Vector3:
-	assert(grid_size > 0, "OmniKitCamera3DHelper: The grid size is zero or below, make sure the size is greater than 0")
+	assert(grid_size > 0, "OmniKitCamera3DHelper->camera_snap_to_grid: The grid size is zero or below, make sure the size is greater than 0")
 	
 	var raycast = OmniKitCamera3DHelper.project_raycast_to_mouse(camera)
 	var grid: Vector3 = (raycast.position / grid_size).floor()
