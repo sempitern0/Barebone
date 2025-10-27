@@ -6,8 +6,10 @@ render_mode blend_mix, cull_disabled, depth_prepass_alpha, shadows_disabled, spe
 uniform bool snap_enabled = true;
 uniform float snap_resolution: hint_range(60.0, 480.0, 1.0) = 148.0;
 
+uniform vec4 albedo_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform sampler2D albedo_texture : source_color, filter_nearest;
 uniform vec2 texture_tile = vec2(1.0, 1.0);
+uniform vec2 uv_scale = vec2(1.0, 1.0);
 
 
 void vertex() {
@@ -24,7 +26,11 @@ void vertex() {
 }
 
 void fragment() {
-    vec4 albedo = texture(albedo_texture, UV * texture_tile);
-    ALBEDO = albedo.rgb;
-    ALPHA = albedo.a;
+    vec2 scaled_uv = UV * uv_scale;
+    vec4 tex_color = texture(albedo_texture, scaled_uv);
+    
+    vec4 final_color = tex_color * albedo_color;
+
+    ALBEDO = final_color.rgb;
+    ALPHA = final_color.a;
 }
