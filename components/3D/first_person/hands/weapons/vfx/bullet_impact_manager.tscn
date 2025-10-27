@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://drgvwsept8p8k"]
+
+[ext_resource type="Script" uid="uid://byvbguldls0qx" path="res://components/3D/first_person/hands/weapons/vfx/bullet_impact_manager.gd" id="1_0mw3x"]
+
+[node name="BulletImpactManager" type="Node"]
+script = ExtResource("1_0mw3x")

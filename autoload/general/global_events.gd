@@ -26,6 +26,8 @@ signal interactable_3d_interacted(interactable: Interactable3D)
 signal interactable_3d_canceled_interaction(interactable: Interactable3D)
 @warning_ignore("unused_signal")
 signal interactable_3d_interaction_limit_reached(interactable: Interactable3D)
+#endregion
 
-
+@warning_ignore("unused_signal")
+signal weapon_fired(weapon: FireArmWeapon, raycast_result: OmniKitRaycastResult)
 #endregion

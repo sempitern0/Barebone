@@ -103,6 +103,7 @@ func shoot(target_hitscan: OmniKitRaycastResult, use_fire_timer: bool = true) ->
 			reload()
 			
 		fired.emit(target_hitscan)
+		GlobalEvents.weapon_fired.emit(self, target_hitscan)
 
 
 func hitscan_physic_collision(target_hitscan: OmniKitRaycastResult) -> void:
@@ -213,8 +214,9 @@ func spawn_bullet_trace() -> void:
 		var trace: BulletTrace = configuration.bullet.trace_scene.instantiate() as BulletTrace
 		trace.alive_time = configuration.bullet.trace_alive_time
 		mesh.barrel_marker.add_child(trace)
+		trace.global_transform = mesh.barrel_marker.global_transform
 
-	
+
 func muzzle_effect() -> void:
 	if muzzle_flash_scene and configuration.muzzle_texture \
 		and mesh.muzzle_marker \
