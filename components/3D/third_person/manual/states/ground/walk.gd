@@ -10,17 +10,15 @@ func physics_update(delta: float) -> void:
 		FSM.change_state_to(ThirdPersonIdleState)
 		return
 		
-	var forward: Vector3 = actor.camera.global_basis.z
-	var right: Vector3 = actor.camera.global_basis.x
-	var move_direction = forward * actor.motion_input.input_direction.y + right * actor.motion_input.input_direction.x
-	move_direction.y = 0
-	move_direction = move_direction.normalized()
-	
+	var move_direction = actor.move_direction_based_on_camera(actor.camera, actor.motion_input.input_direction)
 	accelerate(move_direction, delta)
 		
 	if move_direction.length() > 0.2:
 		last_move_direction = move_direction
 	
-	rotate_skin(last_move_direction)
-	
+	if actor.detect_run():
+		FSM.change_state_to(ThirdPersonRunState)
+		return
+		
+	actor.rotate_skin(last_move_direction, delta)
 	actor.move_and_slide()

@@ -1,6 +1,6 @@
 class_name ThirdPersonGroundState extends MachineState
 
-@export var actor: CharacterBody3D
+@export var actor: ThirdPersonController
 @export var gravity_force: float = 9.8
 @export var speed: float = 5.0
 @export var acceleration: float = 15.0
@@ -10,6 +10,9 @@ class_name ThirdPersonGroundState extends MachineState
 func physics_update(delta: float):
 	if not actor.is_on_floor():
 		apply_gravity(gravity_force, delta)
+
+	if gravity_force > 0 and actor.is_falling():
+		FSM.change_state_to(ThirdPersonFallState)
 
 
 func accelerate(direction: Vector3, delta: float = get_physics_process_delta_time()) -> void:
@@ -29,16 +32,3 @@ func decelerate(delta: float = get_physics_process_delta_time()) -> void:
 func apply_gravity(force: float = gravity_force, delta: float = get_physics_process_delta_time()):
 	actor.velocity += OmniKitVectorHelper\
 		.up_direction_opposite_vector3(actor.up_direction) * force * delta
-
-
-func rotate_skin(target_direction: Vector3, delta: float = get_physics_process_delta_time()) -> void:
-	if actor.skin:
-		var target_angle: float = Vector3.FORWARD.signed_angle_to(target_direction, Vector3.UP)
-		
-		if actor.skin_rotation_speed > 0:
-			actor.skin.global_rotation.y = lerp_angle(
-				actor.skin.global_rotation.y, 
-				target_angle, 
-				delta * actor.skin_rotation_speed)
-		else:
-			actor.skin.global_rotation.y = target_angle

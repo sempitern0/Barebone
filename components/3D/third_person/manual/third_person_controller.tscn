@@ -1,11 +1,13 @@
-[gd_scene load_steps=13 format=3 uid="uid://ch3pctr3a0piy"]
+[gd_scene load_steps=15 format=3 uid="uid://ch3pctr3a0piy"]
 
 [ext_resource type="Script" uid="uid://dev72b4kxphfv" path="res://components/3D/third_person/manual/third_person_controller.gd" id="1_1x7a4"]
 [ext_resource type="Script" uid="uid://d4sqxm1fmt36" path="res://components/3D/first_person/motion/mouse/mouse_capture_component.gd" id="2_hpnqg"]
 [ext_resource type="Script" uid="uid://dpxsaf4d16r5n" path="res://components/3D/third_person/spring_camera_pivot.gd" id="3_8cv8g"]
 [ext_resource type="Script" uid="uid://uydvspiq3y2j" path="res://addons/machina/src/finite-state-machine.gd" id="4_kxbnw"]
-[ext_resource type="Script" uid="uid://b546hq3rh3u8m" path="res://components/3D/third_person/manual/states/idle.gd" id="5_44edv"]
-[ext_resource type="Script" uid="uid://bw0lp5jf12g2g" path="res://components/3D/third_person/manual/states/walk.gd" id="6_picc0"]
+[ext_resource type="Script" uid="uid://b546hq3rh3u8m" path="res://components/3D/third_person/manual/states/ground/idle.gd" id="5_44edv"]
+[ext_resource type="Script" uid="uid://bw0lp5jf12g2g" path="res://components/3D/third_person/manual/states/ground/walk.gd" id="6_picc0"]
+[ext_resource type="Script" uid="uid://cgb8hf0bmtlq5" path="res://components/3D/third_person/manual/states/ground/run.gd" id="7_4qv2w"]
+[ext_resource type="Script" uid="uid://n7ekhq5eesv7" path="res://components/3D/third_person/manual/states/air/fall.gd" id="7_8cv8g"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_arwy3"]
 
@@ -66,16 +68,33 @@ unique_name_in_owner = true
 
 [node name="MotionStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("4_kxbnw")
-initial_state = NodePath("ThirdPersonIdleState")
+initial_state = NodePath("Ground/ThirdPersonIdleState")
 enable_stack = false
 metadata/_custom_type_script = "uid://uydvspiq3y2j"
 
-[node name="ThirdPersonIdleState" type="Node" parent="MotionStateMachine" node_paths=PackedStringArray("actor")]
+[node name="Ground" type="Node" parent="MotionStateMachine"]
+
+[node name="ThirdPersonIdleState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
 script = ExtResource("5_44edv")
-actor = NodePath("../..")
+actor = NodePath("../../..")
 gravity_force = 15.0
 
-[node name="ThirdPersonWalkState" type="Node" parent="MotionStateMachine" node_paths=PackedStringArray("actor")]
+[node name="ThirdPersonWalkState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
 script = ExtResource("6_picc0")
-actor = NodePath("../..")
+actor = NodePath("../../..")
 gravity_force = 15.0
+
+[node name="ThirdPersonRunState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
+script = ExtResource("7_4qv2w")
+actor = NodePath("../../..")
+speed = 7.0
+acceleration = 18.0
+friction = 25.0
+metadata/_custom_type_script = "uid://cgb8hf0bmtlq5"
+
+[node name="Air" type="Node" parent="MotionStateMachine"]
+
+[node name="ThirdPersonFallState" type="Node" parent="MotionStateMachine/Air" node_paths=PackedStringArray("actor")]
+script = ExtResource("7_8cv8g")
+actor = NodePath("../../..")
+metadata/_custom_type_script = "uid://n7ekhq5eesv7"
