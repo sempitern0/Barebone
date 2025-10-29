@@ -60,6 +60,8 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 		for horizontal_piece: int in horizontal_pieces:
 			var puzzle_piece: PuzzlePiece = PuzzlePieceScene.instantiate() as PuzzlePiece
 			puzzle_piece.name = "PuzzlePiece_%d_%d" % [horizontal_piece, vertical_piece]
+			puzzle_piece.row = horizontal_piece
+			puzzle_piece.col = vertical_piece
 			puzzle_piece.region_enabled = true
 			puzzle_piece.region_rect = _calculate_piece_rect(horizontal_piece, vertical_piece, piece_size, margin)
 			puzzle_piece.sides = _generate_piece_sides(current_pieces, horizontal_piece, vertical_piece, horizontal_pieces, vertical_pieces)
@@ -67,12 +69,15 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			puzzle_piece.mask_shader_material = PuzzleMaskShaderMaterial
 			puzzle_piece.texture = puzzle_texture
 			add_neighbours_to_piece(current_pieces, puzzle_piece, horizontal_piece, vertical_piece, horizontal_pieces)
-			
 			current_pieces.append(puzzle_piece)
-			output_node.add_child(puzzle_piece)
-			puzzle_piece.position.x = horizontal_piece * piece_size
-			puzzle_piece.position.y = vertical_piece * piece_size
 	
+	## The pieces are added after the preparing loop
+	## as the neighbours are setup correctly now to delete the proper detection areas
+	for piece: PuzzlePiece in current_pieces:
+		output_node.add_child(piece)
+		piece.position.x = piece.row * piece_size
+		piece.position.y = piece.col * piece_size
+
 
 	fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
 			
