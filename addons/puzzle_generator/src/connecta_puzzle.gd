@@ -1,0 +1,170 @@
+class_name ConnectaPuzzle extends Node2D
+
+const MasksPath: StringName = &"res://addons/puzzle_generator/src/shader/masks/"
+const PuzzlePieceScene: PackedScene = preload("uid://cy53228ilv3wo")
+const PuzzleMaskShaderMaterial: ShaderMaterial = preload("uid://eb4n3d3w5in")
+
+enum PieceStyle {Straight, Inset, Outset}
+enum PieceSide {Top, Right, Bottom, Left}
+enum GenerationType {
+	Automatic, ## Generates automatically the puzzle when this node is ready and a puzzle texture is assigned
+	Manual ## For better control, when this mode is set, you need to call the function generate_puzzle() manually to generate a puzzle.
+	}
+
+@export var output_node: Node2D
+@export var generation_type: GenerationType = GenerationType.Automatic
+@export var puzzle_texture: Texture2D:
+	set(value):
+		puzzle_texture = value
+		current_puzzle_image = puzzle_texture.get_image() if puzzle_texture else null
+		
+@export_range(4, 10000, 1) var number_of_pieces: int = 100
+@export var piece_margin: float = 0.15
+
+var cached_masks: Dictionary = {}
+var current_pieces: Array[PuzzlePiece] = []
+var current_puzzle_image: Image:
+	set(new_image):
+		current_puzzle_image = new_image
+		
+		if current_puzzle_image:
+			_prepare_image(current_puzzle_image)
+			
+
+func _ready() -> void:
+	if output_node == null:
+		output_node = self
+		
+	_prepare_masks()
+	
+	print(cached_masks)
+	if puzzle_texture:
+		current_puzzle_image = puzzle_texture.get_image()
+		
+		if generation_type == GenerationType.Automatic:
+			generate_puzzle(current_puzzle_image)
+		
+
+func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
+	var piece_size: int = _calculate_piece_size(current_puzzle_image)
+	var margin: float = piece_size * piece_margin
+	var horizontal_pieces: int = floori(puzzle_image.get_width() / piece_size)
+	var vertical_pieces: int = floori(puzzle_image.get_height() / piece_size)
+	
+	print_rich("[b]ConnectaPuzzle:[/b] [color=green]Generating a new puzzle of %d pieces with an image of %s gives a total[/color] [color=yellow][i]%dx%d = %d pieces.[/i][/color] [color=white][i]The number of final pieces could be less to fit the correct image size.[/i][/color]" % [number_of_pieces, str(current_puzzle_image.get_size()), horizontal_pieces, vertical_pieces, horizontal_pieces * vertical_pieces])
+	
+	current_pieces.clear()
+	
+	for vertical_piece: int in vertical_pieces:
+		for horizontal_piece: int in horizontal_pieces:
+			var puzzle_piece: PuzzlePiece = PuzzlePieceScene.instantiate() as PuzzlePiece
+			puzzle_piece.region =  _calculate_piece_rect(horizontal_piece, vertical_piece, piece_size, margin)
+			puzzle_piece.sides = _generate_piece_sides(current_pieces, horizontal_piece, vertical_piece, horizontal_pieces, vertical_pieces)
+			
+			current_pieces.append(puzzle_piece)
+			
+
+#region Piece related
+func _calculate_piece_size(puzzle_image: Image) -> int:
+	var image_size: Vector2i = puzzle_image.get_size()
+	var y: float = sqrt( ((image_size.y * number_of_pieces ) / image_size.x) )
+
+	return floori(image_size.y / y)
+	
+	
+func _calculate_piece_size_by_aspect_ratio(puzzle_image: Image) -> Vector2i:
+	var image_size: Vector2i = puzzle_image.get_size()
+	var pieces_per_row: int = ceili(sqrt(number_of_pieces * (image_size.x / image_size.y)))
+	var pieces_per_col: int = ceili(number_of_pieces / pieces_per_row)
+	
+	var piece_width: int = floori(image_size.x / pieces_per_row)
+	var piece_height: int = floori(image_size.y / pieces_per_col)
+	
+	piece_width = piece_width * (1.0 - piece_margin)
+	piece_height = piece_height * (1.0 - piece_margin)
+	
+	return Vector2i(piece_width, piece_height)
+
+
+func _calculate_piece_rect(horizontal_piece: int, vertical_piece: int, size: int, margin: float) -> Rect2:
+	return Rect2(horizontal_piece * size - margin, vertical_piece * size - margin, size + ( 2 * margin), size + ( 2 * margin))
+
+
+func opposing_piece_set(piece: PuzzlePiece, side: PieceSide) -> PieceStyle:
+	return PieceStyle.Outset if piece.sides[side] == PieceStyle.Inset else PieceStyle.Inset
+
+	
+func _generate_piece_sides(pieces_stack: Array[PuzzlePiece], horizontal_piece: int, vertical_piece: int, num_horizontal_pieces: int, num_vertical_pieces: int) -> Dictionary:
+	var rv: Dictionary = {}
+	
+	if horizontal_piece == num_horizontal_pieces - 1:
+		rv[PieceSide.Right] = PieceStyle.Straight
+	else:
+		if randf() > 0.5:
+			rv[PieceSide.Right] = PieceStyle.Inset
+		else:
+			rv[PieceSide.Right] = PieceStyle.Outset
+			
+	if vertical_piece == num_vertical_pieces - 1:
+		rv[PieceSide.Bottom] = PieceStyle.Straight
+	else:
+		if randf() > 0.5:
+			rv[PieceSide.Bottom] = PieceStyle.Inset
+		else:
+			rv[PieceSide.Bottom] = PieceStyle.Outset
+	
+	if horizontal_piece > 0:
+		rv[PieceSide.Left] = opposing_piece_set(pieces_stack.back(), PieceSide.Right)
+	else:
+		rv[PieceSide.Left] = PieceStyle.Straight
+		
+	if vertical_piece > 0:
+		rv[PieceSide.Top] = opposing_piece_set(pieces_stack[pieces_stack.size() - num_horizontal_pieces], PieceSide.Bottom)
+	else:
+		rv[PieceSide.Top] = PieceStyle.Straight
+		
+	return rv
+
+#endregion
+
+#region Preparation helpers
+func _prepare_image(selected_image: Image = current_puzzle_image) -> ConnectaPuzzle:
+	selected_image.convert(Image.FORMAT_RGB8)
+	selected_image.fix_alpha_edges()
+	
+	return self
+
+
+func _prepare_masks(masks_path: StringName = MasksPath) -> ConnectaPuzzle:
+	if cached_masks.is_empty():
+		
+		## Side values
+		for tops in PieceStyle.values():
+			cached_masks[tops] = {}
+			for rights in PieceStyle.values():
+				cached_masks[tops][rights] = {}
+				for bottoms in PieceStyle.values():
+					cached_masks[tops][rights][bottoms] = {}
+					for lefts in PieceStyle.values():
+						cached_masks[tops][rights][bottoms][lefts] = null
+		
+		## Load mask image and assign it to sides
+		for top_style in PieceStyle.values():
+			for right_style in PieceStyle.values():
+				for bottom_style in PieceStyle.values():
+					for left_style in PieceStyle.values():
+						var sides: Dictionary = {
+							PieceSide.Top: top_style,
+							PieceSide.Right: right_style,
+							PieceSide.Bottom: bottom_style,
+							PieceSide.Left: left_style
+						}
+						
+						var mask_image_path: String = masks_path + str(top_style) + "_" + str(right_style) + "_" + str(bottom_style) + "_" + str(left_style) + ".png"
+						
+						if ResourceLoader.exists(mask_image_path):
+							cached_masks[top_style][right_style][bottom_style][left_style] = load(mask_image_path)
+		
+	return self
+	
+#endregion

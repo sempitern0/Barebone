@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://eb4n3d3w5in"]
+
+[ext_resource type="Shader" uid="uid://dq378rx4vxgrt" path="res://addons/puzzle_generator/src/shader/puzzle_mask_shader.gdshader" id="1_0hi03"]
+
+[resource]
+shader = ExtResource("1_0hi03")
+shader_parameter/mask_resolution = Vector2(256, 256)
+shader_parameter/texel_smoothness = 1.0
+shader_parameter/region_rect_uv_data = Vector4(0, 0, 0, 0)
