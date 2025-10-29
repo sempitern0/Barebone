@@ -5,5 +5,8 @@
 [resource]
 shader = ExtResource("1_0hi03")
 shader_parameter/mask_resolution = Vector2(256, 256)
-shader_parameter/texel_smoothness = 1.0
 shader_parameter/region_rect_uv_data = Vector4(0, 0, 0, 0)
+shader_parameter/outline = true
+shader_parameter/outline_color = Color(1, 1, 1, 1)
+shader_parameter/outline_thickness = 3.0
+shader_parameter/outline_softness = 2.0

@@ -92,7 +92,7 @@ func fit_camera_to_puzzle(camera: Camera2D, puzzle_width: int, puzzle_height: in
 
 	var target_zoom: float = max(zoom_x, zoom_y)
 	
-	camera.zoom = Vector2(target_zoom, target_zoom) * 0.9
+	camera.zoom = Vector2(target_zoom, target_zoom)# * 0.9
 	
 	var puzzle_center = Vector2(puzzle_width, puzzle_height) * 0.5
 	camera.position = puzzle_center
