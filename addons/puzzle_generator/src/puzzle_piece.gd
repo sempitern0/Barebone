@@ -13,6 +13,7 @@ class_name PuzzlePiece extends Sprite2D
 
 var row: int = 0
 var col: int = 0
+var piece_size: int = 0
 var region: Rect2
 var sides: Dictionary
 var mask: Texture2D
@@ -28,6 +29,7 @@ var opposite_neighbours: Dictionary[String, Dictionary] = {}
 
 
 func _ready() -> void:
+	
 	assert(texture != null, "PuzzlePiece: The puzzle pieces needs a texture before adding it on the SceneTree")
 	assert(mask_shader_material != null, "PuzzlePiece: The puzzle pieces needs a mask shader material before adding it on the SceneTree")
 	
@@ -44,6 +46,29 @@ func _ready() -> void:
 	draggable.dragged.connect(on_drag_started)
 	draggable.released.connect(on_drag_release)
 	
+	
+func remove_side_area(area: Area2D) -> void:
+		active_areas.erase(area)
+		
+		if not area.is_queued_for_deletion():
+			area.queue_free()
+	
+
+func _snap_to_neighbor(piece: PuzzlePiece, neighbor: PuzzlePiece, side: String) -> void:
+	var offset: Vector2 = Vector2.ZERO
+	
+	match side:
+		"top":
+			offset = Vector2(0, -piece.region.size.y)
+		"bottom":
+			offset = Vector2(0, neighbor.region.size.y)
+		"left":
+			offset = Vector2(-piece.region.size.x, 0)
+		"right":
+			offset = Vector2(neighbor.region.size.x, 0)
+			
+	piece.position = neighbor.position + offset
+
 	
 func _prepare_mask_shader_material() -> void:
 	var texture_size: Vector2 = texture.get_size()
@@ -123,11 +148,22 @@ func on_drag_release() -> void:
 			var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
 
 			if opposite["neighbor"] != null and opposite["neighbor"] == detected_piece:
-				active_areas.erase(current_side_area)
-				current_side_area.queue_free()
+				remove_side_area(current_side_area)
+				detected_piece.remove_side_area(piece_area)
+				detected_piece.reparent(self, true)
+				detected_piece.position = Vector2.ZERO
 				
-				detected_piece.active_areas.erase(piece_area)
-				piece_area.queue_free()
-			else:
-				current_side_area.set_deferred("monitoring", false)
-				current_side_area.set_deferred("monitorable", true)
+				match side:
+					"top":
+						detected_piece.position.y -= piece_size
+					"bottom":
+						detected_piece.position.y += piece_size
+					"left":
+						detected_piece.position.x -= piece_size
+					"right":
+						detected_piece.position.x += piece_size
+				#
+				break
+			
+		current_side_area.set_deferred("monitoring", false)
+		current_side_area.set_deferred("monitorable", true)

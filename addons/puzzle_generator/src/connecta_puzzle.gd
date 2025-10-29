@@ -62,6 +62,7 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			puzzle_piece.name = "PuzzlePiece_%d_%d" % [horizontal_piece, vertical_piece]
 			puzzle_piece.row = horizontal_piece
 			puzzle_piece.col = vertical_piece
+			puzzle_piece.piece_size = piece_size
 			puzzle_piece.region_enabled = true
 			puzzle_piece.region_rect = _calculate_piece_rect(horizontal_piece, vertical_piece, piece_size, margin)
 			puzzle_piece.sides = _generate_piece_sides(current_pieces, horizontal_piece, vertical_piece, horizontal_pieces, vertical_pieces)
