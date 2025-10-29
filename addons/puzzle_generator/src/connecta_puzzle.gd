@@ -37,7 +37,6 @@ func _ready() -> void:
 		
 	_prepare_masks()
 	
-	print(cached_masks)
 	if puzzle_texture:
 		current_puzzle_image = puzzle_texture.get_image()
 		
@@ -46,6 +45,8 @@ func _ready() -> void:
 		
 
 func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
+	assert(cached_masks.size() > 0, "ConnectaPuzzle->generate_puzzle: There is no available puzzle image masks to generate the puzzle, aborting... ")
+	
 	var piece_size: int = _calculate_piece_size(current_puzzle_image)
 	var margin: float = piece_size * piece_margin
 	var horizontal_pieces: int = floori(puzzle_image.get_width() / piece_size)
@@ -58,11 +59,19 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	for vertical_piece: int in vertical_pieces:
 		for horizontal_piece: int in horizontal_pieces:
 			var puzzle_piece: PuzzlePiece = PuzzlePieceScene.instantiate() as PuzzlePiece
-			puzzle_piece.region =  _calculate_piece_rect(horizontal_piece, vertical_piece, piece_size, margin)
+			puzzle_piece.name = "PuzzlePiece_%d_%d" % [horizontal_piece, vertical_piece]
+			puzzle_piece.region_enabled = true
+			puzzle_piece.region_rect = _calculate_piece_rect(horizontal_piece, vertical_piece, piece_size, margin)
 			puzzle_piece.sides = _generate_piece_sides(current_pieces, horizontal_piece, vertical_piece, horizontal_pieces, vertical_pieces)
+			puzzle_piece.mask = cached_masks[puzzle_piece.sides[PieceSide.Top]][puzzle_piece.sides[PieceSide.Right]][puzzle_piece.sides[PieceSide.Bottom]][puzzle_piece.sides[PieceSide.Left]]
+			puzzle_piece.mask_shader_material = PuzzleMaskShaderMaterial
+			puzzle_piece.texture = puzzle_texture
+			add_neighbours_to_piece(current_pieces, puzzle_piece, horizontal_piece, vertical_piece, horizontal_pieces)
 			
 			current_pieces.append(puzzle_piece)
-			
+			output_node.add_child(puzzle_piece)
+			puzzle_piece.position.x = horizontal_piece * piece_size
+			puzzle_piece.position.y = vertical_piece * piece_size
 
 #region Piece related
 func _calculate_piece_size(puzzle_image: Image) -> int:
@@ -124,6 +133,17 @@ func _generate_piece_sides(pieces_stack: Array[PuzzlePiece], horizontal_piece: i
 		rv[PieceSide.Top] = PieceStyle.Straight
 		
 	return rv
+
+func add_neighbours_to_piece(pieces_stack: Array[PuzzlePiece], piece: PuzzlePiece, horizontal: int, vertical: int, horizontal_pieces:int) -> void:
+	if horizontal > 0:
+		var left_piece: PuzzlePiece = pieces_stack.back()
+		left_piece.right_neighbor = piece
+		piece.left_neighbor = left_piece
+		
+	if vertical > 0:
+		var top_piece: PuzzlePiece = pieces_stack[pieces_stack.size() - horizontal_pieces]
+		top_piece.bottom_neighbor = piece
+		piece.top_neighbor = top_piece
 
 #endregion
 
