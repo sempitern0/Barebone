@@ -1,6 +1,57 @@
-[gd_scene load_steps=2 format=3 uid="uid://cy53228ilv3wo"]
+[gd_scene load_steps=7 format=3 uid="uid://cy53228ilv3wo"]
 
 [ext_resource type="Script" uid="uid://dgjflqo7881y8" path="res://addons/puzzle_generator/src/puzzle_piece.gd" id="1_x615a"]
+[ext_resource type="Script" uid="uid://cq4wyob3iam5c" path="res://addons/omnikit/src/components/2D/drag/draggable_2d.gd" id="2_jlfys"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jlfys"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y7dxm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4pyki"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w8plu"]
 
 [node name="PuzzlePiece" type="Sprite2D"]
 script = ExtResource("1_x615a")
+
+[node name="OmniKitDraggable2D" type="Button" parent="." node_paths=PackedStringArray("draggable")]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("2_jlfys")
+draggable = NodePath("..")
+screen_limit = false
+metadata/_custom_type_script = "uid://cq4wyob3iam5c"
+
+[node name="TopArea" type="Area2D" parent="."]
+monitoring = false
+priority = 1
+
+[node name="TopCollision" type="CollisionShape2D" parent="TopArea"]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_jlfys")
+
+[node name="BottomArea" type="Area2D" parent="."]
+monitoring = false
+priority = 1
+
+[node name="BottomCollision" type="CollisionShape2D" parent="BottomArea"]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_y7dxm")
+
+[node name="RightArea" type="Area2D" parent="."]
+collision_layer = 536870912
+collision_mask = 536870912
+monitoring = false
+priority = 1
+
+[node name="RightCollision" type="CollisionShape2D" parent="RightArea"]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_4pyki")
+
+[node name="LeftArea" type="Area2D" parent="."]
+monitoring = false
+priority = 1
+
+[node name="LeftCollision" type="CollisionShape2D" parent="LeftArea"]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_w8plu")

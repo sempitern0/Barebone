@@ -72,6 +72,24 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			output_node.add_child(puzzle_piece)
 			puzzle_piece.position.x = horizontal_piece * piece_size
 			puzzle_piece.position.y = vertical_piece * piece_size
+	
+
+	fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
+			
+
+func fit_camera_to_puzzle(camera: Camera2D, puzzle_width: int, puzzle_height: int, viewport_size: Vector2) -> void:
+	if not camera:
+		return
+	
+	var zoom_x: float = puzzle_width / viewport_size.x
+	var zoom_y: float = puzzle_height / viewport_size.y
+
+	var target_zoom: float = max(zoom_x, zoom_y)
+	
+	camera.zoom = Vector2(target_zoom, target_zoom) * 0.9
+	
+	var puzzle_center = Vector2(puzzle_width, puzzle_height) * 0.5
+	camera.position = puzzle_center
 
 #region Piece related
 func _calculate_piece_size(puzzle_image: Image) -> int:
