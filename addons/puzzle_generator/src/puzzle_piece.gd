@@ -58,6 +58,16 @@ func root() -> PuzzlePiece:
 	return parent if parent != null and parent is PuzzlePiece else self
 
 
+func active_pieces() -> Array[PuzzlePiece]:
+	var pieces: Array[PuzzlePiece] = [root()]
+	pieces.append_array(pieces.front()\
+		.get_children()\
+		.filter(func(child: Node): return child is PuzzlePiece)
+		)
+		
+	return pieces
+
+	
 func remove_side_area(area: Area2D) -> void:
 		active_areas.erase(area)
 		
@@ -139,18 +149,8 @@ func _prepare_border_areas() -> void:
 		active_areas.append(right_area)
 
 
-func on_drag_started() -> void:
-	dragged.emit()
-	
-	for area: Area2D in active_areas:
-		area.set_deferred("monitoring", true)
-		area.set_deferred("monitorable", false)
-
-
-func on_drag_release() -> void:
-	released.emit()
-	
-	for current_side_area: Area2D in active_areas:
+func detect_pieces_connections(piece: PuzzlePiece) -> void:
+	for current_side_area: Area2D in piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
 		var side: String = current_side_area.get_meta(&"side")
 		
 		if side == null or side.is_empty() or not opposite_neighbours.has(side):
@@ -167,20 +167,24 @@ func on_drag_release() -> void:
 				remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
 				
-				var detected_piece_root: PuzzlePiece = detected_piece.root()
 				var current_piece_root: PuzzlePiece = root()
+				var detected_piece_root: PuzzlePiece = detected_piece.root()
 				
 				var current_group_pieces: Array[PuzzlePiece] = []
 				var detected_piece_group_pieces: Array[PuzzlePiece] =  []
 				
-				current_group_pieces.assign(current_piece_root.get_children().filter(func(child: Node): return child is PuzzlePiece))
-				detected_piece_group_pieces.assign(detected_piece_root.get_children().filter(func(child: Node): return child is PuzzlePiece))
+				current_group_pieces.assign(
+					current_piece_root.get_children()\
+						.filter(func(child: Node): return child is PuzzlePiece and not child in [current_piece_root, detected_piece_root])
+					)
+				detected_piece_group_pieces.assign(
+					detected_piece_root.get_children()\
+						.filter(func(child: Node): return child is PuzzlePiece and not child in [current_piece_root, detected_piece_root])
+					)
 				
 				if current_group_pieces.size() > detected_piece_group_pieces.size():
 					
-					if detected_piece_root != current_piece_root:
-						detected_piece_root.reparent(current_piece_root, true)
-						
+					detected_piece_root.reparent(current_piece_root, true)
 					detected_piece_root.global_position = self.global_position
 					
 					match side:
@@ -193,13 +197,11 @@ func on_drag_release() -> void:
 						"right":
 							detected_piece_root.global_position.x += piece_size
 							
-					for piece: PuzzlePiece in detected_piece_group_pieces:
-						piece.reparent(current_piece_root, true)
+					for group_piece: PuzzlePiece in detected_piece_group_pieces:
+						group_piece.reparent(current_piece_root, true)
 					
 				else:
-					if current_piece_root != detected_piece_root:
-						current_piece_root.reparent(detected_piece_root, true)
-						
+					current_piece_root.reparent(detected_piece_root, true)
 					current_piece_root.global_position = detected_piece.global_position
 					
 					match side:
@@ -212,11 +214,25 @@ func on_drag_release() -> void:
 						"right":
 							current_piece_root.global_position.x -= piece_size
 							
-					for piece: PuzzlePiece in detected_piece_group_pieces:
-						piece.reparent(detected_piece_root, true)
+					for group_piece: PuzzlePiece in detected_piece_group_pieces:
+						group_piece.reparent(detected_piece_root, true)
 						
 				break
-		
-		if not current_side_area.is_queued_for_deletion():
-			current_side_area.set_deferred("monitoring", false)
-			current_side_area.set_deferred("monitorable", true)
+
+func on_drag_started() -> void:
+	dragged.emit()
+	
+	for piece: PuzzlePiece in active_pieces():
+		for area: Area2D in piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
+			area.set_deferred("monitoring", true)
+			area.set_deferred("monitorable", false)
+
+
+func on_drag_release() -> void:
+	released.emit()
+	detect_pieces_connections(root())
+	
+	for piece: PuzzlePiece in active_pieces():
+		for area: Area2D in piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
+			area.set_deferred("monitoring", false)
+			area.set_deferred("monitorable", true)
