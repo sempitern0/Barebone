@@ -33,6 +33,8 @@ var current_puzzle_image: Image:
 			
 
 func _ready() -> void:
+	assert(draggable_component != null, "ConnectaPuzzle: This node needs a Draggable2D in order to drag drop the pieces.")
+	
 	if output_node == null:
 		output_node = self
 		
@@ -214,14 +216,13 @@ func _prepare_masks(masks_path: StringName = MasksPath) -> ConnectaPuzzle:
 						
 						if ResourceLoader.exists(mask_image_path):
 							cached_masks[top_style][right_style][bottom_style][left_style] = load(mask_image_path)
-		
 	return self
 	
 #endregion
 
 func on_piece_dragged(piece: PuzzlePiece) -> void:
 	if not draggable_component.is_dragging:
-		draggable_component.draggable = piece
+		draggable_component.draggable = piece.root()
 		draggable_component.start_drag()
 	
 

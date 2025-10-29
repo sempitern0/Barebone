@@ -38,6 +38,7 @@ func _ready() -> void:
 	_prepare_mask_shader_material()
 	_prepare_border_areas()
 	
+
 	opposite_neighbours = {
 		"top": {"opposite_side": "bottom", "neighbor": top_neighbor},
 		"bottom": {"opposite_side": "top", "neighbor": bottom_neighbor},
@@ -49,6 +50,12 @@ func _ready() -> void:
 	detection_button.button_down.connect(on_drag_started)
 	detection_button.button_up.connect(on_drag_release)
 	detection_button.anchors_preset = Control.PRESET_FULL_RECT
+
+
+func root() -> PuzzlePiece:
+	var parent: Node = get_parent()
+	
+	return parent if parent != null and parent is PuzzlePiece else self
 
 
 func remove_side_area(area: Area2D) -> void:
@@ -136,8 +143,8 @@ func on_drag_started() -> void:
 	dragged.emit()
 	
 	for area: Area2D in active_areas:
-		area.monitoring = true
-		area.monitorable = false
+		area.set_deferred("monitoring", true)
+		area.set_deferred("monitorable", false)
 
 
 func on_drag_release() -> void:
@@ -160,42 +167,56 @@ func on_drag_release() -> void:
 				remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
 				
-				var detected_piece_root: PuzzlePiece = detected_piece if detected_piece.get_parent() != PuzzlePiece else detected_piece.get_parent()
-				var current_piece_root: PuzzlePiece = self if get_parent() != PuzzlePiece else get_parent()
+				var detected_piece_root: PuzzlePiece = detected_piece.root()
+				var current_piece_root: PuzzlePiece = root()
 				
 				var current_group_pieces: Array[PuzzlePiece] = []
 				var detected_piece_group_pieces: Array[PuzzlePiece] =  []
+				
 				current_group_pieces.assign(current_piece_root.get_children().filter(func(child: Node): return child is PuzzlePiece))
 				detected_piece_group_pieces.assign(detected_piece_root.get_children().filter(func(child: Node): return child is PuzzlePiece))
 				
-				if current_group_pieces.size() > detected_piece_group_pieces.size() \
-					or current_group_pieces.size() == detected_piece_group_pieces.size():
+				if current_group_pieces.size() > detected_piece_group_pieces.size():
 					
-					detected_piece_root.reparent(current_piece_root, true)
-					#detected_piece_root.draggable.draggable = current_piece_root
+					if detected_piece_root != current_piece_root:
+						detected_piece_root.reparent(current_piece_root, true)
+						
+					detected_piece_root.global_position = self.global_position
 					
+					match side:
+						"top":
+							detected_piece_root.global_position.y -= piece_size
+						"bottom":
+							detected_piece_root.global_position.y += piece_size
+						"left":
+							detected_piece_root.global_position.x -= piece_size
+						"right":
+							detected_piece_root.global_position.x += piece_size
+							
 					for piece: PuzzlePiece in detected_piece_group_pieces:
 						piece.reparent(current_piece_root, true)
-						#piece.draggable.draggable = current_piece_root
-					#detected_piece_root.position = Vector2.ZERO
-				else:
-					current_piece_root.reparent(detected_piece_root, true)
-					#current_piece_root.draggable.draggable = detected_piece_root
 					
+				else:
+					if current_piece_root != detected_piece_root:
+						current_piece_root.reparent(detected_piece_root, true)
+						
+					current_piece_root.global_position = detected_piece.global_position
+					
+					match side:
+						"top":
+							current_piece_root.global_position.y += piece_size
+						"bottom":
+							current_piece_root.global_position.y -= piece_size
+						"left":
+							current_piece_root.global_position.x += piece_size
+						"right":
+							current_piece_root.global_position.x -= piece_size
+							
 					for piece: PuzzlePiece in detected_piece_group_pieces:
 						piece.reparent(detected_piece_root, true)
-						#piece.draggable.draggable = detected_piece_root
 						
-				#match side:
-					#"top":
-						#detected_piece.position.y -= piece_size
-					#"bottom":
-						#detected_piece.position.y += piece_size
-					#"left":
-						#detected_piece.position.x -= piece_size
-					#"right":
-						#detected_piece.position.x += piece_size
 				break
-			
-		current_side_area.set_deferred("monitoring", false)
-		current_side_area.set_deferred("monitorable", true)
+		
+		if not current_side_area.is_queued_for_deletion():
+			current_side_area.set_deferred("monitoring", false)
+			current_side_area.set_deferred("monitorable", true)
