@@ -23,6 +23,8 @@ var right_neighbor: PuzzlePiece
 var bottom_neighbor: PuzzlePiece
 var left_neighbor: PuzzlePiece
 
+var active_areas: Array[Area2D] = []
+
 
 func _ready() -> void:
 	assert(texture != null, "PuzzlePiece: The puzzle pieces needs a texture before adding it on the SceneTree")
@@ -58,40 +60,92 @@ func _prepare_border_areas() -> void:
 	right_area.monitorable = true
 	left_area.monitorable = true
 	
+	top_area.set_meta(&"side", "top")
+	bottom_area.set_meta(&"side", "bottom")
+	left_area.set_meta(&"side", "left")
+	right_area.set_meta(&"side", "right")
+	
 	if top_neighbor == null:
 		top_area.queue_free()
 	else:
 		top_area.position = Vector2(0, -region_rect.size.y / 4 + -region_rect.size.y / 8)
 		top_collision.shape.set_size(Vector2(region_rect.size.x, region_rect.size.y / 4))
-	
+		active_areas.append(top_area)
+		
 	if bottom_neighbor == null:
 		bottom_area.queue_free()
 	else:
 		bottom_area.position = Vector2(0, region_rect.size.y / 4 + region_rect.size.y / 8)
 		bottom_collision.shape.set_size(Vector2(region_rect.size.x, region_rect.size.y / 4))
+		active_areas.append(bottom_area)
 
 	if left_neighbor == null:
 		left_area.queue_free()
 	else:
 		left_area.position = Vector2(-region_rect.size.x / 4 + -region_rect.size.x / 8, 0)	
 		left_collision.shape.set_size(Vector2(region_rect.size.x / 4, region_rect.size.y))
+		active_areas.append(left_area)
 		
 	if right_neighbor == null:
 		right_area.queue_free()
 	else:
 		right_area.position = Vector2(region_rect.size.x / 4 + region_rect.size.x / 8, 0)
 		right_collision.shape.set_size(Vector2(region_rect.size.x / 4, region_rect.size.y))
+		active_areas.append(right_area)
 
 
 func on_drag_started() -> void:
-	for child: Node in get_children():
-		if child is Area2D:
-			child.monitoring = true
-			child.monitorable = false
+	for area: Area2D in active_areas:
+		area.monitoring = true
+		area.monitorable = false
 
 
-func on_drag_release() -> void:	
-	for child: Node in get_children():
-		if child is Area2D:
-			child.monitoring = false
-			child.monitorable = true
+func on_drag_release() -> void:
+	for current_side_area: Area2D in active_areas:
+		var side: String = current_side_area.get_meta(&"side")
+		
+		match side:
+			"top":
+				var detected_piece_areas = current_side_area.get_overlapping_areas()\
+					.filter(func(area: Area2D): return area.get_meta(&"side") == "bottom")
+				
+				for piece_area: Area2D in detected_piece_areas:
+					var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
+					
+					if top_neighbor == detected_piece:
+						active_areas.erase(current_side_area)
+						current_side_area.queue_free()
+			"bottom":
+				var detected_piece_areas = current_side_area.get_overlapping_areas()\
+					.filter(func(area: Area2D): return area.get_meta(&"side") == "top")
+			
+				for piece_area: Area2D in detected_piece_areas:
+					var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
+					
+					if bottom_neighbor == detected_piece:
+						active_areas.erase(current_side_area)
+						current_side_area.queue_free()
+			"left":
+				var detected_piece_areas = current_side_area.get_overlapping_areas()\
+					.filter(func(area: Area2D): return area.get_meta(&"side") == "right")
+			
+				for piece_area: Area2D in detected_piece_areas:
+					var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
+					
+					if left_neighbor == detected_piece:
+						active_areas.erase(current_side_area)
+						current_side_area.queue_free()
+						
+			"right":
+				var detected_piece_areas = current_side_area.get_overlapping_areas()\
+					.filter(func(area: Area2D): return area.get_meta(&"side") == "left")
+			
+				for piece_area: Area2D in detected_piece_areas:
+					var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
+					
+					if right_neighbor == detected_piece:
+						active_areas.erase(current_side_area)
+						current_side_area.queue_free()
+		
+		current_side_area.set_deferred("monitoring", false)
+		current_side_area.set_deferred("monitorable", true)

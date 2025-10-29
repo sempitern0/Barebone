@@ -73,6 +73,7 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	
 	## The pieces are added after the preparing loop
 	## as the neighbours are setup correctly now to delete the proper detection areas
+	## when puzzle piece trigger _ready()
 	for piece: PuzzlePiece in current_pieces:
 		output_node.add_child(piece)
 		piece.position.x = piece.row * piece_size
