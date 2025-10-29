@@ -1,6 +1,6 @@
 shader_type canvas_item;
 
-uniform sampler2D mask_texture : repeat_disable, filter_nearest;
+uniform sampler2D mask_texture : repeat_disable, filter_linear;
 uniform vec2 mask_resolution = vec2(256.0, 256.0);
 uniform vec4 region_rect_uv_data;
 
@@ -43,7 +43,6 @@ void fragment() {
         COLOR = base_color;
     } else {
 	    float m = get_mask(region_uv);
-
 	    vec2 px = outline_thickness / mask_resolution;
 
 	    float n  = get_mask(region_uv + vec2(px.x, 0.0));
@@ -55,10 +54,10 @@ void fragment() {
 	    float se = get_mask(region_uv + vec2(px.x, -px.y));
 	    float sw = get_mask(region_uv + vec2(-px.x, -px.y));
 
-	    bool is_edge = (m > 0.5) && (
-	        n < 0.5 || s < 0.5 || e < 0.5 || w < 0.5 ||
-	        ne < 0.5 || nw < 0.5 || se < 0.5 || sw < 0.5
-	    );
+		 bool is_edge = (m > 0.2) && (
+		    n < 0.8 || s < 0.8 || e < 0.8 || w < 0.8 ||
+		    ne < 0.8 || nw < 0.8 || se < 0.8 || sw < 0.8
+		);
 
 	    vec4 out_color;
 

@@ -9,4 +9,4 @@ shader_parameter/region_rect_uv_data = Vector4(0, 0, 0, 0)
 shader_parameter/outline = true
 shader_parameter/outline_color = Color(1, 1, 1, 1)
 shader_parameter/outline_thickness = 3.0
-shader_parameter/outline_softness = 2.0
+shader_parameter/outline_softness = 2.000000095

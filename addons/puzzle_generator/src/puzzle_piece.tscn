@@ -23,6 +23,8 @@ screen_limit = false
 metadata/_custom_type_script = "uid://cq4wyob3iam5c"
 
 [node name="TopArea" type="Area2D" parent="."]
+collision_layer = 524288
+collision_mask = 524288
 monitoring = false
 priority = 1
 
@@ -31,6 +33,8 @@ unique_name_in_owner = true
 shape = SubResource("RectangleShape2D_jlfys")
 
 [node name="BottomArea" type="Area2D" parent="."]
+collision_layer = 524288
+collision_mask = 524288
 monitoring = false
 priority = 1
 
@@ -39,8 +43,8 @@ unique_name_in_owner = true
 shape = SubResource("RectangleShape2D_y7dxm")
 
 [node name="RightArea" type="Area2D" parent="."]
-collision_layer = 536870912
-collision_mask = 536870912
+collision_layer = 537395200
+collision_mask = 537395200
 monitoring = false
 priority = 1
 
@@ -49,6 +53,8 @@ unique_name_in_owner = true
 shape = SubResource("RectangleShape2D_4pyki")
 
 [node name="LeftArea" type="Area2D" parent="."]
+collision_layer = 524288
+collision_mask = 524288
 monitoring = false
 priority = 1
 

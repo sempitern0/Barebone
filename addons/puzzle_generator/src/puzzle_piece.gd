@@ -24,6 +24,7 @@ var bottom_neighbor: PuzzlePiece
 var left_neighbor: PuzzlePiece
 
 var active_areas: Array[Area2D] = []
+var opposite_neighbours: Dictionary[String, Dictionary] = {}
 
 
 func _ready() -> void:
@@ -32,6 +33,13 @@ func _ready() -> void:
 	
 	_prepare_mask_shader_material()
 	_prepare_border_areas()
+	
+	opposite_neighbours = {
+		"top": {"opposite_side": "bottom", "neighbor": top_neighbor},
+		"bottom": {"opposite_side": "top", "neighbor": bottom_neighbor},
+		"left": {"opposite_side": "right", "neighbor": left_neighbor},
+		"right": {"opposite_side": "left", "neighbor": right_neighbor},
+	}
 	
 	draggable.dragged.connect(on_drag_started)
 	draggable.released.connect(on_drag_release)
@@ -104,48 +112,22 @@ func on_drag_release() -> void:
 	for current_side_area: Area2D in active_areas:
 		var side: String = current_side_area.get_meta(&"side")
 		
-		match side:
-			"top":
-				var detected_piece_areas = current_side_area.get_overlapping_areas()\
-					.filter(func(area: Area2D): return area.get_meta(&"side") == "bottom")
-				
-				for piece_area: Area2D in detected_piece_areas:
-					var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
-					
-					if top_neighbor == detected_piece:
-						active_areas.erase(current_side_area)
-						current_side_area.queue_free()
-			"bottom":
-				var detected_piece_areas = current_side_area.get_overlapping_areas()\
-					.filter(func(area: Area2D): return area.get_meta(&"side") == "top")
+		if side == null or side.is_empty() or not opposite_neighbours.has(side):
+			continue
 			
-				for piece_area: Area2D in detected_piece_areas:
-					var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
-					
-					if bottom_neighbor == detected_piece:
-						active_areas.erase(current_side_area)
-						current_side_area.queue_free()
-			"left":
-				var detected_piece_areas = current_side_area.get_overlapping_areas()\
-					.filter(func(area: Area2D): return area.get_meta(&"side") == "right")
-			
-				for piece_area: Area2D in detected_piece_areas:
-					var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
-					
-					if left_neighbor == detected_piece:
-						active_areas.erase(current_side_area)
-						current_side_area.queue_free()
-						
-			"right":
-				var detected_piece_areas = current_side_area.get_overlapping_areas()\
-					.filter(func(area: Area2D): return area.get_meta(&"side") == "left")
-			
-				for piece_area: Area2D in detected_piece_areas:
-					var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
-					
-					if right_neighbor == detected_piece:
-						active_areas.erase(current_side_area)
-						current_side_area.queue_free()
+		var opposite: Dictionary = opposite_neighbours[side]
+		var detected_piece_areas = current_side_area.get_overlapping_areas()\
+					.filter(func(area: Area2D): return area.get_meta(&"side") == opposite["opposite_side"])
 		
-		current_side_area.set_deferred("monitoring", false)
-		current_side_area.set_deferred("monitorable", true)
+		for piece_area: Area2D in detected_piece_areas:
+			var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
+
+			if opposite["neighbor"] != null and opposite["neighbor"] == detected_piece:
+				active_areas.erase(current_side_area)
+				current_side_area.queue_free()
+				
+				detected_piece.active_areas.erase(piece_area)
+				piece_area.queue_free()
+			else:
+				current_side_area.set_deferred("monitoring", false)
+				current_side_area.set_deferred("monitorable", true)
