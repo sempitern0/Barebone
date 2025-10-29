@@ -12,6 +12,7 @@ enum GenerationType {
 	}
 
 @export var output_node: Node2D
+@export var draggable_component: OmniKitDraggable2D
 @export var generation_type: GenerationType = GenerationType.Automatic
 @export var puzzle_texture: Texture2D:
 	set(value):
@@ -55,6 +56,7 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	print_rich("[b]ConnectaPuzzle:[/b] [color=green]Generating a new puzzle of %d pieces with an image of %s gives a total[/color] [color=yellow][i]%dx%d = %d pieces.[/i][/color] [color=white][i]The number of final pieces could be less to fit the correct image size.[/i][/color]" % [number_of_pieces, str(current_puzzle_image.get_size()), horizontal_pieces, vertical_pieces, horizontal_pieces * vertical_pieces])
 	
 	current_pieces.clear()
+	draggable_component.size = Vector2.ZERO
 	
 	for vertical_piece: int in vertical_pieces:
 		for horizontal_piece: int in horizontal_pieces:
@@ -80,6 +82,9 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 		piece.position.x = piece.row * piece_size
 		piece.position.y = piece.col * piece_size
 
+		piece.dragged.connect(on_piece_dragged.bind(piece))
+		piece.released.connect(on_piece_released.bind(piece))
+		
 
 	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
 			
@@ -213,3 +218,13 @@ func _prepare_masks(masks_path: StringName = MasksPath) -> ConnectaPuzzle:
 	return self
 	
 #endregion
+
+func on_piece_dragged(piece: PuzzlePiece) -> void:
+	if not draggable_component.is_dragging:
+		draggable_component.draggable = piece
+		draggable_component.start_drag()
+	
+
+func on_piece_released(piece: PuzzlePiece) -> void:
+	draggable_component.release_drag()
+	draggable_component.draggable = null

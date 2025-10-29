@@ -69,7 +69,7 @@ func _ready() -> void:
 	button_down.connect(on_mouse_drag_region_dragged)
 	button_up.connect(on_mouse_drag_region_released)
 	anchors_preset = Control.PRESET_FULL_RECT
-
+	
 
 func _process(delta: float) -> void:
 	if not is_locked and is_dragging:
@@ -120,10 +120,8 @@ func lock() -> void:
 func unlock() -> void:
 	is_locked = false
 
-#endregion
 
-#region Signal callbacks
-func on_mouse_drag_region_dragged() -> void:
+func start_drag() -> void:
 	if not is_locked:
 		is_dragging = true
 		draggable.z_index = original_z_index + 100
@@ -131,9 +129,19 @@ func on_mouse_drag_region_dragged() -> void:
 		m_offset = draggable.global_position - get_global_mouse_position()
 
 
-func on_mouse_drag_region_released() -> void:
+func release_drag() -> void:
 	if not is_locked:
 		is_dragging = false
 		draggable.z_index = original_z_index
 		draggable.z_as_relative = true
+		
+#endregion
+
+#region Signal callbacks
+func on_mouse_drag_region_dragged() -> void:
+	start_drag()
+
+
+func on_mouse_drag_region_released() -> void:
+	release_drag()
 #endregion

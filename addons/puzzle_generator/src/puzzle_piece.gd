@@ -1,6 +1,10 @@
 ## This Sprite has the original PuzzleImage texture assigned so we can create a region from it with the selected mask
 class_name PuzzlePiece extends Sprite2D
 
+signal dragged
+signal released
+
+@onready var detection_button: Button = $DetectionButton
 @onready var top_area: Area2D = $TopArea
 @onready var bottom_area: Area2D = $BottomArea
 @onready var right_area: Area2D = $RightArea
@@ -9,7 +13,6 @@ class_name PuzzlePiece extends Sprite2D
 @onready var bottom_collision: CollisionShape2D = %BottomCollision
 @onready var right_collision: CollisionShape2D = %RightCollision
 @onready var left_collision: CollisionShape2D = %LeftCollision
-@onready var draggable: OmniKitDraggable2D = $OmniKitDraggable2D
 
 var row: int = 0
 var col: int = 0
@@ -29,7 +32,6 @@ var opposite_neighbours: Dictionary[String, Dictionary] = {}
 
 
 func _ready() -> void:
-	
 	assert(texture != null, "PuzzlePiece: The puzzle pieces needs a texture before adding it on the SceneTree")
 	assert(mask_shader_material != null, "PuzzlePiece: The puzzle pieces needs a mask shader material before adding it on the SceneTree")
 	
@@ -43,10 +45,12 @@ func _ready() -> void:
 		"right": {"opposite_side": "left", "neighbor": right_neighbor},
 	}
 	
-	draggable.dragged.connect(on_drag_started)
-	draggable.released.connect(on_drag_release)
-	
-	
+	detection_button.self_modulate.a8 = 0
+	detection_button.button_down.connect(on_drag_started)
+	detection_button.button_up.connect(on_drag_release)
+	detection_button.anchors_preset = Control.PRESET_FULL_RECT
+
+
 func remove_side_area(area: Area2D) -> void:
 		active_areas.erase(area)
 		
@@ -98,6 +102,7 @@ func _prepare_border_areas() -> void:
 	left_area.set_meta(&"side", "left")
 	right_area.set_meta(&"side", "right")
 	
+	
 	if top_neighbor == null:
 		top_area.queue_free()
 	else:
@@ -128,12 +133,16 @@ func _prepare_border_areas() -> void:
 
 
 func on_drag_started() -> void:
+	dragged.emit()
+	
 	for area: Area2D in active_areas:
 		area.monitoring = true
 		area.monitorable = false
 
 
 func on_drag_release() -> void:
+	released.emit()
+	
 	for current_side_area: Area2D in active_areas:
 		var side: String = current_side_area.get_meta(&"side")
 		
@@ -150,19 +159,42 @@ func on_drag_release() -> void:
 			if opposite["neighbor"] != null and opposite["neighbor"] == detected_piece:
 				remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
-				detected_piece.reparent(self, true)
-				detected_piece.position = Vector2.ZERO
 				
-				match side:
-					"top":
-						detected_piece.position.y -= piece_size
-					"bottom":
-						detected_piece.position.y += piece_size
-					"left":
-						detected_piece.position.x -= piece_size
-					"right":
-						detected_piece.position.x += piece_size
-				#
+				var detected_piece_root: PuzzlePiece = detected_piece if detected_piece.get_parent() != PuzzlePiece else detected_piece.get_parent()
+				var current_piece_root: PuzzlePiece = self if get_parent() != PuzzlePiece else get_parent()
+				
+				var current_group_pieces: Array[PuzzlePiece] = []
+				var detected_piece_group_pieces: Array[PuzzlePiece] =  []
+				current_group_pieces.assign(current_piece_root.get_children().filter(func(child: Node): return child is PuzzlePiece))
+				detected_piece_group_pieces.assign(detected_piece_root.get_children().filter(func(child: Node): return child is PuzzlePiece))
+				
+				if current_group_pieces.size() > detected_piece_group_pieces.size() \
+					or current_group_pieces.size() == detected_piece_group_pieces.size():
+					
+					detected_piece_root.reparent(current_piece_root, true)
+					#detected_piece_root.draggable.draggable = current_piece_root
+					
+					for piece: PuzzlePiece in detected_piece_group_pieces:
+						piece.reparent(current_piece_root, true)
+						#piece.draggable.draggable = current_piece_root
+					#detected_piece_root.position = Vector2.ZERO
+				else:
+					current_piece_root.reparent(detected_piece_root, true)
+					#current_piece_root.draggable.draggable = detected_piece_root
+					
+					for piece: PuzzlePiece in detected_piece_group_pieces:
+						piece.reparent(detected_piece_root, true)
+						#piece.draggable.draggable = detected_piece_root
+						
+				#match side:
+					#"top":
+						#detected_piece.position.y -= piece_size
+					#"bottom":
+						#detected_piece.position.y += piece_size
+					#"left":
+						#detected_piece.position.x -= piece_size
+					#"right":
+						#detected_piece.position.x += piece_size
 				break
 			
 		current_side_area.set_deferred("monitoring", false)

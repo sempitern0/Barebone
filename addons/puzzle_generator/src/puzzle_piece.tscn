@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://cy53228ilv3wo"]
+[gd_scene load_steps=6 format=3 uid="uid://cy53228ilv3wo"]
 
 [ext_resource type="Script" uid="uid://dgjflqo7881y8" path="res://addons/puzzle_generator/src/puzzle_piece.gd" id="1_x615a"]
-[ext_resource type="Script" uid="uid://cq4wyob3iam5c" path="res://addons/omnikit/src/components/2D/drag/draggable_2d.gd" id="2_jlfys"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jlfys"]
 
@@ -14,13 +13,9 @@
 [node name="PuzzlePiece" type="Sprite2D"]
 script = ExtResource("1_x615a")
 
-[node name="OmniKitDraggable2D" type="Button" parent="." node_paths=PackedStringArray("draggable")]
+[node name="DetectionButton" type="Button" parent="."]
 offset_right = 8.0
 offset_bottom = 8.0
-script = ExtResource("2_jlfys")
-draggable = NodePath("..")
-screen_limit = false
-metadata/_custom_type_script = "uid://cq4wyob3iam5c"
 
 [node name="TopArea" type="Area2D" parent="."]
 collision_layer = 524288
