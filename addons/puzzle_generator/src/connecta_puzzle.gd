@@ -6,6 +6,7 @@ signal puzzle_finished
 
 const MasksPath: StringName = &"res://addons/puzzle_generator/src/shader/masks/"
 const PuzzlePieceScene: PackedScene = preload("uid://cy53228ilv3wo")
+const PuzzleMosaicAreaScene: PackedScene = preload("uid://cckweb73gxxrb")
 const PuzzleMaskShaderMaterial: ShaderMaterial = preload("uid://eb4n3d3w5in")
 
 enum PieceStyle {Straight, Inset, Outset}
@@ -15,9 +16,16 @@ enum GenerationType {
 	Manual ## For better control, when this mode is set, you need to call the function generate_puzzle() manually to generate a puzzle.
 	}
 
+enum PuzzleMode {
+	Free, ## Connect the pieces freely between them
+	Mosaic ## Drag the piece in the correct mosaic position where the piece belongs using the puzzle image as background transparency.
+}
+
 @export var output_node: Node2D
 @export var draggable_component: OmniKitDraggable2D
 @export var generation_type: GenerationType = GenerationType.Automatic
+@export var puzzle_mode: PuzzleMode = PuzzleMode.Free
+@export var use_aspect_ratio: bool = false
 @export var puzzle_texture: Texture2D:
 	set(value):
 		puzzle_texture = value
@@ -54,10 +62,10 @@ func _ready() -> void:
 func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	assert(cached_masks.size() > 0, "ConnectaPuzzle->generate_puzzle: There is no available puzzle image masks to generate the puzzle, aborting... ")
 	
-	var piece_size: int = _calculate_piece_size(current_puzzle_image)
-	var margin: float = piece_size * piece_margin
-	var horizontal_pieces: int = floori(puzzle_image.get_width() / piece_size)
-	var vertical_pieces: int = floori(puzzle_image.get_height() / piece_size)
+	var piece_size: Vector2i =  _calculate_piece_size_by_aspect_ratio(current_puzzle_image) if use_aspect_ratio else _calculate_piece_size(current_puzzle_image)
+	var margin: Vector2 =  Vector2(piece_size.x, piece_size.y) * piece_margin
+	var horizontal_pieces: int = floori(puzzle_image.get_width() / piece_size.x)
+	var vertical_pieces: int = floori(puzzle_image.get_height() / piece_size.y)
 	
 	print_rich("[b]ConnectaPuzzle:[/b] [color=green]Generating a new puzzle of %d pieces with an image of %s gives a total[/color] [color=yellow][i]%dx%d = %d pieces.[/i][/color] [color=white][i]The number of final pieces could be less to fit the correct image size.[/i][/color]" % [number_of_pieces, str(current_puzzle_image.get_size()), horizontal_pieces, vertical_pieces, horizontal_pieces * vertical_pieces])
 	
@@ -68,6 +76,7 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 		for horizontal_piece: int in horizontal_pieces:
 			var puzzle_piece: PuzzlePiece = PuzzlePieceScene.instantiate() as PuzzlePiece
 			puzzle_piece.name = "PuzzlePiece_%d_%d" % [horizontal_piece, vertical_piece]
+			puzzle_piece.puzzle_mode = puzzle_mode
 			puzzle_piece.row = horizontal_piece
 			puzzle_piece.col = vertical_piece
 			puzzle_piece.piece_size = piece_size
@@ -85,15 +94,32 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	## when puzzle piece trigger _ready()
 	for piece: PuzzlePiece in current_pieces:
 		output_node.add_child(piece)
-		piece.position.x = piece.row * piece_size
-		piece.position.y = piece.col * piece_size
+		piece.position.x = piece.row * piece_size.x
+		piece.position.y = piece.col * piece_size.y
 
 		piece.dragged.connect(on_piece_dragged.bind(piece))
 		piece.released.connect(on_piece_released.bind(piece))
-	
 
 	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
 	
+	if puzzle_mode == PuzzleMode.Mosaic:
+		var background_puzzle: Sprite2D = Sprite2D.new()
+		background_puzzle.name = "TransparentBackgroundPuzzle"
+		background_puzzle.texture = puzzle_texture
+		background_puzzle.self_modulate.a8 = 100
+		output_node.add_child(background_puzzle)
+		background_puzzle.z_index = current_pieces.front().z_index - 1
+		background_puzzle.position = Vector2(piece_size.x * horizontal_pieces / (2.0 + piece_margin), piece_size.y * vertical_pieces / (2.0 + piece_margin))
+		
+		for piece: PuzzlePiece in current_pieces:
+			var mosaic_area: PuzzleMosaicArea = PuzzleMosaicAreaScene.instantiate() as PuzzleMosaicArea
+			output_node.add_child(mosaic_area)
+			mosaic_area.puzzle_piece = piece
+			mosaic_area.position.x = piece.row * piece_size.x
+			mosaic_area.position.y = piece.col * piece_size.y
+		
+			piece.mosaic_layer = mosaic_area.mosaic_layer
+			
 	puzzle_generated.emit()
 
 
@@ -113,7 +139,13 @@ func fit_camera_to_puzzle(camera: Camera2D, puzzle_width: int, puzzle_height: in
 	
 	
 func is_puzzle_finished() -> bool:
-	return current_pieces.size() == current_pieces.filter(func(piece: PuzzlePiece): return piece.active_areas.size() == 0).size()
+	match puzzle_mode:
+		PuzzleMode.Free:
+			return current_pieces.size() == current_pieces.filter(func(piece: PuzzlePiece): return piece.active_areas.size() == 0).size()
+		PuzzleMode.Mosaic:
+			return current_pieces.size() == current_pieces.filter(func(piece: PuzzlePiece): return piece.full_area.collision_layer == 0).size()
+			
+	return false
 
 
 #region Piece related
@@ -142,7 +174,7 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 
 			if opposite["neighbor"] != null \
 				and opposite["neighbor"] == detected_piece \
-				and piece_area.global_position.distance_to(current_side_area.global_position) < (source_piece.piece_size * 0.75):
+				and piece_area.global_position.distance_to(current_side_area.global_position) < (source_piece.piece_size.x * 0.75):
 				
 				source_piece.remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
@@ -170,13 +202,13 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 				if reposition:
 					match side:
 						"top":
-							reference_position.y -= master_piece.piece_size * side_direction
+							reference_position.y -= master_piece.piece_size.y * side_direction
 						"bottom":
-							reference_position.y += master_piece.piece_size * side_direction
+							reference_position.y += master_piece.piece_size.y * side_direction
 						"left":
-							reference_position.x -= master_piece.piece_size * side_direction
+							reference_position.x -= master_piece.piece_size.x * side_direction
 						"right":
-							reference_position.x += master_piece.piece_size * side_direction
+							reference_position.x += master_piece.piece_size.x * side_direction
 					
 					var group_adjust_offset: Vector2 = reference_position - slave_piece.global_position
 
@@ -185,30 +217,37 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 						smaller_group_piece.global_position += group_adjust_offset
 
 
-func _calculate_piece_size(puzzle_image: Image) -> int:
+func _calculate_piece_size(puzzle_image: Image) -> Vector2i:
 	var image_size: Vector2i = puzzle_image.get_size()
 	var y: float = sqrt( ((image_size.y * number_of_pieces ) / image_size.x) )
 
-	return floori(image_size.y / y)
+	return Vector2i.ONE * floori(image_size.y / y)
 	
 	
 func _calculate_piece_size_by_aspect_ratio(puzzle_image: Image) -> Vector2i:
 	var image_size: Vector2i = puzzle_image.get_size()
+
 	var pieces_per_row: int = ceili(sqrt(number_of_pieces * (image_size.x / image_size.y)))
 	var pieces_per_col: int = ceili(number_of_pieces / pieces_per_row)
 	
 	var piece_width: int = floori(image_size.x / pieces_per_row)
 	var piece_height: int = floori(image_size.y / pieces_per_col)
 	
-	piece_width = piece_width * (1.0 - piece_margin)
-	piece_height = piece_height * (1.0 - piece_margin)
+	if puzzle_mode == PuzzleMode.Free:
+		piece_width = piece_width * (1.0 - piece_margin)
+		piece_height = piece_height * (1.0 - piece_margin)
 	
 	return Vector2i(piece_width, piece_height)
 
 
-func _calculate_piece_rect(horizontal_piece: int, vertical_piece: int, size: int, margin: float) -> Rect2:
-	return Rect2(horizontal_piece * size - margin, vertical_piece * size - margin, size + ( 2 * margin), size + ( 2 * margin))
-
+func _calculate_piece_rect(horizontal_piece: int, vertical_piece: int, size: Vector2i, margin: Vector2) -> Rect2:
+	return Rect2(
+		horizontal_piece * size.x - margin.x, 
+		vertical_piece * size.y - margin.y, 
+		size.x + ( 2 * margin.x), 
+		size.y + ( 2 * margin.y)
+	)
+	
 
 func opposing_piece_set(piece: PuzzlePiece, side: PieceSide) -> PieceStyle:
 	return PieceStyle.Outset if piece.sides[side] == PieceStyle.Inset else PieceStyle.Inset
@@ -300,27 +339,47 @@ func _prepare_masks(masks_path: StringName = MasksPath) -> ConnectaPuzzle:
 
 func on_piece_dragged(piece: PuzzlePiece) -> void:
 	if not draggable_component.is_dragging:
-		var group_pieces: Array[PuzzlePiece] = pieces_from_group(piece.group_id)
-		draggable_component.draggable = piece
-		draggable_component.set_draggable_linked_group(group_pieces)
-		draggable_component.start_drag()
-		
-		for active_piece: PuzzlePiece in group_pieces:
-			active_piece.call_deferred("border_areas_detection_mode")
+		match puzzle_mode:
+			PuzzleMode.Free:
+				var group_pieces: Array[PuzzlePiece] = pieces_from_group(piece.group_id)
+				draggable_component.draggable = piece
+				draggable_component.set_draggable_linked_group(group_pieces)
+				draggable_component.start_drag()
+				
+				for active_piece: PuzzlePiece in group_pieces:
+					active_piece.call_deferred("border_areas_detection_mode")
+
+			PuzzleMode.Mosaic:
+				draggable_component.draggable = piece
+				draggable_component.start_drag()
 
 
 func on_piece_released(piece: PuzzlePiece) -> void:
 	draggable_component.release_drag()
 	draggable_component.draggable = null
-	detect_pieces_connections(piece)
 	
-	for puzzle_piece: PuzzlePiece in current_pieces:
-		detect_pieces_connections(puzzle_piece, false)
-		await get_tree().physics_frame
-		
-		for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
-			puzzle_piece.call_deferred("border_areas_detected_mode")
-	
+	match puzzle_mode:
+		PuzzleMode.Free:
+			detect_pieces_connections(piece)
+			
+			for puzzle_piece: PuzzlePiece in current_pieces:
+				 ## TODO - Performance is not affected yet but could be if we reposition on this point with too many pieces
+				detect_pieces_connections(puzzle_piece, true)
+				await get_tree().physics_frame
+				
+				for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
+					puzzle_piece.call_deferred("border_areas_detected_mode")
+			
+		PuzzleMode.Mosaic:
+			var mosaic_areas: Array[PuzzleMosaicArea] = []
+			mosaic_areas.assign(piece.full_area.get_overlapping_areas())
+			
+			for mosaic_area: PuzzleMosaicArea in mosaic_areas:
+				if mosaic_area.puzzle_piece == piece:
+					piece.global_transform = mosaic_area.global_transform
+					piece.disable_full_area()
+					break
+			
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	

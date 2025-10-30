@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://cckweb73gxxrb"]
+
+[ext_resource type="Script" uid="uid://bfxsg0jdfxgc" path="res://addons/puzzle_generator/src/puzzle_mosaic_area.gd" id="1_m7xsr"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bypi3"]
+
+[node name="PuzzleMosaicArea" type="Area2D"]
+script = ExtResource("1_m7xsr")
+mosaic_layer = 1048576
+
+[node name="MosaicCollisionShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_bypi3")
+debug_color = Color(0.29902443, 0.6149815, 0.38111457, 0.41960785)
