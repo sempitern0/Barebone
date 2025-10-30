@@ -11,4 +11,4 @@ func handle_unhandled_input(_event: InputEvent):
 
 
 func physics_update(_delta: float) -> void:
-	actor.look_at_mouse()
+	actor.look_at_mouse(actor.camera)
