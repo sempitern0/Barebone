@@ -1,5 +1,9 @@
 class_name ConnectaPuzzle extends Node2D
 
+signal puzzle_generated
+signal puzzle_finished
+
+
 const MasksPath: StringName = &"res://addons/puzzle_generator/src/shader/masks/"
 const PuzzlePieceScene: PackedScene = preload("uid://cy53228ilv3wo")
 const PuzzleMaskShaderMaterial: ShaderMaterial = preload("uid://eb4n3d3w5in")
@@ -86,10 +90,12 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 
 		piece.dragged.connect(on_piece_dragged.bind(piece))
 		piece.released.connect(on_piece_released.bind(piece))
-		
+	
 
 	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
-			
+	
+	puzzle_generated.emit()
+
 
 func fit_camera_to_puzzle(camera: Camera2D, puzzle_width: int, puzzle_height: int, viewport_size: Vector2) -> void:
 	if not camera:
@@ -104,6 +110,11 @@ func fit_camera_to_puzzle(camera: Camera2D, puzzle_width: int, puzzle_height: in
 	
 	var puzzle_center = Vector2(puzzle_width, puzzle_height) * 0.5
 	camera.position = puzzle_center
+	
+	
+func is_puzzle_finished() -> bool:
+	return current_pieces.size() == current_pieces.filter(func(piece: PuzzlePiece): return piece.active_areas.size() == 0).size()
+
 
 #region Piece related
 func pieces_from_group(group: String) -> Array[PuzzlePiece]:
@@ -129,7 +140,10 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 		for piece_area: Area2D in detected_piece_areas:
 			var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
 
-			if opposite["neighbor"] != null and opposite["neighbor"] == detected_piece:
+			if opposite["neighbor"] != null \
+				and opposite["neighbor"] == detected_piece \
+				and piece_area.global_position.distance_to(current_side_area.global_position) < (source_piece.piece_size * 0.75):
+				
 				source_piece.remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
 				
@@ -255,7 +269,6 @@ func _prepare_image(selected_image: Image = current_puzzle_image) -> ConnectaPuz
 
 func _prepare_masks(masks_path: StringName = MasksPath) -> ConnectaPuzzle:
 	if cached_masks.is_empty():
-		
 		## Side values
 		for tops in PieceStyle.values():
 			cached_masks[tops] = {}
@@ -305,3 +318,9 @@ func on_piece_released(piece: PuzzlePiece) -> void:
 	for puzzle_piece: PuzzlePiece in current_pieces:
 		for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
 			puzzle_piece.call_deferred("border_areas_detected_mode")
+	
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	
+	if is_puzzle_finished():
+		puzzle_finished.emit()
