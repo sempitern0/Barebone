@@ -147,44 +147,41 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 				source_piece.remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
 				
-				if reposition:
-					var current_group_pieces: Array[PuzzlePiece] = pieces_from_group(source_piece.group_id)
-					var detected_piece_group_pieces: Array[PuzzlePiece] = pieces_from_group(detected_piece.group_id)
-					
-					if current_group_pieces.size() > detected_piece_group_pieces.size():
-						for detected_group_piece: PuzzlePiece in detected_piece_group_pieces:
-							detected_group_piece.group_id = source_piece.group_id
-							
-						detected_piece.global_position = source_piece.global_position
-						
-						match side:
-							"top":
-								detected_piece.global_position.y -= source_piece.piece_size
-							"bottom":
-								detected_piece.global_position.y += source_piece.piece_size
-							"left":
-								detected_piece.global_position.x -= source_piece.piece_size
-							"right":
-								detected_piece.global_position.x += source_piece.piece_size
-							
-					else:
-						for current_group_piece: PuzzlePiece in current_group_pieces:
-							current_group_piece.group_id = detected_piece.group_id
-							
-						source_piece.global_position = detected_piece.global_position
-						
-						match side:
-							"top":
-								source_piece.global_position.y += detected_piece.piece_size
-							"bottom":
-								source_piece.global_position.y -= detected_piece.piece_size
-							"left":
-								source_piece.global_position.x += detected_piece.piece_size
-							"right":
-								source_piece.global_position.x -= detected_piece.piece_size
+				var current_group_pieces: Array[PuzzlePiece] = pieces_from_group(source_piece.group_id)
+				var detected_piece_group_pieces: Array[PuzzlePiece] = pieces_from_group(detected_piece.group_id)
+				
+				var smaller_group: Array[PuzzlePiece] = []
+				var master_piece: PuzzlePiece ## This one is used as reference position to adjust the slave piece
+				var slave_piece: PuzzlePiece
 
-					break
-	
+				if current_group_pieces.size() > detected_piece_group_pieces.size():
+					smaller_group = detected_piece_group_pieces
+					master_piece = source_piece
+					slave_piece = detected_piece
+				else:
+					smaller_group = current_group_pieces
+					master_piece = detected_piece
+					slave_piece = source_piece
+				
+				var reference_position: Vector2 = master_piece.global_position
+				var side_direction: int = -1.0 if master_piece == detected_piece else 1.0
+				
+				match side:
+					"top":
+						reference_position.y -= master_piece.piece_size * side_direction
+					"bottom":
+						reference_position.y += master_piece.piece_size * side_direction
+					"left":
+						reference_position.x -= master_piece.piece_size * side_direction
+					"right":
+						reference_position.x += master_piece.piece_size * side_direction
+				
+				var group_adjust_offset: Vector2 = reference_position - slave_piece.global_position
+
+				for smaller_group_piece: PuzzlePiece in smaller_group:
+					smaller_group_piece.group_id = master_piece.group_id
+					smaller_group_piece.global_position += group_adjust_offset
+
 
 func _calculate_piece_size(puzzle_image: Image) -> int:
 	var image_size: Vector2i = puzzle_image.get_size()
