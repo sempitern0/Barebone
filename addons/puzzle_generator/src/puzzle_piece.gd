@@ -4,6 +4,9 @@ class_name PuzzlePiece extends Sprite2D
 signal dragged
 signal released
 
+@export_flags_2d_physics var piece_layer: int 
+@export_flags_2d_physics var piece_mask: int 
+
 @onready var detection_button: Button = $DetectionButton
 @onready var top_area: Area2D = $TopArea
 @onready var bottom_area: Area2D = $BottomArea
@@ -67,7 +70,19 @@ func active_pieces() -> Array[PuzzlePiece]:
 		
 	return pieces
 
-	
+
+func border_areas_detection_mode() -> void:
+	for area: Area2D in active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
+		area.collision_layer = 1
+		area.collision_mask = piece_mask
+		
+
+func border_areas_detected_mode() -> void:
+	for area: Area2D in active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
+		area.collision_layer = piece_layer
+		area.collision_mask = 0
+		
+		
 func remove_side_area(area: Area2D) -> void:
 		active_areas.erase(area)
 		
@@ -75,22 +90,6 @@ func remove_side_area(area: Area2D) -> void:
 			area.queue_free()
 	
 
-func _snap_to_neighbor(piece: PuzzlePiece, neighbor: PuzzlePiece, side: String) -> void:
-	var offset: Vector2 = Vector2.ZERO
-	
-	match side:
-		"top":
-			offset = Vector2(0, -piece.region.size.y)
-		"bottom":
-			offset = Vector2(0, neighbor.region.size.y)
-		"left":
-			offset = Vector2(-piece.region.size.x, 0)
-		"right":
-			offset = Vector2(neighbor.region.size.x, 0)
-			
-	piece.position = neighbor.position + offset
-
-	
 func _prepare_mask_shader_material() -> void:
 	var texture_size: Vector2 = texture.get_size()
 	var uv_pos: Vector2 = region_rect.position / texture_size
@@ -104,10 +103,19 @@ func _prepare_mask_shader_material() -> void:
 
 
 func _prepare_border_areas() -> void:
-	top_area.monitoring = false
-	bottom_area.monitoring = false
-	right_area.monitoring = false
-	left_area.monitoring = false
+	top_area.collision_layer = piece_layer
+	top_area.collision_mask = 0
+	bottom_area.collision_layer = piece_layer
+	bottom_area.collision_mask = 0
+	left_area.collision_layer = piece_layer
+	left_area.collision_mask = 0
+	right_area.collision_layer = piece_layer
+	right_area.collision_mask = 0
+	
+	top_area.monitoring = true
+	bottom_area.monitoring = true
+	right_area.monitoring = true
+	left_area.monitoring = true
 	
 	top_area.monitorable = true
 	bottom_area.monitorable = true
@@ -118,7 +126,6 @@ func _prepare_border_areas() -> void:
 	bottom_area.set_meta(&"side", "bottom")
 	left_area.set_meta(&"side", "left")
 	right_area.set_meta(&"side", "right")
-	
 	
 	if top_neighbor == null:
 		top_area.queue_free()
@@ -149,90 +156,9 @@ func _prepare_border_areas() -> void:
 		active_areas.append(right_area)
 
 
-func detect_pieces_connections(piece: PuzzlePiece) -> void:
-	for current_side_area: Area2D in piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
-		var side: String = current_side_area.get_meta(&"side")
-		
-		if side == null or side.is_empty() or not opposite_neighbours.has(side):
-			continue
-			
-		var opposite: Dictionary = opposite_neighbours[side]
-		var detected_piece_areas = current_side_area.get_overlapping_areas()\
-					.filter(func(area: Area2D): return area.get_meta(&"side") == opposite["opposite_side"])
-		
-		for piece_area: Area2D in detected_piece_areas:
-			var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
-
-			if opposite["neighbor"] != null and opposite["neighbor"] == detected_piece:
-				remove_side_area(current_side_area)
-				detected_piece.remove_side_area(piece_area)
-				
-				var current_piece_root: PuzzlePiece = root()
-				var detected_piece_root: PuzzlePiece = detected_piece.root()
-				
-				var current_group_pieces: Array[PuzzlePiece] = []
-				var detected_piece_group_pieces: Array[PuzzlePiece] =  []
-				
-				current_group_pieces.assign(
-					current_piece_root.get_children()\
-						.filter(func(child: Node): return child is PuzzlePiece and not child in [current_piece_root, detected_piece_root])
-					)
-				detected_piece_group_pieces.assign(
-					detected_piece_root.get_children()\
-						.filter(func(child: Node): return child is PuzzlePiece and not child in [current_piece_root, detected_piece_root])
-					)
-				
-				if current_group_pieces.size() > detected_piece_group_pieces.size():
-					
-					detected_piece_root.reparent(current_piece_root, true)
-					detected_piece_root.global_position = self.global_position
-					
-					match side:
-						"top":
-							detected_piece_root.global_position.y -= piece_size
-						"bottom":
-							detected_piece_root.global_position.y += piece_size
-						"left":
-							detected_piece_root.global_position.x -= piece_size
-						"right":
-							detected_piece_root.global_position.x += piece_size
-							
-					for group_piece: PuzzlePiece in detected_piece_group_pieces:
-						group_piece.reparent(current_piece_root, true)
-					
-				else:
-					current_piece_root.reparent(detected_piece_root, true)
-					current_piece_root.global_position = detected_piece.global_position
-					
-					match side:
-						"top":
-							current_piece_root.global_position.y += piece_size
-						"bottom":
-							current_piece_root.global_position.y -= piece_size
-						"left":
-							current_piece_root.global_position.x += piece_size
-						"right":
-							current_piece_root.global_position.x -= piece_size
-							
-					for group_piece: PuzzlePiece in detected_piece_group_pieces:
-						group_piece.reparent(detected_piece_root, true)
-						
-				break
-
 func on_drag_started() -> void:
 	dragged.emit()
 	
-	for piece: PuzzlePiece in active_pieces():
-		for area: Area2D in piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
-			area.set_deferred("monitoring", true)
-			area.set_deferred("monitorable", false)
-
 
 func on_drag_release() -> void:
 	released.emit()
-	detect_pieces_connections(root())
-	
-	for piece: PuzzlePiece in active_pieces():
-		for area: Area2D in piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
-			area.set_deferred("monitoring", false)
-			area.set_deferred("monitorable", true)
