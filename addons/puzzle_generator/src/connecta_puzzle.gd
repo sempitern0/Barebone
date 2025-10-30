@@ -30,7 +30,7 @@ enum PuzzleMode {
 		puzzle_texture = value
 		current_puzzle_image = puzzle_texture.get_image() if puzzle_texture else null
 
-@export_range(0.0, 255.0, 0.0) var background_mosaic_transparency: float = 100.0
+@export_range(0.0, 255.0, 0.1) var background_mosaic_transparency: float = 100.0
 @export_range(4, 10000, 1) var number_of_pieces: int = 100
 @export var piece_margin: float = 0.15
 
@@ -105,14 +105,18 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 		piece.released.connect(on_piece_released.bind(piece))
 
 	if puzzle_mode == PuzzleMode.Mosaic:
+
 		var background_puzzle: Sprite2D = Sprite2D.new()
 		background_puzzle.name = "TransparentBackgroundPuzzle"
 		background_puzzle.texture = puzzle_texture
 		background_puzzle.self_modulate.a8 = background_mosaic_transparency
-		background_puzzle.centered = false
+		background_puzzle.centered = true
 		output_node.add_child(background_puzzle)
 		background_puzzle.z_index = current_pieces.front().z_index - 1
 		background_puzzle.scale = Vector2(piece_size.x * horizontal_pieces, piece_size.y * vertical_pieces) / puzzle_texture.get_size()
+		
+		var background_final_size: Vector2 = puzzle_texture.get_size() * background_puzzle.scale
+		var background_final_half: Vector2  = background_final_size / 2.0
 		
 		for piece: PuzzlePiece in current_pieces:
 			var mosaic_area: PuzzleMosaicArea = PuzzleMosaicAreaScene.instantiate() as PuzzleMosaicArea
@@ -122,6 +126,10 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			mosaic_area.position.x = (piece.col * piece_size.x) + piece_size.x / 2.0
 			mosaic_area.position.y = (piece.row  * piece_size.y) + piece_size.y / 2.0
 			
+			if background_puzzle.centered:
+				mosaic_area.position.x -= background_final_half.x
+				mosaic_area.position.y -= background_final_half.y
+				
 			piece.mosaic_layer = mosaic_area.mosaic_layer
 			
 	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
