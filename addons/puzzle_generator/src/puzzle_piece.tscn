@@ -19,6 +19,12 @@ piece_mask = 524288
 offset_right = 8.0
 offset_bottom = 8.0
 
+[node name="GroupLabel" type="Label" parent="."]
+offset_left = -38.0
+offset_top = -47.0
+offset_right = 2.0
+offset_bottom = -19.0
+
 [node name="TopArea" type="Area2D" parent="."]
 collision_layer = 0
 collision_mask = 0

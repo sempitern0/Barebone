@@ -106,16 +106,23 @@ func fit_camera_to_puzzle(camera: Camera2D, puzzle_width: int, puzzle_height: in
 	camera.position = puzzle_center
 
 #region Piece related
-func detect_pieces_connections(piece: PuzzlePiece, reposition: bool = true) -> Array[PuzzlePiece]:
-	var connected_pieces: Array[PuzzlePiece] = [piece]
+func pieces_from_group(group: String) -> Array[PuzzlePiece]:
+	var pieces: Array[PuzzlePiece] = []
+	pieces.assign(output_node.get_tree()\
+		.get_nodes_in_group(group)\
+		.filter(func(child: Node): return is_instance_valid(child) and child is PuzzlePiece))
 	
-	for current_side_area: Area2D in piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
+	return pieces
+
+
+func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = true) -> void:
+	for current_side_area: Area2D in source_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
 		var side: String = current_side_area.get_meta(&"side")
 		
-		if side == null or side.is_empty() or not piece.opposite_neighbours.has(side):
+		if side == null or side.is_empty() or not source_piece.opposite_neighbours.has(side):
 			continue
 			
-		var opposite: Dictionary = piece.opposite_neighbours[side]
+		var opposite: Dictionary = source_piece.opposite_neighbours[side]
 		var detected_piece_areas = current_side_area.get_overlapping_areas()\
 					.filter(func(area: Area2D): return area.get_meta(&"side") == opposite["opposite_side"])
 		
@@ -123,81 +130,47 @@ func detect_pieces_connections(piece: PuzzlePiece, reposition: bool = true) -> A
 			var detected_piece: PuzzlePiece = piece_area.get_parent() as PuzzlePiece
 
 			if opposite["neighbor"] != null and opposite["neighbor"] == detected_piece:
-				piece.remove_side_area(current_side_area)
+				source_piece.remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
 				
-				if not piece in connected_pieces:
-					connected_pieces.append(piece)
-				
-				if not detected_piece in connected_pieces:
-					connected_pieces.append(detected_piece)
-					
 				if reposition:
-					var current_piece_root: PuzzlePiece = piece.root()
-					var detected_piece_root: PuzzlePiece = detected_piece.root()
-					
-					var current_group_pieces: Array[PuzzlePiece] = []
-					var detected_piece_group_pieces: Array[PuzzlePiece] =  []
-					
-					current_group_pieces.assign(
-						current_piece_root.get_children()\
-							.filter(func(child: Node): return child is PuzzlePiece and not child in [current_piece_root, detected_piece_root])
-						)
-					detected_piece_group_pieces.assign(
-						detected_piece_root.get_children()\
-							.filter(func(child: Node): return child is PuzzlePiece and not child in [current_piece_root, detected_piece_root])
-						)
+					var current_group_pieces: Array[PuzzlePiece] = pieces_from_group(source_piece.group_id)
+					var detected_piece_group_pieces: Array[PuzzlePiece] = pieces_from_group(detected_piece.group_id)
 					
 					if current_group_pieces.size() > detected_piece_group_pieces.size():
-						detected_piece_root.reparent(current_piece_root, true)
-						detected_piece_root.global_position = self.global_position
-						
-						if not detected_piece_root in connected_pieces:
-							connected_pieces.append(detected_piece_root)
+						for detected_group_piece: PuzzlePiece in detected_piece_group_pieces:
+							detected_group_piece.group_id = source_piece.group_id
+							
+						detected_piece.global_position = source_piece.global_position
 						
 						match side:
 							"top":
-								detected_piece_root.global_position.y -= piece.piece_size
+								detected_piece.global_position.y -= source_piece.piece_size
 							"bottom":
-								detected_piece_root.global_position.y += piece.piece_size
+								detected_piece.global_position.y += source_piece.piece_size
 							"left":
-								detected_piece_root.global_position.x -= piece.piece_size
+								detected_piece.global_position.x -= source_piece.piece_size
 							"right":
-								detected_piece_root.global_position.x += piece.piece_size
-								
-						for group_piece: PuzzlePiece in detected_piece_group_pieces:
-							group_piece.reparent(current_piece_root, true)
+								detected_piece.global_position.x += source_piece.piece_size
 							
-							if not group_piece in connected_pieces:
-								connected_pieces.append(group_piece)
-						
 					else:
-						current_piece_root.reparent(detected_piece_root, true)
-						current_piece_root.global_position = detected_piece.global_position
-						
-						if not current_piece_root in connected_pieces:
-							connected_pieces.append(current_piece_root)
+						for current_group_piece: PuzzlePiece in current_group_pieces:
+							current_group_piece.group_id = detected_piece.group_id
 							
+						source_piece.global_position = detected_piece.global_position
+						
 						match side:
 							"top":
-								current_piece_root.global_position.y += piece.piece_size
+								source_piece.global_position.y += detected_piece.piece_size
 							"bottom":
-								current_piece_root.global_position.y -= piece.piece_size
+								source_piece.global_position.y -= detected_piece.piece_size
 							"left":
-								current_piece_root.global_position.x += piece.piece_size
+								source_piece.global_position.x += detected_piece.piece_size
 							"right":
-								current_piece_root.global_position.x -= piece.piece_size
-								
-						for group_piece: PuzzlePiece in current_group_pieces:
-							group_piece.reparent(detected_piece_root, true)
-							
-							if not group_piece in connected_pieces:
-								connected_pieces.append(group_piece)
-							
+								source_piece.global_position.x -= detected_piece.piece_size
+
 					break
 	
-	return connected_pieces
-
 
 func _calculate_piece_size(puzzle_image: Image) -> int:
 	var image_size: Vector2i = puzzle_image.get_size()
@@ -325,9 +298,7 @@ func on_piece_dragged(piece: PuzzlePiece) -> void:
 func on_piece_released(piece: PuzzlePiece) -> void:
 	draggable_component.release_drag()
 	draggable_component.draggable = null
-	var connected_pieces: Array[PuzzlePiece] = detect_pieces_connections(piece.root())
 	
-	for puzzle_piece: PuzzlePiece in connected_pieces:
+	for puzzle_piece: PuzzlePiece in current_pieces:
 		for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
-			detect_pieces_connections(puzzle_piece, false)
 			puzzle_piece.call_deferred("border_areas_detected_mode")

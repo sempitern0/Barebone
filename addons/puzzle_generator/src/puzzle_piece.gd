@@ -16,6 +16,8 @@ signal released
 @onready var bottom_collision: CollisionShape2D = %BottomCollision
 @onready var right_collision: CollisionShape2D = %RightCollision
 @onready var left_collision: CollisionShape2D = %LeftCollision
+@onready var group_label: Label = $GroupLabel
+
 
 var row: int = 0
 var col: int = 0
@@ -32,15 +34,25 @@ var left_neighbor: PuzzlePiece
 
 var active_areas: Array[Area2D] = []
 var opposite_neighbours: Dictionary[String, Dictionary] = {}
+var group_id: String:
+	set(new_group):
+		if is_in_group(group_id):
+			remove_from_group(group_id)
+			
+		group_id = new_group
+		add_to_group(group_id)
+		group_label.text = group_id
 
 
 func _ready() -> void:
+	group_id = str(get_instance_id())
+	group_label.text = group_id
+	
 	assert(texture != null, "PuzzlePiece: The puzzle pieces needs a texture before adding it on the SceneTree")
 	assert(mask_shader_material != null, "PuzzlePiece: The puzzle pieces needs a mask shader material before adding it on the SceneTree")
 	
 	_prepare_mask_shader_material()
 	_prepare_border_areas()
-	
 
 	opposite_neighbours = {
 		"top": {"opposite_side": "bottom", "neighbor": top_neighbor},
@@ -65,22 +77,26 @@ func active_pieces() -> Array[PuzzlePiece]:
 	var pieces: Array[PuzzlePiece] = [root()]
 	pieces.append_array(pieces.front()\
 		.get_children()\
-		.filter(func(child: Node): return child is PuzzlePiece)
+		.filter(func(child: Node): return is_instance_valid(child) and child is PuzzlePiece)
 		)
 		
 	return pieces
 
 
 func border_areas_detection_mode() -> void:
-	for area: Area2D in active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
+	for area: Area2D in active_areas\
+		.filter(func(area: Area2D): return is_instance_valid(area) and not area.is_queued_for_deletion()):
+		
 		area.collision_layer = 1
 		area.collision_mask = piece_mask
 		
 
 func border_areas_detected_mode() -> void:
-	for area: Area2D in active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
+	for area: Area2D in active_areas\
+		.filter(func(area: Area2D): return is_instance_valid(area) and not area.is_queued_for_deletion()):
+		
 		area.collision_layer = piece_layer
-		area.collision_mask = 0
+		area.collision_mask = 2
 		
 		
 func remove_side_area(area: Area2D) -> void:
