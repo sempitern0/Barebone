@@ -29,7 +29,8 @@ enum PuzzleMode {
 	set(value):
 		puzzle_texture = value
 		current_puzzle_image = puzzle_texture.get_image() if puzzle_texture else null
-		
+
+@export_range(0.0, 255.0, 0.0) var background_mosaic_transparency: float = 100.0
 @export_range(4, 10000, 1) var number_of_pieces: int = 100
 @export var piece_margin: float = 0.15
 
@@ -103,12 +104,11 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 		piece.dragged.connect(on_piece_dragged.bind(piece))
 		piece.released.connect(on_piece_released.bind(piece))
 
-	
 	if puzzle_mode == PuzzleMode.Mosaic:
 		var background_puzzle: Sprite2D = Sprite2D.new()
 		background_puzzle.name = "TransparentBackgroundPuzzle"
 		background_puzzle.texture = puzzle_texture
-		background_puzzle.self_modulate.a8 = 100
+		background_puzzle.self_modulate.a8 = background_mosaic_transparency
 		background_puzzle.centered = false
 		output_node.add_child(background_puzzle)
 		background_puzzle.z_index = current_pieces.front().z_index - 1

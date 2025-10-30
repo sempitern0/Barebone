@@ -42,7 +42,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/acoustic/plugin.cfg", "res://addons/machina/plugin.cfg", "res://addons/omnikit/plugin.cfg", "res://addons/terrainy/plugin.cfg", "res://addons/vault/plugin.cfg", "res://addons/warp/plugin.cfg")
+enabled=PackedStringArray("res://addons/acoustic/plugin.cfg", "res://addons/machina/plugin.cfg", "res://addons/omnikit/plugin.cfg", "res://addons/vault/plugin.cfg", "res://addons/warp/plugin.cfg")
 
 [file_customization]
 
