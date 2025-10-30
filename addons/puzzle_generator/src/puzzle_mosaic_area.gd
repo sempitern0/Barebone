@@ -21,4 +21,4 @@ func _ready() -> void:
 
 
 func create_mosaic_shape(piece_size: Vector2i) -> void:
-	mosaic_collison.shape.size = piece_size * 0.9
+	mosaic_collison.shape.size = piece_size

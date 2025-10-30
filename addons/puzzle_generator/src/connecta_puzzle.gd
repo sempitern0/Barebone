@@ -25,7 +25,6 @@ enum PuzzleMode {
 @export var draggable_component: OmniKitDraggable2D
 @export var generation_type: GenerationType = GenerationType.Automatic
 @export var puzzle_mode: PuzzleMode = PuzzleMode.Free
-@export var use_aspect_ratio: bool = false
 @export var puzzle_texture: Texture2D:
 	set(value):
 		puzzle_texture = value
@@ -62,7 +61,11 @@ func _ready() -> void:
 func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	assert(cached_masks.size() > 0, "ConnectaPuzzle->generate_puzzle: There is no available puzzle image masks to generate the puzzle, aborting... ")
 	
-	var piece_size: Vector2i =  _calculate_piece_size_by_aspect_ratio(current_puzzle_image) if use_aspect_ratio else _calculate_piece_size(current_puzzle_image)
+	var piece_size: Vector2i = _calculate_piece_size(current_puzzle_image)
+	
+	if not is_equal_approx(current_puzzle_image.get_width(), current_puzzle_image.get_height()):
+		piece_size = _calculate_piece_size_by_aspect_ratio(current_puzzle_image)
+		
 	var margin: Vector2 =  Vector2(piece_size.x, piece_size.y) * piece_margin
 	var horizontal_pieces: int = floori(puzzle_image.get_width() / piece_size.x)
 	var vertical_pieces: int = floori(puzzle_image.get_height() / piece_size.y)
@@ -77,8 +80,8 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			var puzzle_piece: PuzzlePiece = PuzzlePieceScene.instantiate() as PuzzlePiece
 			puzzle_piece.name = "PuzzlePiece_%d_%d" % [horizontal_piece, vertical_piece]
 			puzzle_piece.puzzle_mode = puzzle_mode
-			puzzle_piece.row = horizontal_piece
-			puzzle_piece.col = vertical_piece
+			puzzle_piece.row = vertical_piece
+			puzzle_piece.col = horizontal_piece
 			puzzle_piece.piece_size = piece_size
 			puzzle_piece.region_enabled = true
 			puzzle_piece.region_rect = _calculate_piece_rect(horizontal_piece, vertical_piece, piece_size, margin)
@@ -94,32 +97,35 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	## when puzzle piece trigger _ready()
 	for piece: PuzzlePiece in current_pieces:
 		output_node.add_child(piece)
-		piece.position.x = piece.row * piece_size.x
-		piece.position.y = piece.col * piece_size.y
+		piece.position.x = piece.col * piece_size.x
+		piece.position.y = piece.row * piece_size.y
 
 		piece.dragged.connect(on_piece_dragged.bind(piece))
 		piece.released.connect(on_piece_released.bind(piece))
 
-	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
 	
 	if puzzle_mode == PuzzleMode.Mosaic:
 		var background_puzzle: Sprite2D = Sprite2D.new()
 		background_puzzle.name = "TransparentBackgroundPuzzle"
 		background_puzzle.texture = puzzle_texture
 		background_puzzle.self_modulate.a8 = 100
+		background_puzzle.centered = false
 		output_node.add_child(background_puzzle)
 		background_puzzle.z_index = current_pieces.front().z_index - 1
-		background_puzzle.position = Vector2(piece_size.x * horizontal_pieces / (2.0 + piece_margin), piece_size.y * vertical_pieces / (2.0 + piece_margin))
+		background_puzzle.scale = Vector2(piece_size.x * horizontal_pieces, piece_size.y * vertical_pieces) / puzzle_texture.get_size()
 		
 		for piece: PuzzlePiece in current_pieces:
 			var mosaic_area: PuzzleMosaicArea = PuzzleMosaicAreaScene.instantiate() as PuzzleMosaicArea
-			output_node.add_child(mosaic_area)
+			background_puzzle.add_child(mosaic_area)
 			mosaic_area.puzzle_piece = piece
-			mosaic_area.position.x = piece.row * piece_size.x
-			mosaic_area.position.y = piece.col * piece_size.y
-		
+			
+			mosaic_area.position.x = (piece.col * piece_size.x) + piece_size.x / 2.0
+			mosaic_area.position.y = (piece.row  * piece_size.y) + piece_size.y / 2.0
+			
 			piece.mosaic_layer = mosaic_area.mosaic_layer
 			
+	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
+	
 	puzzle_generated.emit()
 
 
@@ -221,7 +227,7 @@ func _calculate_piece_size(puzzle_image: Image) -> Vector2i:
 	var image_size: Vector2i = puzzle_image.get_size()
 	var y: float = sqrt( ((image_size.y * number_of_pieces ) / image_size.x) )
 
-	return Vector2i.ONE * floori(image_size.y / y)
+	return Vector2i.ONE * ceili(image_size.y / y)
 	
 	
 func _calculate_piece_size_by_aspect_ratio(puzzle_image: Image) -> Vector2i:
