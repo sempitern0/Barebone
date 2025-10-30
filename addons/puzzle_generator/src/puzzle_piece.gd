@@ -67,22 +67,6 @@ func _ready() -> void:
 	detection_button.anchors_preset = Control.PRESET_FULL_RECT
 
 
-func root() -> PuzzlePiece:
-	var parent: Node = get_parent()
-	
-	return parent if parent != null and parent is PuzzlePiece else self
-
-
-func active_pieces() -> Array[PuzzlePiece]:
-	var pieces: Array[PuzzlePiece] = [root()]
-	pieces.append_array(pieces.front()\
-		.get_children()\
-		.filter(func(child: Node): return is_instance_valid(child) and child is PuzzlePiece)
-		)
-		
-	return pieces
-
-
 func border_areas_detection_mode() -> void:
 	for area: Area2D in active_areas\
 		.filter(func(area: Area2D): return is_instance_valid(area) and not area.is_queued_for_deletion()):

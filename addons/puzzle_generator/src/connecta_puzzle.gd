@@ -288,16 +288,19 @@ func _prepare_masks(masks_path: StringName = MasksPath) -> ConnectaPuzzle:
 
 func on_piece_dragged(piece: PuzzlePiece) -> void:
 	if not draggable_component.is_dragging:
-		draggable_component.draggable = piece.root()
+		var group_pieces: Array[PuzzlePiece] = pieces_from_group(piece.group_id)
+		draggable_component.draggable = piece
+		draggable_component.set_draggable_linked_group(group_pieces)
 		draggable_component.start_drag()
 		
-		for active_piece: PuzzlePiece in piece.root().active_pieces():
+		for active_piece: PuzzlePiece in group_pieces:
 			active_piece.call_deferred("border_areas_detection_mode")
 
 
 func on_piece_released(piece: PuzzlePiece) -> void:
 	draggable_component.release_drag()
 	draggable_component.draggable = null
+	detect_pieces_connections(piece)
 	
 	for puzzle_piece: PuzzlePiece in current_pieces:
 		for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):

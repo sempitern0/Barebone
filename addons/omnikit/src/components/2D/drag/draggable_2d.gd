@@ -45,10 +45,27 @@ var original_z_index: int = 0
 var original_position: Vector2 = Vector2.ZERO
 var original_rotation: float = 0.0
 var current_position: Vector2 = Vector2.ZERO
-var m_offset: Vector2 = Vector2.ZERO
 
 var last_mouse_position: Vector2
 var velocity: Vector2
+
+var draggable_group_nodes: Array[Node2D] = []
+var draggable_group_offsets: Array[Vector2] = []
+var group_origin_global: Vector2 = Vector2.ZERO
+var prev_group_origin_global: Vector2 = Vector2.ZERO
+
+
+func set_draggable_linked_group(group_nodes: Array) -> void:
+	if draggable:
+		draggable_group_nodes.clear()
+		draggable_group_offsets.clear()
+		
+		group_origin_global = draggable.global_position
+		prev_group_origin_global = group_origin_global
+		draggable_group_nodes.assign(group_nodes.filter(func(node: Node): return is_instance_valid(node) and node is Node2D))
+		
+		for group_node: Node2D in draggable_group_nodes:
+			draggable_group_offsets.append(group_node.global_position - group_origin_global)
 
 
 func _ready() -> void:
@@ -78,9 +95,10 @@ func _process(delta: float) -> void:
 		else:
 			draggable.global_position = get_global_mouse_position()
 			
-		current_position = draggable.global_position + m_offset
+		current_position = draggable.global_position
 		
 		apply_screen_limit()
+		apply_group_movement(current_position)
 
 
 func _physics_process(delta: float) -> void:
@@ -101,9 +119,19 @@ func _physics_process(delta: float) -> void:
 			
 		draggable.move_and_slide()
 		
-		current_position = draggable.global_position + m_offset
+		current_position = draggable.global_position
 		apply_screen_limit()
+		apply_group_movement(current_position)
 	
+
+func apply_group_movement(new_position: Vector2) -> void:
+	for group_index: int in range(draggable_group_nodes.size()):
+		var group_node: Node2D = draggable_group_nodes[group_index]
+		group_node.global_position = new_position + draggable_group_offsets[group_index]
+
+	prev_group_origin_global = group_origin_global
+	group_origin_global = new_position
+
 
 func apply_screen_limit() -> void:
 	if screen_limit:
@@ -126,7 +154,10 @@ func start_drag() -> void:
 		is_dragging = true
 		draggable.z_index = original_z_index + 100
 		draggable.z_as_relative = false
-		m_offset = draggable.global_position - get_global_mouse_position()
+		
+		for draggable_group_node: Node2D in draggable_group_nodes:
+			draggable_group_node.z_index = original_z_index + 100
+			draggable_group_node.z_as_relative = false
 
 
 func release_drag() -> void:
@@ -135,6 +166,12 @@ func release_drag() -> void:
 		draggable.z_index = original_z_index
 		draggable.z_as_relative = true
 		
+		for draggable_group_node: Node2D in draggable_group_nodes:
+			draggable_group_node.z_index = original_z_index
+			draggable_group_node.z_as_relative = true
+			
+		draggable_group_nodes.clear()
+		draggable_group_offsets.clear()
 #endregion
 
 #region Signal callbacks
