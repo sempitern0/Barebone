@@ -153,7 +153,7 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 				var smaller_group: Array[PuzzlePiece] = []
 				var master_piece: PuzzlePiece ## This one is used as reference position to adjust the slave piece
 				var slave_piece: PuzzlePiece
-
+				
 				if current_group_pieces.size() > detected_piece_group_pieces.size():
 					smaller_group = detected_piece_group_pieces
 					master_piece = source_piece
@@ -165,22 +165,24 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 				
 				var reference_position: Vector2 = master_piece.global_position
 				var side_direction: int = -1.0 if master_piece == detected_piece else 1.0
+				slave_piece.group_id = master_piece.group_id
 				
-				match side:
-					"top":
-						reference_position.y -= master_piece.piece_size * side_direction
-					"bottom":
-						reference_position.y += master_piece.piece_size * side_direction
-					"left":
-						reference_position.x -= master_piece.piece_size * side_direction
-					"right":
-						reference_position.x += master_piece.piece_size * side_direction
-				
-				var group_adjust_offset: Vector2 = reference_position - slave_piece.global_position
+				if reposition:
+					match side:
+						"top":
+							reference_position.y -= master_piece.piece_size * side_direction
+						"bottom":
+							reference_position.y += master_piece.piece_size * side_direction
+						"left":
+							reference_position.x -= master_piece.piece_size * side_direction
+						"right":
+							reference_position.x += master_piece.piece_size * side_direction
+					
+					var group_adjust_offset: Vector2 = reference_position - slave_piece.global_position
 
-				for smaller_group_piece: PuzzlePiece in smaller_group:
-					smaller_group_piece.group_id = master_piece.group_id
-					smaller_group_piece.global_position += group_adjust_offset
+					for smaller_group_piece: PuzzlePiece in smaller_group:
+						smaller_group_piece.group_id = master_piece.group_id
+						smaller_group_piece.global_position += group_adjust_offset
 
 
 func _calculate_piece_size(puzzle_image: Image) -> int:
@@ -313,6 +315,9 @@ func on_piece_released(piece: PuzzlePiece) -> void:
 	detect_pieces_connections(piece)
 	
 	for puzzle_piece: PuzzlePiece in current_pieces:
+		detect_pieces_connections(puzzle_piece, false)
+		await get_tree().physics_frame
+		
 		for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
 			puzzle_piece.call_deferred("border_areas_detected_mode")
 	
