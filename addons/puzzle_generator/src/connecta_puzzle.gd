@@ -27,11 +27,18 @@ enum ShuffleMode {
 	Bottom
 }
 
+enum SpawnDistributionMode {
+	Random,
+	Equidistant,
+	Radial
+}
+
 @export var output_node: Node2D
 @export var draggable_component: OmniKitDraggable2D
 @export var generation_type: GenerationType = GenerationType.Automatic
 @export var puzzle_mode: PuzzleMode = PuzzleMode.Free
 @export var shuffle_mode: ShuffleMode = ShuffleMode.AroundTheViewport
+@export var spawn_distribution_mode: SpawnDistributionMode = SpawnDistributionMode.Random
 @export var puzzle_texture: Texture2D:
 	set(value):
 		puzzle_texture = value
@@ -40,6 +47,8 @@ enum ShuffleMode {
 @export_range(0.0, 255.0, 0.1) var background_mosaic_transparency: float = 100.0
 @export_range(4, 10000, 1) var number_of_pieces: int = 100
 @export var piece_margin: float = 0.15
+## How much the piece is separated from the puzzle background when spawning
+@export var spawn_margin: float = 50.0
 
 var cached_masks: Dictionary = {}
 var current_pieces: Array[PuzzlePiece] = []
@@ -102,12 +111,13 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			add_neighbours_to_piece(current_pieces, puzzle_piece, horizontal_piece, vertical_piece, horizontal_pieces)
 			current_pieces.append(puzzle_piece)
 	
-		
-	var background_puzzle_final_half_size: Vector2
+	## Always add the background puzzle as it used as reference
+	## to position the pieces for the shuffle mode
+	var background_puzzle_final_half_size: Vector2 = _prepare_background_puzzle_transparent_texture(piece_size, horizontal_pieces, vertical_pieces)
+	background_puzzle.hide()
 	
 	if puzzle_mode == PuzzleMode.Mosaic:
-		background_puzzle_final_half_size = _prepare_background_puzzle_transparent_texture(piece_size, horizontal_pieces, vertical_pieces)
-	
+		background_puzzle.show()
 	## The pieces are added after the preparing loop
 	## as the neighbours are setup correctly now to delete the proper detection areas
 	## when puzzle piece trigger _ready()
@@ -131,26 +141,50 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 				
 			piece.mosaic_layer = mosaic_area.mosaic_layer
 	
-		#match shuffle_mode:
-			#ShuffleMode.AroundTheViewport:
-				#var top_area_y := output_node.position.y - piece_size.y
-				#var bottom_area_y := output_node.position.y + output_node.size.y + piece_size.y
-#
-				#var left_area_x := output_node.position.x - piece_size.x
-				#var right_area_x := output_node.position.x + output_node.size.x + piece_size.x
-
+		match shuffle_mode:
+			ShuffleMode.AroundTheViewport:
+				piece.position = generate_spawn_puzzle_position(background_puzzle, piece.piece_size, 200.0, spawn_margin, spawn_distribution_mode)
 
 		piece.dragged.connect(on_piece_dragged.bind(piece))
 		piece.released.connect(on_piece_released.bind(piece))
 
-
-
 	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
-	
 	
 	puzzle_generated.emit()
 
 
+func generate_spawn_puzzle_position(puzzle: Sprite2D,  piece_size: Vector2, spawn_area_size: float = 500.0,  margin: float = spawn_margin, spawn_mode: SpawnDistributionMode = spawn_distribution_mode) -> Vector2:
+	var puzzle_size: Vector2 = puzzle.texture.get_size() * puzzle.scale
+	var puzzle_half_size: Vector2 = puzzle_size / 2.0
+	var puzzle_center: Vector2 = puzzle.position
+	
+	match spawn_mode:
+		SpawnDistributionMode.Random:
+			var top_spawn_reference: float = Vector2.UP.y * (puzzle.position.y + puzzle_half_size.y + piece_size.y / 2.0 + margin)
+			var bottom_spawn_reference: float = Vector2.DOWN.y * (puzzle.position.y + puzzle_half_size.y + piece_size.y / 2.0 + margin)
+			var right_spawn_reference: float = Vector2.RIGHT.x * (puzzle.position.x + puzzle_half_size.x + piece_size.x / 2.0 + margin)
+			var left_spawn_reference: float = Vector2.LEFT.x * (puzzle.position.x + puzzle_half_size.x + piece_size.x / 2.0 + margin)
+			
+			match OmniKitVectorHelper.directions_v2.pick_random():
+				Vector2.UP:
+					return Vector2(randf_range(-puzzle_half_size.x, puzzle_half_size.x), top_spawn_reference - randf_range(0, spawn_area_size))
+				Vector2.DOWN:
+					return Vector2(randf_range(-puzzle_half_size.x, puzzle_half_size.x), bottom_spawn_reference + randf_range(0, spawn_area_size))
+				Vector2.LEFT:
+					return Vector2(left_spawn_reference - randf_range(0, spawn_area_size), randf_range(-puzzle_half_size.y, puzzle_half_size.y))
+				Vector2.RIGHT:
+					return Vector2(right_spawn_reference + randf_range(0, spawn_area_size), randf_range(-puzzle_half_size.y, puzzle_half_size.y))
+		
+		SpawnDistributionMode.Radial:
+			var min_radius: float = maxf(puzzle_half_size.x, puzzle_half_size.y) + piece_size.length() + margin
+			var radius: float = randf_range(min_radius, min_radius + spawn_area_size)
+			var angle: float = randf_range(0.0, TAU)
+			
+			return puzzle_center + Vector2(cos(angle), sin(angle)) * radius
+			
+	return Vector2.ZERO
+	
+	
 func fit_camera_to_puzzle(camera: Camera2D, puzzle_width: int, puzzle_height: int, viewport_size: Vector2) -> void:
 	if not camera:
 		return

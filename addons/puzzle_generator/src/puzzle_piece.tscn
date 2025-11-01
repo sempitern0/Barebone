@@ -17,6 +17,7 @@ script = ExtResource("1_x615a")
 piece_layer = 524288
 piece_mask = 524288
 mosaic_layer = 1048576
+can_be_rotated = true
 
 [node name="DetectionButton" type="Button" parent="."]
 offset_right = 8.0
