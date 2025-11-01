@@ -21,10 +21,17 @@ enum PuzzleMode {
 	Mosaic ## Drag the piece in the correct mosaic position where the piece belongs using the puzzle image as background transparency.
 }
 
+enum ShuffleMode {
+	AroundTheViewport,
+	Center,
+	Bottom
+}
+
 @export var output_node: Node2D
 @export var draggable_component: OmniKitDraggable2D
 @export var generation_type: GenerationType = GenerationType.Automatic
 @export var puzzle_mode: PuzzleMode = PuzzleMode.Free
+@export var shuffle_mode: ShuffleMode = ShuffleMode.AroundTheViewport
 @export var puzzle_texture: Texture2D:
 	set(value):
 		puzzle_texture = value
@@ -42,7 +49,9 @@ var current_puzzle_image: Image:
 		
 		if current_puzzle_image:
 			_prepare_image(current_puzzle_image)
-			
+
+## Used when Mosaic mode to display the puzzle as transparent background
+var background_puzzle: Sprite2D
 
 func _ready() -> void:
 	assert(draggable_component != null, "ConnectaPuzzle: This node needs a Draggable2D in order to drag drop the pieces.")
@@ -93,32 +102,22 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			add_neighbours_to_piece(current_pieces, puzzle_piece, horizontal_piece, vertical_piece, horizontal_pieces)
 			current_pieces.append(puzzle_piece)
 	
+		
+	var background_puzzle_final_half_size: Vector2
+	
+	if puzzle_mode == PuzzleMode.Mosaic:
+		background_puzzle_final_half_size = _prepare_background_puzzle_transparent_texture(piece_size, horizontal_pieces, vertical_pieces)
+	
 	## The pieces are added after the preparing loop
 	## as the neighbours are setup correctly now to delete the proper detection areas
 	## when puzzle piece trigger _ready()
 	for piece: PuzzlePiece in current_pieces:
 		output_node.add_child(piece)
-		piece.position.x = piece.col * piece_size.x
-		piece.position.y = piece.row * piece_size.y
-
-		piece.dragged.connect(on_piece_dragged.bind(piece))
-		piece.released.connect(on_piece_released.bind(piece))
-
-	if puzzle_mode == PuzzleMode.Mosaic:
-
-		var background_puzzle: Sprite2D = Sprite2D.new()
-		background_puzzle.name = "TransparentBackgroundPuzzle"
-		background_puzzle.texture = puzzle_texture
-		background_puzzle.self_modulate.a8 = background_mosaic_transparency
-		background_puzzle.centered = true
-		output_node.add_child(background_puzzle)
-		background_puzzle.z_index = current_pieces.front().z_index - 1
-		background_puzzle.scale = Vector2(piece_size.x * horizontal_pieces, piece_size.y * vertical_pieces) / puzzle_texture.get_size()
 		
-		var background_final_size: Vector2 = puzzle_texture.get_size() * background_puzzle.scale
-		var background_final_half: Vector2  = background_final_size / 2.0
-		
-		for piece: PuzzlePiece in current_pieces:
+		## Uncomment to position the pieces to see the finished puzzle
+		#piece.position.x = piece.col * piece_size.x
+		#piece.position.y = piece.row * piece_size.y
+		if puzzle_mode == PuzzleMode.Mosaic:
 			var mosaic_area: PuzzleMosaicArea = PuzzleMosaicAreaScene.instantiate() as PuzzleMosaicArea
 			background_puzzle.add_child(mosaic_area)
 			mosaic_area.puzzle_piece = piece
@@ -127,12 +126,27 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			mosaic_area.position.y = (piece.row  * piece_size.y) + piece_size.y / 2.0
 			
 			if background_puzzle.centered:
-				mosaic_area.position.x -= background_final_half.x
-				mosaic_area.position.y -= background_final_half.y
+				mosaic_area.position.x -= background_puzzle_final_half_size.x
+				mosaic_area.position.y -= background_puzzle_final_half_size.y
 				
 			piece.mosaic_layer = mosaic_area.mosaic_layer
-			
+	
+		#match shuffle_mode:
+			#ShuffleMode.AroundTheViewport:
+				#var top_area_y := output_node.position.y - piece_size.y
+				#var bottom_area_y := output_node.position.y + output_node.size.y + piece_size.y
+#
+				#var left_area_x := output_node.position.x - piece_size.x
+				#var right_area_x := output_node.position.x + output_node.size.x + piece_size.x
+
+
+		piece.dragged.connect(on_piece_dragged.bind(piece))
+		piece.released.connect(on_piece_released.bind(piece))
+
+
+
 	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
+	
 	
 	puzzle_generated.emit()
 
@@ -348,7 +362,23 @@ func _prepare_masks(masks_path: StringName = MasksPath) -> ConnectaPuzzle:
 						if ResourceLoader.exists(mask_image_path):
 							cached_masks[top_style][right_style][bottom_style][left_style] = load(mask_image_path)
 	return self
+
+func _prepare_background_puzzle_transparent_texture(puzzle_piece_size: Vector2, horizontal_pieces: int, vertical_pieces: int) -> Vector2:
+	if background_puzzle and background_puzzle.is_inside_tree():
+		background_puzzle.queue_free()
+		
+	background_puzzle = Sprite2D.new()
+	background_puzzle.name = "TransparentBackgroundPuzzle"
+	background_puzzle.texture = puzzle_texture
+	background_puzzle.self_modulate.a8 = background_mosaic_transparency
+	background_puzzle.centered = true
+	output_node.add_child(background_puzzle)
+	background_puzzle.z_index = current_pieces.front().z_index - 1
+	background_puzzle.scale = Vector2(puzzle_piece_size.x * horizontal_pieces, puzzle_piece_size.y * vertical_pieces) / puzzle_texture.get_size()
+	## This is the final size scaled to position the puzzle mosaic that displays the puzzle as background
 	
+	return (puzzle_texture.get_size() * background_puzzle.scale) / 2.0
+
 #endregion
 
 func on_piece_dragged(piece: PuzzlePiece) -> void:

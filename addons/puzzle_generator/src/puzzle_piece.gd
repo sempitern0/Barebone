@@ -11,6 +11,7 @@ signal released
 		mosaic_layer = value
 		if full_area and is_inside_tree():
 			full_area.collision_mask = mosaic_layer
+@export var can_be_rotated: bool = false
 
 @onready var detection_button: Button = $DetectionButton
 @onready var full_area: Area2D = $FullArea
@@ -52,8 +53,22 @@ var group_id: String:
 		add_to_group(group_id)
 		group_label.text = group_id
 
+var rotation_tween: Tween
+
+
+func _input(event: InputEvent) -> void:
+	if can_be_rotated \
+		and OmniKitInputHelper.action_just_pressed_and_exists(InputControls.Aim) \
+		and (rotation_tween == null or (rotation_tween and not rotation_tween.is_running())):
+		
+		rotation_tween = create_tween()
+		rotation_tween.tween_property(self, "rotation", rotation + PI / 2, 0.2)\
+			.set_ease(Tween.EASE_IN)
+
 
 func _ready() -> void:
+	set_process_input(false)
+	
 	group_id = str(get_instance_id())
 	group_label.text = group_id
 	
@@ -206,7 +221,9 @@ func _prepare_border_areas() -> void:
 
 func on_drag_started() -> void:
 	dragged.emit()
+	set_process_input(can_be_rotated)
 	
 
 func on_drag_release() -> void:
 	released.emit()
+	set_process_input(false)
