@@ -29,7 +29,6 @@ enum ShuffleMode {
 
 enum SpawnDistributionMode {
 	Random,
-	Equidistant,
 	Radial
 }
 
@@ -141,10 +140,9 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 				
 			piece.mosaic_layer = mosaic_area.mosaic_layer
 	
-		match shuffle_mode:
-			ShuffleMode.AroundTheViewport:
-				piece.position = generate_spawn_puzzle_position(background_puzzle, piece.piece_size, spawn_margin, spawn_distribution_mode)
 
+		piece.position = generate_spawn_puzzle_position(background_puzzle, piece.piece_size, spawn_margin, shuffle_mode, spawn_distribution_mode)
+			
 		piece.dragged.connect(on_piece_dragged.bind(piece))
 		piece.released.connect(on_piece_released.bind(piece))
 
@@ -153,35 +151,51 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	puzzle_generated.emit()
 
 
-func generate_spawn_puzzle_position(puzzle: Sprite2D,  piece_size: Vector2,  margin: float = spawn_margin, spawn_mode: SpawnDistributionMode = spawn_distribution_mode) -> Vector2:
+func generate_spawn_puzzle_position(puzzle: Sprite2D,  piece_size: Vector2,  margin: float = spawn_margin, selected_shuffle_mode: ShuffleMode = shuffle_mode,  selected_spawn_mode: SpawnDistributionMode = spawn_distribution_mode) -> Vector2:
 	var puzzle_size: Vector2 = puzzle.texture.get_size() * puzzle.scale
 	var puzzle_half_size: Vector2 = puzzle_size / 2.0
 	var puzzle_center: Vector2 = puzzle.position
 	
-	match spawn_mode:
-		SpawnDistributionMode.Random:
-			var top_spawn_reference: float = Vector2.UP.y * (puzzle.position.y + puzzle_half_size.y + piece_size.y / 2.0 + margin)
-			var bottom_spawn_reference: float = Vector2.DOWN.y * (puzzle.position.y + puzzle_half_size.y + piece_size.y / 2.0 + margin)
-			var right_spawn_reference: float = Vector2.RIGHT.x * (puzzle.position.x + puzzle_half_size.x + piece_size.x / 2.0 + margin)
-			var left_spawn_reference: float = Vector2.LEFT.x * (puzzle.position.x + puzzle_half_size.x + piece_size.x / 2.0 + margin)
+	match selected_shuffle_mode:
+		ShuffleMode.AroundTheViewport:
 			
-			match OmniKitVectorHelper.directions_v2.pick_random():
-				Vector2.UP:
-					return Vector2(randf_range(-puzzle_half_size.x, puzzle_half_size.x), top_spawn_reference - randf_range(0, puzzle_half_size.y))
-				Vector2.DOWN:
-					return Vector2(randf_range(-puzzle_half_size.x, puzzle_half_size.x), bottom_spawn_reference + randf_range(0, puzzle_half_size.y))
-				Vector2.LEFT:
-					return Vector2(left_spawn_reference - randf_range(0, puzzle_half_size.x), randf_range(-puzzle_half_size.y, puzzle_half_size.y))
-				Vector2.RIGHT:
-					return Vector2(right_spawn_reference + randf_range(0, puzzle_half_size.x), randf_range(-puzzle_half_size.y, puzzle_half_size.y))
+			match selected_spawn_mode:
+				SpawnDistributionMode.Random:
+					var top_spawn_reference: float = Vector2.UP.y * (puzzle.position.y + puzzle_half_size.y + piece_size.y / 2.0 + margin)
+					var bottom_spawn_reference: float = Vector2.DOWN.y * (puzzle.position.y + puzzle_half_size.y + piece_size.y / 2.0 + margin)
+					var right_spawn_reference: float = Vector2.RIGHT.x * (puzzle.position.x + puzzle_half_size.x + piece_size.x / 2.0 + margin)
+					var left_spawn_reference: float = Vector2.LEFT.x * (puzzle.position.x + puzzle_half_size.x + piece_size.x / 2.0 + margin)
+					
+					match OmniKitVectorHelper.directions_v2.pick_random():
+						Vector2.UP:
+							return Vector2(randf_range(-puzzle_half_size.x, puzzle_half_size.x), top_spawn_reference - randf_range(0, puzzle_half_size.y))
+						Vector2.DOWN:
+							return Vector2(randf_range(-puzzle_half_size.x, puzzle_half_size.x), bottom_spawn_reference + randf_range(0, puzzle_half_size.y))
+						Vector2.LEFT:
+							return Vector2(left_spawn_reference - randf_range(0, puzzle_half_size.x), randf_range(-puzzle_half_size.y, puzzle_half_size.y))
+						Vector2.RIGHT:
+							return Vector2(right_spawn_reference + randf_range(0, puzzle_half_size.x), randf_range(-puzzle_half_size.y, puzzle_half_size.y))
+				
+				SpawnDistributionMode.Radial:
+					var min_radius: float = maxf(puzzle_half_size.x, puzzle_half_size.y) + piece_size.length() + margin
+					var radius: float = randf_range(min_radius, min_radius + minf(puzzle_half_size.x, puzzle_half_size.y))
+					var angle: float = randf_range(0.0, TAU)
+					
+					return puzzle_center + Vector2(cos(angle), sin(angle)) * radius
+					
+		ShuffleMode.Bottom:
+			match selected_spawn_mode:
+				SpawnDistributionMode.Random:
+					var bottom_spawn_reference: float = Vector2.DOWN.y * (puzzle.position.y + puzzle_half_size.y + piece_size.y / 2.0 + margin)
+					
+					return Vector2(randf_range(-puzzle_size.x, puzzle_size.x), bottom_spawn_reference + randf_range(0, puzzle_half_size.y))
 		
-		SpawnDistributionMode.Radial:
-			var min_radius: float = maxf(puzzle_half_size.x, puzzle_half_size.y) + piece_size.length() + margin
-			var radius: float = randf_range(min_radius, min_radius + minf(puzzle_half_size.x, puzzle_half_size.y))
-			var angle: float = randf_range(0.0, TAU)
-			
-			return puzzle_center + Vector2(cos(angle), sin(angle)) * radius
-			
+		ShuffleMode.Center:
+			match selected_spawn_mode:
+				SpawnDistributionMode.Random:
+					return Vector2(randf_range(-puzzle_half_size.x, puzzle_half_size.x), randf_range(-puzzle_half_size.y,  puzzle_half_size.y))
+					
+					
 	return Vector2.ZERO
 	
 	
