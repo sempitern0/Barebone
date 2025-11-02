@@ -3,6 +3,7 @@ class_name ConnectaPuzzle extends Node2D
 signal puzzle_generated
 signal puzzle_finished
 signal pieces_connected(from: PuzzlePiece, to: PuzzlePiece)
+signal piece_connected_on_mosaic(piece: PuzzlePiece, mosaic: PuzzleMosaicArea)
 
 const MasksPath: StringName = &"res://addons/puzzle_generator/src/shader/masks/"
 const PuzzlePieceScene: PackedScene = preload("uid://cy53228ilv3wo")
@@ -492,6 +493,7 @@ func on_piece_released(piece: PuzzlePiece) -> void:
 				if mosaic_area.puzzle_piece == piece:
 					piece.global_transform = mosaic_area.global_transform
 					piece.disable_full_area()
+					piece_connected_on_mosaic.emit(piece, mosaic_area)
 					break
 			
 	await get_tree().physics_frame
