@@ -16,4 +16,7 @@ func _ready() -> void:
 
 ## This is the final size scaled to position the puzzle mosaic that displays the puzzle as background
 func half_size() -> Vector2:
+	if texture == null:
+		return Vector2.ZERO
+		
 	return (texture.get_size() * scale) / 2.0
