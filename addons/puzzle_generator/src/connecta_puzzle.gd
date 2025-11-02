@@ -79,9 +79,7 @@ func _ready() -> void:
 			generate_puzzle(current_puzzle_image)
 			
 	pieces_connected.connect(on_pieces_connected)
-	
-	print(await OmniKitNetworkHelper.ping(self))
-	
+
 
 func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	assert(cached_masks.size() > 0, "ConnectaPuzzle->generate_puzzle: There is no available puzzle image masks to generate the puzzle, aborting... ")
