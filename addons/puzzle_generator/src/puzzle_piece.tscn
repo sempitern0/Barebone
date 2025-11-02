@@ -18,6 +18,7 @@ piece_layer = 524288
 piece_mask = 524288
 mosaic_layer = 1048576
 can_be_rotated = true
+display_outline_only_when_connected = true
 
 [node name="Shadow" type="Sprite2D" parent="."]
 

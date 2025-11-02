@@ -12,6 +12,8 @@ signal released
 		if full_area and is_inside_tree():
 			full_area.collision_mask = mosaic_layer
 @export var can_be_rotated: bool = false
+## When set to false, the outline is only displayed when pieces are connected.
+@export var display_outline_only_when_connected: bool = false
 @export var display_shadow_on_drag: bool = true
 @export var shadow_color: Color = Color("080808a8")
 @export var shadow_vertical_depth: float = 5.0:
@@ -151,6 +153,9 @@ func disable_drag() -> void:
 	if detection_button.button_up.is_connected(on_drag_release):
 		detection_button.button_up.disconnect(on_drag_release)
 	
+	if display_outline_only_when_connected:
+		display_outline(true)
+		
 	shadow.hide()
 	
 	
@@ -192,9 +197,10 @@ func _prepare_mask_shader_material() -> void:
 	var region_uv_data: Vector4 = Vector4(uv_pos.x, uv_pos.y, uv_size.x, uv_size.y)
 	
 	material = mask_shader_material.duplicate()
-	material.set("shader_parameter/mask_texture", mask)
-	material.set("shader_parameter/mask_resolution", mask.get_size())
-	material.set("shader_parameter/region_rect_uv_data", region_uv_data)
+	material.set_shader_parameter("outline", not display_outline_only_when_connected)
+	material.set_shader_parameter("mask_texture", mask)
+	material.set_shader_parameter("mask_resolution", mask.get_size())
+	material.set_shader_parameter("region_rect_uv_data", region_uv_data)
 
 
 func _prepare_border_areas() -> void:
@@ -267,6 +273,11 @@ func _prepare_border_areas() -> void:
 				right_collision.shape.set_size(Vector2(region_rect.size.x / 4, region_rect.size.y))
 				active_areas.append(right_area)
 
+
+func display_outline(enabled: bool) -> void:
+	if material:
+		material.set_shader_parameter("outline", enabled)
+		
 
 func bounce_scale_effect(target_scale: Vector2, current_scale: Vector2 = Vector2.ZERO) -> void:
 	if scale_tween == null or (scale_tween and not scale_tween.is_running()):
