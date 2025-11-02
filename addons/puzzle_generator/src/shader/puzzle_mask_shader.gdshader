@@ -26,7 +26,6 @@ float get_mask_soft(vec2 uv) {
     return c + n + s + e + w + ne + nw + se + sw;
 }
 
-// Muestreo sin suavizado (para detectar bordes duros)
 float get_mask(vec2 uv) {
     return texture(mask_texture, uv).r;
 }
