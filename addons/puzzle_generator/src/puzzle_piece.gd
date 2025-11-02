@@ -33,7 +33,7 @@ signal released
 				shadow.position.x = position.x + shadow_horizontal_depth
 				
 @export var bounce_scale_drag_effect: bool = true
-@export var bounce_scale_to_add: Vector2 = Vector2.ONE * 0.2
+@export var bounce_scale_to_add: Vector2 = Vector2.ONE * 0.1
 
 @onready var shadow: Sprite2D = $Shadow
 

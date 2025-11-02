@@ -2,7 +2,7 @@ class_name ConnectaPuzzle extends Node2D
 
 signal puzzle_generated
 signal puzzle_finished
-
+signal pieces_connected(from: PuzzlePiece, to: PuzzlePiece)
 
 const MasksPath: StringName = &"res://addons/puzzle_generator/src/shader/masks/"
 const PuzzlePieceScene: PackedScene = preload("uid://cy53228ilv3wo")
@@ -38,6 +38,7 @@ enum SpawnDistributionMode {
 @export var puzzle_mode: PuzzleMode = PuzzleMode.Free
 @export var shuffle_mode: ShuffleMode = ShuffleMode.AroundTheViewport
 @export var spawn_distribution_mode: SpawnDistributionMode = SpawnDistributionMode.Random
+@export var outline_display_mode: PuzzlePiece.OutlineDisplayMode = PuzzlePiece.OutlineDisplayMode.Always
 @export var puzzle_texture: Texture2D:
 	set(value):
 		puzzle_texture = value
@@ -74,7 +75,9 @@ func _ready() -> void:
 		
 		if generation_type == GenerationType.Automatic:
 			generate_puzzle(current_puzzle_image)
-		
+			
+	pieces_connected.connect(on_pieces_connected)
+	
 
 func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	assert(cached_masks.size() > 0, "ConnectaPuzzle->generate_puzzle: There is no available puzzle image masks to generate the puzzle, aborting... ")
@@ -98,6 +101,7 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			var puzzle_piece: PuzzlePiece = PuzzlePieceScene.instantiate() as PuzzlePiece
 			puzzle_piece.name = "PuzzlePiece_%d_%d" % [horizontal_piece, vertical_piece]
 			puzzle_piece.puzzle_mode = puzzle_mode
+			puzzle_piece.outline_display_mode = outline_display_mode
 			puzzle_piece.row = vertical_piece
 			puzzle_piece.col = horizontal_piece
 			puzzle_piece.piece_size = piece_size
@@ -144,7 +148,7 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			
 		piece.dragged.connect(on_piece_dragged.bind(piece))
 		piece.released.connect(on_piece_released.bind(piece))
-
+		
 	#fit_camera_to_puzzle(get_viewport().get_camera_2d(), puzzle_image.get_width(), puzzle_image.get_height(), get_viewport_rect().size)
 	
 	puzzle_generated.emit()
@@ -251,6 +255,7 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 				and opposite["neighbor"] == detected_piece \
 				and piece_area.global_position.distance_to(current_side_area.global_position) < (source_piece.piece_size.x * 0.75):
 				
+				
 				source_piece.remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
 				
@@ -269,6 +274,8 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 					smaller_group = current_group_pieces
 					master_piece = detected_piece
 					slave_piece = source_piece
+				
+				pieces_connected.emit(slave_piece, master_piece)
 				
 				var reference_position: Vector2 = master_piece.global_position
 				var side_direction: int = -1.0 if master_piece == detected_piece else 1.0
@@ -428,6 +435,11 @@ func _prepare_background_puzzle_transparent_texture(puzzle_piece_size: Vector2, 
 
 #endregion
 
+func on_pieces_connected(from: PuzzlePiece, to: PuzzlePiece) -> void:
+	from.bounce_scale_drag_effect = false
+	to.bounce_scale_drag_effect = false
+	
+	
 func on_piece_dragged(piece: PuzzlePiece) -> void:
 	if not draggable_component.is_dragging:
 		match puzzle_mode:
@@ -439,11 +451,17 @@ func on_piece_dragged(piece: PuzzlePiece) -> void:
 				
 				for active_piece: PuzzlePiece in group_pieces:
 					active_piece.call_deferred("border_areas_detection_mode")
+				
+				#if piece.bounce_scale_drag_effect:
+					#for group_piece: PuzzlePiece in pieces_from_group(piece.group_id):
+						#if group_piece != piece:
+							#group_piece.bounce_scale_effect(piece.scale + piece.bounce_scale_to_add)
 
 			PuzzleMode.Mosaic:
 				draggable_component.draggable = piece
 				draggable_component.start_drag()
-
+	
+		
 
 func on_piece_released(piece: PuzzlePiece) -> void:
 	draggable_component.release_drag()
@@ -460,7 +478,12 @@ func on_piece_released(piece: PuzzlePiece) -> void:
 				
 				for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
 					puzzle_piece.call_deferred("border_areas_detected_mode")
-			
+				
+			#if piece.bounce_scale_drag_effect:
+				#for group_piece: PuzzlePiece in pieces_from_group(piece.group_id):
+					#if group_piece != piece:
+						#group_piece.bounce_scale_effect(piece.original_scale)
+
 		PuzzleMode.Mosaic:
 			var mosaic_areas: Array[PuzzleMosaicArea] = []
 			mosaic_areas.assign(piece.full_area.get_overlapping_areas())
