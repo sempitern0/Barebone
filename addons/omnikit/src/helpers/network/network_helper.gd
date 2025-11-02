@@ -1,6 +1,34 @@
 class_name OmniKitNetworkHelper
 
+static var ping_urls: Array[String] = [
+		"https://www.google.com/generate_204",
+		"https://www.cloudflare.com/cdn-cgi/trace",
+	]
 
+## Needs a node to add the HttpRequest in the SceneTree as this function is static
+static func ping(node: Node, urls: Array[String] = ping_urls) -> bool:
+	var http_request: HTTPRequest = HTTPRequest.new()
+	## Used Array as GDScript pass them as reference on parameters, so it can be mutated inside the closure
+	var internet_connection: Array[bool] = [false] 
+	
+	node.add_child(http_request)
+	
+	for url: String in urls.filter(func(ping_url: String): return is_valid_url(ping_url)):
+		if internet_connection[0]:
+			break
+			
+		var result: Error = http_request.request(url)
+		http_request.request_completed.connect(
+			func(_result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray):
+				internet_connection[0] = response_code in [200, 204]
+				,CONNECT_ONE_SHOT)
+		await http_request.request_completed
+	
+	http_request.queue_free()
+	
+	return internet_connection[0]
+
+	
 static func validate_ipv4(ip: String) -> bool:
 	var ipv4_regex: RegEx = RegEx.new()
 	
