@@ -29,8 +29,12 @@ signal released
 			
 			if is_inside_tree() and shadow:
 				shadow.position.x = position.x + shadow_horizontal_depth
-			
+				
+@export var bounce_scale_drag_effect: bool = true
+@export var bounce_scale_to_add: Vector2 = Vector2.ONE * 0.2
+
 @onready var shadow: Sprite2D = $Shadow
+
 @onready var detection_button: Button = $DetectionButton
 @onready var full_area: Area2D = $FullArea
 @onready var top_area: Area2D = $TopArea
@@ -44,7 +48,6 @@ signal released
 @onready var right_collision: CollisionShape2D = %RightCollision
 @onready var left_collision: CollisionShape2D = %LeftCollision
 @onready var group_label: Label = $GroupLabel
-
 
 var puzzle_mode: ConnectaPuzzle.PuzzleMode
 var row: int = 0
@@ -71,7 +74,10 @@ var group_id: String:
 		add_to_group(group_id)
 		group_label.text = group_id
 
+var dragging: bool = false
+var original_scale: Vector2 = Vector2.ONE
 var rotation_tween: Tween
+var scale_tween: Tween
 
 
 func _input(event: InputEvent) -> void:
@@ -86,6 +92,7 @@ func _input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	set_process_input(false)
+	set_process(false)
 	
 	group_id = str(get_instance_id())
 	group_label.text = group_id
@@ -98,7 +105,7 @@ func _ready() -> void:
 	_create_shadow()
 	
 	modulate = shadow_color
-
+	original_scale = scale
 
 	opposite_neighbours = {
 		"top": {"opposite_side": "bottom", "neighbor": top_neighbor},
@@ -111,6 +118,7 @@ func _ready() -> void:
 	detection_button.button_down.connect(on_drag_started)
 	detection_button.button_up.connect(on_drag_release)
 	detection_button.anchors_preset = Control.PRESET_FULL_RECT
+
 
 
 func border_areas_detection_mode() -> void:
@@ -260,13 +268,34 @@ func _prepare_border_areas() -> void:
 				active_areas.append(right_area)
 
 
+func bounce_scale_effect(target_scale: Vector2, current_scale: Vector2 = Vector2.ZERO) -> void:
+	if scale_tween == null or (scale_tween and not scale_tween.is_running()):
+		scale_tween = create_tween().set_trans(Tween.TRANS_BACK)
+		scale_tween.tween_property(self, "scale", target_scale, 0.125)
+		
+		if not current_scale.is_zero_approx():
+			scale_tween.tween_property(self, "scale", current_scale, 0.125)
+
+
 func on_drag_started() -> void:
+	dragging = true
+	
+	if bounce_scale_drag_effect:
+		bounce_scale_effect(scale + bounce_scale_to_add)
+		
 	dragged.emit()
+	
 	shadow.visible = display_shadow_on_drag
 	set_process_input(can_be_rotated)
 	
 
 func on_drag_release() -> void:
+	set_process_input(false)
+	
+	dragging = false
+	
+	if bounce_scale_drag_effect:
+		bounce_scale_effect(original_scale)
+	
 	released.emit()
 	shadow.hide()
-	set_process_input(false)
