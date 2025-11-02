@@ -13,7 +13,7 @@ signal released
 			full_area.collision_mask = mosaic_layer
 @export var can_be_rotated: bool = false
 ## When set to false, the outline is only displayed when pieces are connected.
-@export var display_outline_only_when_connected: bool = false
+@export var outline_display_mode: OutlineDisplayMode = OutlineDisplayMode.Always
 @export var display_shadow_on_drag: bool = true
 @export var shadow_color: Color = Color("080808a8")
 @export var shadow_vertical_depth: float = 5.0:
@@ -50,6 +50,12 @@ signal released
 @onready var right_collision: CollisionShape2D = %RightCollision
 @onready var left_collision: CollisionShape2D = %LeftCollision
 @onready var group_label: Label = $GroupLabel
+
+enum OutlineDisplayMode {
+	Always,
+	WhenConnected,
+	WhenNotConnected
+}
 
 var puzzle_mode: ConnectaPuzzle.PuzzleMode
 var row: int = 0
@@ -153,9 +159,7 @@ func disable_drag() -> void:
 	if detection_button.button_up.is_connected(on_drag_release):
 		detection_button.button_up.disconnect(on_drag_release)
 	
-	if display_outline_only_when_connected:
-		display_outline(true)
-		
+	display_outline(outline_display_mode in [OutlineDisplayMode.Always, OutlineDisplayMode.WhenConnected])
 	shadow.hide()
 	
 	
@@ -197,10 +201,11 @@ func _prepare_mask_shader_material() -> void:
 	var region_uv_data: Vector4 = Vector4(uv_pos.x, uv_pos.y, uv_size.x, uv_size.y)
 	
 	material = mask_shader_material.duplicate()
-	material.set_shader_parameter("outline", not display_outline_only_when_connected)
 	material.set_shader_parameter("mask_texture", mask)
 	material.set_shader_parameter("mask_resolution", mask.get_size())
 	material.set_shader_parameter("region_rect_uv_data", region_uv_data)
+	
+	display_outline(outline_display_mode in [OutlineDisplayMode.Always, OutlineDisplayMode.WhenNotConnected])
 
 
 func _prepare_border_areas() -> void:
