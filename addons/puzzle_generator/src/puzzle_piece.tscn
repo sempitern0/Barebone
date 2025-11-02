@@ -19,6 +19,8 @@ piece_mask = 524288
 mosaic_layer = 1048576
 can_be_rotated = true
 
+[node name="Shadow" type="Sprite2D" parent="."]
+
 [node name="DetectionButton" type="Button" parent="."]
 offset_right = 8.0
 offset_bottom = 8.0

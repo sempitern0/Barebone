@@ -3,6 +3,8 @@ shader_type canvas_item;
 uniform sampler2D mask_texture : repeat_disable, filter_linear;
 uniform vec2 mask_resolution = vec2(256.0, 256.0);
 uniform vec4 region_rect_uv_data;
+uniform vec4 tint_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float tint_strength : hint_range(0.0, 1.0) = 0.0;
 
 uniform bool outline = true;
 uniform vec4 outline_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
@@ -33,6 +35,9 @@ float get_mask(vec2 uv) {
 
 void fragment() {
     vec4 base_color = texture(TEXTURE, UV);
+    base_color.rgb = mix(base_color.rgb, tint_color.rgb, tint_strength);
+    base_color.a *= mix(1.0, tint_color.a, tint_strength);
+
     vec2 region_uv = (UV - region_rect_uv_data.xy) / region_rect_uv_data.zw;
 
     float m_soft = get_mask_soft(region_uv);

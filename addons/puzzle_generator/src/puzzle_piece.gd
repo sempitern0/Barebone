@@ -12,7 +12,25 @@ signal released
 		if full_area and is_inside_tree():
 			full_area.collision_mask = mosaic_layer
 @export var can_be_rotated: bool = false
-
+@export var display_shadow_on_drag: bool = true
+@export var shadow_color: Color = Color("080808a8")
+@export var shadow_vertical_depth: float = 5.0:
+	set(value):
+		if shadow_vertical_depth != value:
+			shadow_vertical_depth = maxf(0.01, value)
+		
+		if is_inside_tree() and shadow:
+			shadow.position.y = position.y + shadow_vertical_depth
+		
+@export var shadow_horizontal_depth: float = 10.0:
+	set(value):
+		if shadow_horizontal_depth != value:
+			shadow_horizontal_depth = maxf(0.01, value)
+			
+			if is_inside_tree() and shadow:
+				shadow.position.x = position.x + shadow_horizontal_depth
+			
+@onready var shadow: Sprite2D = $Shadow
 @onready var detection_button: Button = $DetectionButton
 @onready var full_area: Area2D = $FullArea
 @onready var top_area: Area2D = $TopArea
@@ -77,6 +95,10 @@ func _ready() -> void:
 	
 	_prepare_mask_shader_material()
 	_prepare_border_areas()
+	_create_shadow()
+	
+	modulate = shadow_color
+
 
 	opposite_neighbours = {
 		"top": {"opposite_side": "bottom", "neighbor": top_neighbor},
@@ -121,6 +143,8 @@ func disable_drag() -> void:
 	if detection_button.button_up.is_connected(on_drag_release):
 		detection_button.button_up.disconnect(on_drag_release)
 	
+	shadow.hide()
+	
 	
 func disable_full_area() -> void:
 	full_area.monitorable = false
@@ -135,6 +159,24 @@ func disable_full_area() -> void:
 	disable_drag()
 
 
+func _create_shadow() -> void:
+	if display_shadow_on_drag:
+		shadow.texture = texture
+		shadow.show_behind_parent = true
+		shadow.region_enabled = true
+		shadow.region_rect = region_rect
+		shadow.material = material.duplicate()
+		shadow.material.set_shader_parameter("outline", false)
+		shadow.material.set_shader_parameter("tint_color", shadow_color)
+		shadow.material.set_shader_parameter("tint_strength", 1.0)
+
+		shadow.position = Vector2.ZERO
+		shadow.position.x = position.x + shadow_horizontal_depth
+		shadow.position.y = position.y + shadow_vertical_depth
+		
+	shadow.hide()
+	
+	
 func _prepare_mask_shader_material() -> void:
 	var texture_size: Vector2 = texture.get_size()
 	var uv_pos: Vector2 = region_rect.position / texture_size
@@ -150,7 +192,6 @@ func _prepare_mask_shader_material() -> void:
 func _prepare_border_areas() -> void:
 	match puzzle_mode:
 		ConnectaPuzzle.PuzzleMode.Mosaic:
-			
 			full_collision.shape.set_size(Vector2(region_rect.size.x, region_rect.size.y) * 0.7)
 			full_area.collision_layer = piece_layer
 			full_area.collision_mask = mosaic_layer
@@ -221,9 +262,11 @@ func _prepare_border_areas() -> void:
 
 func on_drag_started() -> void:
 	dragged.emit()
+	shadow.visible = display_shadow_on_drag
 	set_process_input(can_be_rotated)
 	
 
 func on_drag_release() -> void:
 	released.emit()
+	shadow.hide()
 	set_process_input(false)

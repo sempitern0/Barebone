@@ -123,7 +123,7 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 	for piece: PuzzlePiece in current_pieces:
 		output_node.add_child(piece)
 		
-		## Uncomment to position the pieces to see the finished puzzle
+		## Uncomment to position the pieces as finished puzzle
 		#piece.position.x = piece.col * piece_size.x
 		#piece.position.y = piece.row * piece_size.y
 		if puzzle_mode == PuzzleMode.Mosaic:
@@ -140,7 +140,6 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 				
 			piece.mosaic_layer = mosaic_area.mosaic_layer
 	
-
 		piece.position = generate_spawn_puzzle_position(background_puzzle, piece.piece_size, spawn_margin, shuffle_mode, spawn_distribution_mode)
 			
 		piece.dragged.connect(on_piece_dragged.bind(piece))
