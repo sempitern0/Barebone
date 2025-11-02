@@ -23,14 +23,14 @@ enum PuzzleMode {
 }
 
 enum ShuffleMode {
-	AroundTheViewport,
-	Center,
-	Bottom
+	AroundTheViewport, ## Spawn the pieces around the viewport & puzzle texture
+	Center, ## Spawn the pieces on the center of the screen & puzzle texture
+	Bottom ## Spawn the pieces on a bottom area from the puzzle texture
 }
 
 enum SpawnDistributionMode {
-	Random,
-	Radial
+	Random, ## Distribute the pieces randomly based on the shuffle mode selected
+	Radial ## Distribute the pieces in a radial way based on the shuffle mode selected
 }
 
 @export var output_node: Node2D
@@ -45,7 +45,7 @@ enum SpawnDistributionMode {
 		puzzle_texture = value
 		current_puzzle_image = puzzle_texture.get_image() if puzzle_texture else null
 
-@export_range(0.0, 255.0, 0.1) var background_mosaic_transparency: float = 100.0
+@export_range(0.0, 255.0, 0.1) var background_mosaic_transparency: float = 75.0
 @export_range(4, 10000, 1) var number_of_pieces: int = 100
 @export var piece_margin: float = 0.15
 ## How much the piece is separated from the puzzle background when spawning
@@ -61,7 +61,8 @@ var current_puzzle_image: Image:
 			_prepare_image(current_puzzle_image)
 
 ## Used when Mosaic mode to display the puzzle as transparent background
-var background_puzzle: Sprite2D
+var background_puzzle: PuzzleBackground
+
 
 func _ready() -> void:
 	assert(draggable_component != null, "ConnectaPuzzle: This node needs a Draggable2D in order to drag drop the pieces.")
@@ -115,13 +116,15 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			add_neighbours_to_piece(current_pieces, puzzle_piece, horizontal_piece, vertical_piece, horizontal_pieces)
 			current_pieces.append(puzzle_piece)
 	
-	## Always add the background puzzle as it used as reference
-	## to position the pieces for the shuffle mode
-	var background_puzzle_final_half_size: Vector2 = _prepare_background_puzzle_transparent_texture(piece_size, horizontal_pieces, vertical_pieces)
-	background_puzzle.hide()
+	if background_puzzle and background_puzzle.is_inside_tree():
+		background_puzzle.queue_free()
+	## Always add the background puzzle as it used as reference to position the pieces for the shuffle mode
+	background_puzzle = _prepare_background_puzzle(piece_size, horizontal_pieces, vertical_pieces)
+	background_puzzle.visible = puzzle_mode == PuzzleMode.Mosaic
+	var background_puzzle_final_half_size: Vector2 = background_puzzle.half_size()
 	
-	if puzzle_mode == PuzzleMode.Mosaic:
-		background_puzzle.show()
+	output_node.add_child(background_puzzle)
+
 	## The pieces are added after the preparing loop
 	## as the neighbours are setup correctly now to delete the proper detection areas
 	## when puzzle piece trigger _ready()
@@ -418,21 +421,14 @@ func _prepare_masks(masks_path: StringName = MasksPath) -> ConnectaPuzzle:
 							cached_masks[top_style][right_style][bottom_style][left_style] = load(mask_image_path)
 	return self
 
-func _prepare_background_puzzle_transparent_texture(puzzle_piece_size: Vector2, horizontal_pieces: int, vertical_pieces: int) -> Vector2:
-	if background_puzzle and background_puzzle.is_inside_tree():
-		background_puzzle.queue_free()
-		
-	background_puzzle = Sprite2D.new()
-	background_puzzle.name = "TransparentBackgroundPuzzle"
-	background_puzzle.texture = puzzle_texture
-	background_puzzle.self_modulate.a8 = background_mosaic_transparency
-	background_puzzle.centered = true
-	output_node.add_child(background_puzzle)
-	background_puzzle.z_index = current_pieces.front().z_index - 1
-	background_puzzle.scale = Vector2(puzzle_piece_size.x * horizontal_pieces, puzzle_piece_size.y * vertical_pieces) / puzzle_texture.get_size()
-	## This is the final size scaled to position the puzzle mosaic that displays the puzzle as background
+func _prepare_background_puzzle(puzzle_piece_size: Vector2, horizontal_pieces: int, vertical_pieces: int) -> PuzzleBackground:
+	var new_background_puzzle = PuzzleBackground.new()
+	new_background_puzzle.texture = puzzle_texture
+	new_background_puzzle.z_index = current_pieces.front().z_index - 1
+	new_background_puzzle.scale = Vector2(puzzle_piece_size.x * horizontal_pieces, puzzle_piece_size.y * vertical_pieces) / puzzle_texture.get_size()
+	new_background_puzzle.transparency = background_mosaic_transparency
 	
-	return (puzzle_texture.get_size() * background_puzzle.scale) / 2.0
+	return new_background_puzzle
 
 #endregion
 
