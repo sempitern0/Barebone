@@ -64,7 +64,6 @@ func on_added_item(item: Item, amount: int) -> void:
 			if linked_item == item:
 				button.text = item.name + " " +  str(item.amount)
 				item_added = true
-				print("existing item add")
 				break
 		else:
 			if empty_button == null:
@@ -73,4 +72,3 @@ func on_added_item(item: Item, amount: int) -> void:
 	if empty_button and not item_added:
 		empty_button.set_meta(&"item", item)
 		empty_button.text = item.name + " " +  str(item.amount)
-		print("new item add")

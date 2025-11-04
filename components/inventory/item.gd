@@ -79,7 +79,10 @@ enum Category {
 
 
 func can_increase_amount(new_amount: int) -> bool:
-	return stackable and (amount + new_amount) <= max_stack_amount
+	var overflow: int = overflow_amount(new_amount)
+	var amount_to_increase: int = new_amount - overflow
+	
+	return stackable and (amount + amount_to_increase) <= max_stack_amount
 
 
 func overflow_amount(new_amount: int) -> int:
