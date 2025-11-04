@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=3 uid="uid://46y5yacfdvan"]
+
+[ext_resource type="Script" uid="uid://d1frexueml74q" path="res://components/inventory/ui/inventory_slot_based_grid.gd" id="1_x47u7"]
+[ext_resource type="Texture2D" uid="uid://btql3daad6r3k" path="res://icon.svg" id="2_6wvl4"]
+
+[node name="InventorySlotBasedGrid" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 205.0
+offset_top = 127.0
+offset_right = 205.0
+offset_bottom = 127.0
+script = ExtResource("1_x47u7")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 4
+
+[node name="Item1" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 1153.0
+offset_top = -10.0
+offset_right = 1281.0
+offset_bottom = 118.0
+texture = ExtResource("2_6wvl4")
+
+[node name="Item2" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 1153.0
+offset_top = 165.0
+offset_right = 1281.0
+offset_bottom = 293.0
+texture = ExtResource("2_6wvl4")
+
+[node name="Item3" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 1342.0
+offset_top = -16.0
+offset_right = 1470.0
+offset_bottom = 112.0
+texture = ExtResource("2_6wvl4")

@@ -64,9 +64,26 @@ enum Category {
 @export var icon: Texture2D
 @export var material_type: MaterialType = MaterialType.Neutral
 @export var category: Category = Category.Neutral
-@export var collectable: bool = true
+@export var collectable: bool = true ## Can be picked up on the world
 @export var stackable: bool = false
 @export var single_use: bool = false
 @export var can_be_dropped: bool = true
 @export var size_in_inventory: int = 1
 @export var max_stack_amount: int = 1
+@export var amount: int = 0:
+	set(new_amount):
+		if stackable:
+			amount = clampi(new_amount, 0, max_stack_amount)
+		else:
+			amount = clampi(new_amount, 0, 1)
+
+
+func can_increase_amount(new_amount: int) -> bool:
+	return stackable and (amount + new_amount) <= max_stack_amount
+
+
+func overflow_amount(new_amount: int) -> int:
+	if stackable:
+		return maxi(0, (amount + new_amount) - max_stack_amount)
+	
+	return 0

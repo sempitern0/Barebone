@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://b3muci0reftgs"]
+
+[ext_resource type="Script" uid="uid://dmsircresy6x4" path="res://components/inventory/inventory_manager.gd" id="1_wdrg2"]
+
+[node name="InventoryManager" type="Node"]
+script = ExtResource("1_wdrg2")
+max_slots = 10
