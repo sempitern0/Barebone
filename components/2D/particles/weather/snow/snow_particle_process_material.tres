@@ -1,0 +1,28 @@
+[gd_resource type="ParticleProcessMaterial" load_steps=5 format=3 uid="uid://wrpmlaqciyf8"]
+
+[sub_resource type="Curve" id="Curve_roxec"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.9973614, 0.0010246038), -2.4269996, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_tuh5l"]
+curve = SubResource("Curve_roxec")
+
+[sub_resource type="Gradient" id="Gradient_4vtvf"]
+offsets = PackedFloat32Array(0, 0.44192636, 0.611898)
+colors = PackedColorArray(0.9607843, 0.9607843, 0.9607843, 0.25490198, 0.9607843, 0.9607843, 0.9607843, 0.78431374, 0.9981101, 0.9981101, 0.9981101, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_de0so"]
+gradient = SubResource("Gradient_4vtvf")
+
+[resource]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(500, 1, 1)
+gravity = Vector3(45, 98, 0)
+scale_max = 4.0
+color_initial_ramp = SubResource("GradientTexture1D_de0so")
+alpha_curve = SubResource("CurveTexture_tuh5l")
+turbulence_enabled = true
+turbulence_noise_speed_random = 0.0
+turbulence_influence_min = 0.020000001
+turbulence_influence_max = 0.080000006
