@@ -6,7 +6,6 @@ class_name LootItem extends Resource
 @export_file var file
 ## An optional scene that represents this item
 @export var scene: PackedScene
-## The name of the item
 @export var item : Item
 ## A shortcut to display the name in short form for limited user interfaces in screen
 @export var abbreviation : String

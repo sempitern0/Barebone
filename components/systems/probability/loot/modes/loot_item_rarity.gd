@@ -1,16 +1,27 @@
 class_name LootItemRarity extends Resource
 
 ## Expand here as to adjust it to your game requirements
-enum ItemRarity { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC, ETERNAL, ABYSSAL, COSMIC, DIVINE} 
+enum Rarity { 
+	Common, 
+	Uncommon, 
+	Rare, 
+	Epic, 
+	Legendary, 
+	Mythic,
+	Eternal,
+	Abyssal,
+	Cosmic,
+	Divine
+}
 
-@export var rarity: ItemRarity = ItemRarity.COMMON
+@export var rarity: Rarity = Rarity.Common
 ## The minimum value in range to be available on the roll pick
 @export var min_roll: float
 ## The maximum value in range to be available on the roll pick
 @export var max_roll: float
 
 
-func _init(_rarity: ItemRarity, _min_roll: float, _max_roll: float) -> void:
+func _init(_rarity: Rarity, _min_roll: float, _max_roll: float) -> void:
 	rarity = _rarity
 	min_roll = _min_roll
 	max_roll = _max_roll
