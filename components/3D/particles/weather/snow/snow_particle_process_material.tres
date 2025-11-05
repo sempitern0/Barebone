@@ -1,0 +1,27 @@
+[gd_resource type="ParticleProcessMaterial" load_steps=3 format=3 uid="uid://fryeccuam8xc"]
+
+[sub_resource type="Gradient" id="Gradient_fnoqa"]
+interpolation_color_space = 1
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.96862745, 0.96862745, 0.96862745, 0, 0.96862745, 0.96862745, 0.96862745, 0.78431374, 0.96862745, 0.96862745, 0.96862745, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_nx736"]
+gradient = SubResource("Gradient_fnoqa")
+
+[resource]
+emission_shape = 3
+emission_box_extents = Vector3(20, 5, 20)
+direction = Vector3(0, -0.3, 0)
+initial_velocity_min = 0.39999998
+initial_velocity_max = 0.79999995
+gravity = Vector3(0, -1.8, 0)
+linear_accel_min = 0.19999775
+linear_accel_max = 0.19999775
+damping_min = 0.1
+damping_max = 0.3
+scale_min = 0.08
+scale_max = 0.12
+color = Color(0.9691369, 0.9691369, 0.9691368, 1)
+color_ramp = SubResource("GradientTexture1D_nx736")
+turbulence_noise_strength = 0.4
+turbulence_noise_scale = 4.0

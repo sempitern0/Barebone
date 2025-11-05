@@ -1,0 +1,49 @@
+[gd_scene load_steps=6 format=3 uid="uid://d3iqc6cksa2xd"]
+
+[sub_resource type="Gradient" id="Gradient_fnoqa"]
+interpolation_color_space = 1
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.96862745, 0.96862745, 0.96862745, 0, 0.96862745, 0.96862745, 0.96862745, 0.78431374, 0.96862745, 0.96862745, 0.96862745, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_nx736"]
+gradient = SubResource("Gradient_fnoqa")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_fnoqa"]
+emission_shape = 3
+emission_box_extents = Vector3(20, 5, 20)
+direction = Vector3(0, -0.3, 0)
+initial_velocity_min = 0.39999998
+initial_velocity_max = 0.79999995
+gravity = Vector3(0, -1.8, 0)
+linear_accel_min = 0.19999775
+linear_accel_max = 0.19999775
+damping_min = 0.1
+damping_max = 0.3
+scale_min = 0.08
+scale_max = 0.12
+color = Color(0.9691369, 0.9691369, 0.9691368, 1)
+color_ramp = SubResource("GradientTexture1D_nx736")
+turbulence_noise_strength = 0.4
+turbulence_noise_scale = 4.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_55kwu"]
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(0.96862745, 0.96862745, 0.96862745, 1)
+disable_receive_shadows = true
+billboard_mode = 3
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="QuadMesh" id="QuadMesh_f3o6s"]
+material = SubResource("StandardMaterial3D_55kwu")
+size = Vector2(0.1, 0.1)
+
+[node name="SnowGPUParticles3D" type="GPUParticles3D"]
+amount = 100
+lifetime = 3.5
+preprocess = 3.0
+visibility_aabb = AABB(-25, -25, -25, 50, 50, 50)
+process_material = SubResource("ParticleProcessMaterial_fnoqa")
+draw_pass_1 = SubResource("QuadMesh_f3o6s")
