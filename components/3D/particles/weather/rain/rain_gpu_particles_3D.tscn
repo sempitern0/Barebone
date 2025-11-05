@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://b8locy3h0cnox"]
+
+[ext_resource type="Material" uid="uid://cyrhtvmqmcxsh" path="res://components/3D/particles/weather/rain/rain_particle_process_material.tres" id="1_ejcr5"]
+[ext_resource type="Material" uid="uid://ja6wrxvm1m6p" path="res://components/3D/particles/weather/rain/rain_draw_pass_material.tres" id="2_0lgke"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_fnoqa"]
+material = ExtResource("2_0lgke")
+size = Vector2(0.02, 0.38)
+
+[node name="RainGPUParticles3D" type="GPUParticles3D"]
+amount = 800
+preprocess = 3.0
+visibility_aabb = AABB(-25, -25, -25, 50, 50, 50)
+process_material = ExtResource("1_ejcr5")
+draw_pass_1 = SubResource("QuadMesh_fnoqa")

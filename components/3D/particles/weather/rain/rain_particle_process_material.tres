@@ -1,0 +1,15 @@
+[gd_resource type="ParticleProcessMaterial" load_steps=2 format=3 uid="uid://cyrhtvmqmcxsh"]
+
+[ext_resource type="Texture2D" uid="uid://c4k2qk31k85cf" path="res://components/3D/particles/weather/rain/rain_color_ramp.tres" id="1_yvwgi"]
+
+[resource]
+emission_shape = 3
+emission_box_extents = Vector3(20, 5, 20)
+direction = Vector3(0.1, -1, 0)
+spread = 10.0
+initial_velocity_min = 10.0
+initial_velocity_max = 20.0
+scale_min = 0.099999994
+color = Color(0.8980392, 0.9098039, 1, 0.25490198)
+color_ramp = ExtResource("1_yvwgi")
+collision_mode = 2
