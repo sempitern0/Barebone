@@ -4,4 +4,3 @@
 
 [node name="InventoryManager" type="Node"]
 script = ExtResource("1_wdrg2")
-max_slots = 4

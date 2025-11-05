@@ -64,12 +64,14 @@ enum Category {
 @export var icon: Texture2D
 @export var material_type: MaterialType = MaterialType.Neutral
 @export var category: Category = Category.Neutral
+@export var usable: bool = false ## The item can be consumed or used in the world
 @export var collectable: bool = true ## Can be picked up on the world
 @export var stackable: bool = false
 @export var single_use: bool = false
 @export var can_be_dropped: bool = true
-@export var size_in_inventory: int = 1
-@export var max_stack_amount: int = 1
+@export_range(0.0, 99999.9, 0.01) var unit_weight: float = 0.0
+@export_range(1, 1000, 1) var size_in_inventory: int = 1
+@export_range(1, 99999, 1) var max_stack_amount: int = 1
 @export var amount: int = 0:
 	set(new_amount):
 		if stackable:
@@ -90,3 +92,7 @@ func overflow_amount(new_amount: int) -> int:
 		return maxi(0, (amount + new_amount) - max_stack_amount)
 	
 	return 0
+
+
+func weight() -> float:
+	return maxf(0, unit_weight * amount)
