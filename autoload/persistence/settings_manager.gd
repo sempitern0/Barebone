@@ -9,8 +9,8 @@ signal updated_setting_section(section: String, key: String, value: Variant)
 const KeybindingSeparator: String = "|"
 const InputEventSeparator: String = ":"
 enum ConfigFileFormat {
-	ini,
-	cfg
+	Ini,
+	Cfg
 }
 
 ## From the OS.get_user_data_dir(), fill this parameter with the path you desire
@@ -24,7 +24,7 @@ enum ConfigFileFormat {
 				OmniKitEnumHelper.value_to_str(ConfigFileFormat, file_format)
 				]
 ## The file format of the config file .cfg or .ini
-@export var file_format: ConfigFileFormat = ConfigFileFormat.ini
+@export var file_format: ConfigFileFormat = ConfigFileFormat.Ini
 @export var use_encription: bool = false
 @export var include_ui_keybindings: bool = false
 ## When disabled, the settings needs to be manually loaded

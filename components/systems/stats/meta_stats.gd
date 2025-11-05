@@ -5,7 +5,7 @@ enum ClassRange {
 	B,
 	A,
 	S,
-	S_Plus
+	SPlus
 }
 
 enum ClassType {
@@ -77,7 +77,7 @@ func is_s_range() -> bool:
 	return class_range == ClassRange.S
 
 func is_s_plus_range() -> bool:
-	return class_range == ClassRange.S_Plus
+	return class_range == ClassRange.SPlus
 	
 #endregion
 
