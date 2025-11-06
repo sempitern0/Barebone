@@ -19,6 +19,8 @@ var data: Dictionary = {
 	}
 }
 
+var is_autosave: bool = false
+
 
 func _init(file_name: String, file_path: String, save_data: Dictionary = {}, new_save: bool = true) -> void:
 	update(save_data)

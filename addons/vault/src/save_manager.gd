@@ -11,6 +11,22 @@ enum SaveModes {
 
 var current_saved_game: VaultSavedGame
 var list_of_saved_games: Dictionary[String, VaultSavedGame] = {}
+var current_autosaves: Dictionary[VaultSavedGame, Array] = {}
+
+var autosave_enabled: bool = false
+var autosave_max_slots: int = 3
+var autosave_interval: float = 60.0:
+	set(value):
+		autosave_interval = value
+		
+		if autosave_timer:
+			if autosave_enabled:
+				autosave_timer.start(maxf(1.0, autosave_interval))
+			else:
+				autosave_timer.stop()
+				autosave_timer.wait_time = maxf(1.0, autosave_interval)
+				
+var autosave_timer: Timer
 
 
 func _notification(what: int) -> void:
@@ -20,7 +36,13 @@ func _notification(what: int) -> void:
 
 
 func _ready() -> void:
+	_create_autosave_timer(autosave_interval)
 	read_user_saved_games()
+
+
+func start_autosave() -> void:
+	if current_saved_game:
+		autosave_timer.start(autosave_interval)
 
 
 func create_new_save(file_name: String, file_path: String = default_path) -> VaultSavedGame:
@@ -103,3 +125,20 @@ func read_user_saved_games(path: String = default_path, save_mode: SaveModes = c
 		file_name = save_directory.get_next()
 				
 	save_directory.list_dir_end()
+
+
+func _create_autosave_timer(wait_time: float = autosave_interval) -> void:
+	if autosave_timer == null:
+		autosave_timer = Timer.new()
+		autosave_timer.name = "AutosaveTimer"
+		autosave_timer.wait_time = wait_time
+		autosave_timer.process_callback = Timer.TIMER_PROCESS_IDLE
+		autosave_timer.autostart = false
+		autosave_timer.one_shot = false
+		autosave_timer.ignore_time_scale = true
+		autosave_timer.timeout.connect(on_autosave_timer_timeout)
+
+
+func on_autosave_timer_timeout() -> void:
+	if autosave_enabled:
+		pass ## TODO
