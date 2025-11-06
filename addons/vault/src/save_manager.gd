@@ -1,5 +1,9 @@
 extends Node
 
+const SaveGroupName: StringName = &"save_nodes"
+const OnSaveMethodName: StringName = "on_save"
+const OnLoadMethodName: StringName = "on_load"
+
 @export var current_save_mode: SaveModes = SaveModes.JsonMode
 @export var encrypted_key: StringName 
 @export var default_path: String = "%s/saves" % OS.get_user_data_dir()
@@ -51,9 +55,12 @@ func create_new_save(file_name: String, file_path: String = default_path) -> Vau
 
 func make_current(saved_game: VaultSavedGame) -> void:
 	current_saved_game = saved_game
+	get_tree().call_group(SaveGroupName, OnLoadMethodName, current_saved_game)
 
 
 func save_game(saved_game: VaultSavedGame, save_mode: SaveModes = current_save_mode, _encrypted_key: StringName = encrypted_key) -> void:
+	get_tree().call_group(SaveGroupName, OnSaveMethodName, saved_game)
+	
 	var save_strategy: VaultSaveStrategy
 	var file_path: String = saved_game.data.core.file_path
 	var file_name: String = saved_game.data.core.file_name
@@ -67,7 +74,6 @@ func save_game(saved_game: VaultSavedGame, save_mode: SaveModes = current_save_m
 	save_strategy.save_file(saved_game)
 	read_user_saved_games()
 	
-
 
 func load_game(file_path: String, file_name: String, _encrypted_key: StringName = encrypted_key) -> VaultSavedGame:
 	var save_strategy: VaultSaveStrategy
@@ -136,8 +142,9 @@ func _create_autosave_timer(wait_time: float = autosave_interval) -> void:
 		autosave_timer.autostart = false
 		autosave_timer.one_shot = false
 		autosave_timer.ignore_time_scale = true
+		add_child(autosave_timer)
 		autosave_timer.timeout.connect(on_autosave_timer_timeout)
-
+	
 
 func on_autosave_timer_timeout() -> void:
 	if autosave_enabled:
