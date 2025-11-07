@@ -2,7 +2,7 @@ class_name PuzzleMosaicArea extends Area2D
 
 @export_flags_2d_physics var mosaic_layer: int
 
-@onready var mosaic_collison: CollisionShape2D = $MosaicCollisionShape
+@onready var mosaic_collision: CollisionShape2D = $MosaicCollisionShape
 
 # The puzzle piece that fits here
 var puzzle_piece: PuzzlePiece:
@@ -21,4 +21,5 @@ func _ready() -> void:
 
 
 func create_mosaic_shape(piece_size: Vector2i) -> void:
-	mosaic_collison.shape.size = piece_size
+	mosaic_collision.shape.size = piece_size
+	mosaic_collision.shape.size *= 0.7

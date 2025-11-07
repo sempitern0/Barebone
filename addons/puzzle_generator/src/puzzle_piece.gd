@@ -211,7 +211,7 @@ func _prepare_mask_shader_material() -> void:
 func _prepare_border_areas() -> void:
 	match puzzle_mode:
 		ConnectaPuzzle.PuzzleMode.Mosaic:
-			full_collision.shape.set_size(Vector2(region_rect.size.x, region_rect.size.y) * 0.7)
+			full_collision.shape.set_size(Vector2(region_rect.size.x, region_rect.size.y) * 0.3)
 			full_area.collision_layer = piece_layer
 			full_area.collision_mask = mosaic_layer
 			full_area.monitoring = true

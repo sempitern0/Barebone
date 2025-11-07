@@ -21,7 +21,7 @@ enum ConfigFileFormat {
 			settings_file_path = value
 			config_file_path = OS.get_user_data_dir() + "/%s.%s" % [
 				settings_file_path.trim_prefix("/").trim_suffix("/"),  
-				OmniKitEnumHelper.value_to_str(ConfigFileFormat, file_format)
+				OmniKitEnumHelper.value_to_str(ConfigFileFormat, file_format).to_lower()
 				]
 ## The file format of the config file .cfg or .ini
 @export var file_format: ConfigFileFormat = ConfigFileFormat.Ini
@@ -48,7 +48,7 @@ func _notification(what: int) -> void:
 		
 func _enter_tree() -> void:
 	updated_setting_section.connect(on_updated_setting_section)
-	config_file_path = OS.get_user_data_dir() + "/%s.%s" % [settings_file_path.trim_prefix("/").trim_suffix("/"),  OmniKitEnumHelper.value_to_str(ConfigFileFormat, file_format)]
+	config_file_path = OS.get_user_data_dir() + "/%s.%s" % [settings_file_path.trim_prefix("/").trim_suffix("/"),  OmniKitEnumHelper.value_to_str(ConfigFileFormat, file_format).to_lower()]
 	
 	for setting: GameSetting in settings.filter(func(setting): return setting != null):
 		active_settings[setting.key] = setting
