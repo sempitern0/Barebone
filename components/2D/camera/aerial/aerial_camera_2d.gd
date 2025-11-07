@@ -28,7 +28,6 @@ var target_pan_position: Vector2
 var panning: bool = false
 var screen_size: Vector2
 var screen_ratio: float
-var last_mouse_position: Vector2
 var direction: Vector2
 var edge_panning_direction: Vector2 = Vector2.ZERO
 
@@ -43,7 +42,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				position -= next_position
 				
-			last_mouse_position = event.relative
 		
 	if OmniKitInputHelper.is_mouse_wheel_up(event):
 		if smooth_camera_zoom:
@@ -72,25 +70,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if edge_panning:
-		var mouse_position: Vector2 = get_viewport().get_mouse_position()
-		edge_panning_direction = Vector2.ZERO
-		
-		if mouse_position.x < edge_size:
-			edge_panning_direction.x = -1
-		elif mouse_position.x > screen_size.x - edge_size:
-			edge_panning_direction.x = 1
-			
-		if mouse_position.y < edge_size:
-			edge_panning_direction.y = -1
-		elif mouse_position.y > screen_size.y - edge_size:
-			edge_panning_direction.y = 1
-		
-		var next_position: Vector2 = edge_panning_direction * edge_pan_speed * delta
-		
-		if smooth_camera_pan:
-			target_position += next_position
-		else:
-			position += next_position
+		apply_edge_panning(delta)
 		
 	panning = camera_pan_enabled and OmniKitInputHelper.action_pressed_and_exists(InputControls.Aim)
 	
@@ -100,6 +80,29 @@ func _process(delta: float) -> void:
 	if smooth_camera_zoom:
 		zoom = lerp(zoom, target_zoom, delta * smooth_camera_zoom_lerp)
 		zoom = zoom.clamp(Vector2.ONE * camera_max_zoom_in, Vector2.ONE * camera_max_zoom_out)
+
+
+func apply_edge_panning(delta: float = get_process_delta_time()) -> void:
+	var mouse_position: Vector2 = get_viewport().get_mouse_position()
+	edge_panning_direction = Vector2.ZERO
+	
+	if mouse_position.x < edge_size:
+		edge_panning_direction.x = -1
+	elif mouse_position.x > screen_size.x - edge_size:
+		edge_panning_direction.x = 1
+		
+	if mouse_position.y < edge_size:
+		edge_panning_direction.y = -1
+	elif mouse_position.y > screen_size.y - edge_size:
+		edge_panning_direction.y = 1
+	
+	var zoom_factor: float = remap(zoom.length(), camera_max_zoom_in, camera_max_zoom_out, 3.0, 1.0)
+	var next_position: Vector2 = edge_panning_direction * edge_pan_speed * zoom_factor * delta
+	
+	if smooth_camera_pan:
+		target_position += next_position
+	else:
+			position += next_position
 
 
 func on_window_size_changed() -> void:
