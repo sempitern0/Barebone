@@ -20,16 +20,17 @@ var current_autosaves: Dictionary[VaultSavedGame, Array] = {}
 var autosave_enabled: bool = false
 var autosave_max_slots: int = 3
 var autosave_interval: float = 60.0:
-	set(value):
-		autosave_interval = value
+	set(new_interval):
+		if autosave_interval != new_interval:
+			autosave_interval = new_interval
 		
-		if autosave_timer:
-			if autosave_enabled:
-				autosave_timer.start(maxf(1.0, autosave_interval))
-			else:
-				autosave_timer.stop()
-				autosave_timer.wait_time = maxf(1.0, autosave_interval)
-				
+			if autosave_timer:
+				if autosave_enabled:
+					autosave_timer.start(maxf(1.0, autosave_interval))
+				else:
+					autosave_timer.stop()
+					autosave_timer.wait_time = maxf(1.0, autosave_interval)
+					
 var autosave_timer: Timer
 
 

@@ -449,11 +449,9 @@ func on_piece_dragged(piece: PuzzlePiece) -> void:
 				for active_piece: PuzzlePiece in group_pieces:
 					active_piece.call_deferred("border_areas_detection_mode")
 				
-				#if piece.bounce_scale_drag_effect:
-					#for group_piece: PuzzlePiece in pieces_from_group(piece.group_id):
-						#if group_piece != piece:
-							#group_piece.bounce_scale_effect(piece.scale + piece.bounce_scale_to_add)
-
+					if active_piece.display_shadow_on_drag:
+						active_piece.shadow.show()
+							
 			PuzzleMode.Mosaic:
 				draggable_component.draggable = piece
 				draggable_component.start_drag()
@@ -466,6 +464,10 @@ func on_piece_released(piece: PuzzlePiece) -> void:
 	
 	match puzzle_mode:
 		PuzzleMode.Free:
+			if piece.display_shadow_on_drag:
+				for group_piece: PuzzlePiece in pieces_from_group(piece.group_id):
+					group_piece.shadow.hide()
+					
 			detect_pieces_connections(piece)
 			
 			for puzzle_piece: PuzzlePiece in current_pieces:
@@ -476,11 +478,6 @@ func on_piece_released(piece: PuzzlePiece) -> void:
 				for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):
 					puzzle_piece.call_deferred("border_areas_detected_mode")
 				
-			#if piece.bounce_scale_drag_effect:
-				#for group_piece: PuzzlePiece in pieces_from_group(piece.group_id):
-					#if group_piece != piece:
-						#group_piece.bounce_scale_effect(piece.original_scale)
-
 		PuzzleMode.Mosaic:
 			var mosaic_areas: Array[PuzzleMosaicArea] = []
 			mosaic_areas.assign(piece.full_area.get_overlapping_areas())

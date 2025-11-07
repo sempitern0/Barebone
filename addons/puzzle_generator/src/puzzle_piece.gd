@@ -306,6 +306,7 @@ func on_drag_started() -> void:
 	
 
 func on_drag_release() -> void:
+	shadow.hide()
 	set_process_input(false)
 	
 	dragging = false
@@ -314,4 +315,3 @@ func on_drag_release() -> void:
 		bounce_scale_effect(original_scale)
 	
 	released.emit()
-	shadow.hide()
