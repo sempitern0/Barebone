@@ -1,0 +1,62 @@
+[gd_scene load_steps=5 format=3 uid="uid://boah1ftqtytwj"]
+
+[ext_resource type="Script" uid="uid://bqr8pn8qe6n8v" path="res://addons/puzzle_generator/src/connecta_puzzle.gd" id="1_03ub4"]
+[ext_resource type="Texture2D" uid="uid://80xvtv747221" path="res://addons/puzzle_generator/assets/puppy.jpeg" id="2_q2gwe"]
+[ext_resource type="Script" uid="uid://cq4wyob3iam5c" path="res://addons/omnikit/src/components/2D/drag/draggable_2d.gd" id="3_hgotr"]
+[ext_resource type="Script" uid="uid://dp30q83w6k6ol" path="res://components/2D/camera/aerial/aerial_camera_2d.gd" id="4_q2gwe"]
+
+[node name="Node" type="Node"]
+
+[node name="Puzzle" type="Node2D" parent="."]
+
+[node name="ConnectaPuzzle" type="Node2D" parent="Puzzle" node_paths=PackedStringArray("draggable_component")]
+script = ExtResource("1_03ub4")
+draggable_component = NodePath("OmniKitDraggable2D")
+shuffle_mode = 2
+outline_display_mode = 1
+puzzle_texture = ExtResource("2_q2gwe")
+number_of_pieces = 20
+metadata/_custom_type_script = "uid://bqr8pn8qe6n8v"
+
+[node name="OmniKitDraggable2D" type="Button" parent="Puzzle/ConnectaPuzzle"]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("3_hgotr")
+screen_limit = false
+metadata/_custom_type_script = "uid://cq4wyob3iam5c"
+
+[node name="Camera2D" type="Camera2D" parent="Puzzle"]
+zoom = Vector2(0.5, 0.5)
+limit_enabled = false
+limit_left = 0
+limit_top = 0
+limit_smoothed = true
+position_smoothing_enabled = true
+rotation_smoothing_enabled = true
+drag_horizontal_enabled = true
+drag_vertical_enabled = true
+script = ExtResource("4_q2gwe")
+edge_pan_speed = 1500.0
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2

@@ -1,0 +1,45 @@
+[gd_scene load_steps=8 format=3 uid="uid://bf40rr33g3eat"]
+
+[ext_resource type="Script" uid="uid://bn3wtx0j2sss7" path="res://components/systems/build/placeable/placeable_3d.gd" id="1_xvd08"]
+[ext_resource type="Material" uid="uid://cy215was6nbtb" path="res://components/systems/build/placeable/materials/valid_placement_material.tres" id="2_3oy3l"]
+[ext_resource type="Script" uid="uid://4jl10pbbj6d2" path="res://components/systems/build/placeable/placement_area_3d.gd" id="2_smx6m"]
+[ext_resource type="Material" uid="uid://b8snoosu83sey" path="res://components/systems/build/placeable/materials/invalid_placement_material.tres" id="3_smu74"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3oy3l"]
+albedo_color = Color(0.05882353, 0.94509804, 0.9764706, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_smu74"]
+material = SubResource("StandardMaterial3D_3oy3l")
+size = Vector3(1, 1, 1.99)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tyucl"]
+size = Vector3(1, 1.1, 2.2)
+
+[node name="Cubo" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("BoxMesh_smu74")
+
+[node name="Placeable3D" type="Node3D" parent="." node_paths=PackedStringArray("target", "placement_area")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+script = ExtResource("1_xvd08")
+target = NodePath("..")
+id = &"cubo"
+display_name = &"Cubito"
+placement_area = NodePath("../PlacementArea3D")
+align_with_surface_normal = true
+rotation_step = 0.7853981633974483
+valid_place_material = ExtResource("2_3oy3l")
+invalid_place_material = ExtResource("3_smu74")
+metadata/_custom_type_script = "uid://bn3wtx0j2sss7"
+
+[node name="PlacementArea3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+priority = 1
+script = ExtResource("2_smx6m")
+metadata/_custom_type_script = "uid://4jl10pbbj6d2"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlacementArea3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.050000012, 0.0050001144)
+shape = SubResource("BoxShape3D_tyucl")

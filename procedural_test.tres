@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="TerrainNoiseConfiguration" load_steps=4 format=3 uid="uid://ch24oeqehhgon"]
+
+[ext_resource type="Texture2D" uid="uid://dduhy25000ijh" path="res://addons/terrainy/assets/falloff_images/TerrainFallofBlackHoles.webp" id="1_2ar6g"]
+[ext_resource type="Script" uid="uid://c0vor4uojodby" path="res://addons/terrainy/src/terrain/configurations/terrain_noise_configuration.gd" id="2_r3223"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_hiqwa"]
+noise_type = 3
+frequency = 0.005
+
+[resource]
+script = ExtResource("2_r3223")
+noise = SubResource("FastNoiseLite_hiqwa")
+id = &"procedural"
+name = &"procedural"
+size_depth = 64
+size_width = 64
+max_terrain_height = 65.0
+falloff_texture = ExtResource("1_2ar6g")
+metadata/_custom_type_script = "uid://c0vor4uojodby"

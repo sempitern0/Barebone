@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="TerrainNoiseConfiguration" load_steps=6 format=3 uid="uid://dnrsjwlbldwgn"]
+
+[ext_resource type="Texture2D" uid="uid://bieurrfrcqdfc" path="res://addons/terrainy/assets/falloff_images/TerrainSquareFlow.png" id="1_hr0ed"]
+[ext_resource type="Script" uid="uid://c0vor4uojodby" path="res://addons/terrainy/src/terrain/configurations/terrain_noise_configuration.gd" id="1_umafu"]
+
+[sub_resource type="Curve" id="Curve_umafu"]
+_data = [Vector2(0.008130081, 0.18234676), 0.0, 0.0, 0, 0, Vector2(0.45257452, 0.69767445), 0.0, 0.0, 0, 0, Vector2(0.62059623, 0.6908034), 0.0, 0.0, 0, 0, Vector2(0.6341464, 0.31976748), 0.0, 0.0, 0, 0, Vector2(0.8373984, 0.40909094), 0.0, 0.0, 0, 0, Vector2(0.98644996, 0.051797032), 0.0, 0.0, 0, 0]
+point_count = 6
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_hiqwa"]
+noise_type = 3
+frequency = 0.0044
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_2u3nc"]
+noise_type = 3
+seed = -991980648
+frequency = 0.005
+fractal_octaves = 4
+fractal_weighted_strength = 0.7
+
+[resource]
+script = ExtResource("1_umafu")
+randomize_noise_seed = true
+noise = SubResource("FastNoiseLite_2u3nc")
+id = &"test"
+name = &"Test"
+max_terrain_height = 80.0
+elevation_curve = SubResource("Curve_umafu")
+use_fall_off = true
+falloff_texture = ExtResource("1_hr0ed")
+generate_mirror = true
+mirror_depth = 10.0
+mirror_noise = SubResource("FastNoiseLite_hiqwa")
+metadata/_custom_type_script = "uid://c0vor4uojodby"

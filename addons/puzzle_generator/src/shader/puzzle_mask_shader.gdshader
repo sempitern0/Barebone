@@ -23,7 +23,7 @@ float get_mask_soft(vec2 uv) {
     float ne = texture(mask_texture, uv + vec2( px.x,  px.y)).r * 0.05;
     float nw = texture(mask_texture, uv + vec2(-px.x,  px.y)).r * 0.05;
     float se = texture(mask_texture, uv + vec2( px.x, -px.y)).r * 0.05;
-    float sw = texture(mask_texture, uv + vec2(-px.y, -px.x)).r * 0.05;
+    float sw = texture(mask_texture, uv + vec2(-px.x, -px.y)).r * 0.05;
 
     return c + n + s + e + w + ne + nw + se + sw;
 }

@@ -69,7 +69,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if edge_panning:
+	if edge_panning and Input.mouse_mode in edge_panning_mouse_modes:
 		apply_edge_panning(delta)
 		
 	panning = camera_pan_enabled and OmniKitInputHelper.action_pressed_and_exists(InputControls.Aim)
@@ -102,7 +102,7 @@ func apply_edge_panning(delta: float = get_process_delta_time()) -> void:
 	if smooth_camera_pan:
 		target_position += next_position
 	else:
-			position += next_position
+		position += next_position
 
 
 func on_window_size_changed() -> void:
