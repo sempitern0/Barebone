@@ -22,7 +22,10 @@ class_name StaticFixedCamera3D extends Node3D
 		current_horizontal_limit = clampf(value, 0.0, rad_to_deg(TAU))
 
 var raycast_result: OmniKitRaycastResult
-var locked: bool = false
+var locked: bool = false:
+	set(value):
+		locked = value
+		set_physics_process(not locked)
 
 
 func _ready() -> void:
@@ -33,7 +36,9 @@ func _ready() -> void:
 		unlock()
 	else:
 		lock()
-	
+		
+	set_physics_process(not locked)
+
 
 func _physics_process(delta: float) -> void:
 	raycast_result = OmniKitCamera3DHelper.project_raycast_to_mouse(camera, raycast_distance)
@@ -49,7 +54,6 @@ func _physics_process(delta: float) -> void:
 		# Apply the interpolated quaternion to the pivot's basis (rotation)
 		# Make sure to orthonormalize to prevent skewing over time
 		global_transform.basis = Basis(interpolated_quat).orthonormalized()
-
 	else:
 		global_transform = global_transform.interpolate_with(desired_transform, delta * rotation_speed)
 	
@@ -59,14 +63,10 @@ func _physics_process(delta: float) -> void:
 
 
 func lock() -> void:
-	set_physics_process(false)
-	set_process_unhandled_input(false)
 	locked = true
 
 
 func unlock() -> void:
-	set_physics_process(true)
-	set_process_unhandled_input(true)
 	locked = false
 
 
