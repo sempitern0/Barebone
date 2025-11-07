@@ -259,7 +259,6 @@ func detect_pieces_connections(source_piece: PuzzlePiece, reposition: bool = tru
 				and opposite["neighbor"] == detected_piece \
 				and piece_area.global_position.distance_to(current_side_area.global_position) < (source_piece.piece_size.x * 0.75):
 				
-				
 				source_piece.remove_side_area(current_side_area)
 				detected_piece.remove_side_area(piece_area)
 				
@@ -472,7 +471,7 @@ func on_piece_released(piece: PuzzlePiece) -> void:
 			
 			for puzzle_piece: PuzzlePiece in current_pieces:
 				 ## TODO - Performance is not affected yet but could be if we reposition on this point with too many pieces
-				detect_pieces_connections(puzzle_piece, true)
+				detect_pieces_connections(puzzle_piece)
 				await get_tree().physics_frame
 				
 				for area: Area2D in puzzle_piece.active_areas.filter(func(area: Area2D): return not area.is_queued_for_deletion()):

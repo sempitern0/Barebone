@@ -255,6 +255,7 @@ func _prepare_border_areas() -> void:
 			else:
 				top_area.position = Vector2(0, -region_rect.size.y / 4 + -region_rect.size.y / 8)
 				top_collision.shape.set_size(Vector2(region_rect.size.x, region_rect.size.y / 4))
+				top_collision.shape.size.x /= 2
 				active_areas.append(top_area)
 				
 			if bottom_neighbor == null:
@@ -262,13 +263,16 @@ func _prepare_border_areas() -> void:
 			else:
 				bottom_area.position = Vector2(0, region_rect.size.y / 4 + region_rect.size.y / 8)
 				bottom_collision.shape.set_size(Vector2(region_rect.size.x, region_rect.size.y / 4))
+				bottom_collision.shape.size.x /= 2
+				
 				active_areas.append(bottom_area)
 
 			if left_neighbor == null:
 				left_area.queue_free()
 			else:
-				left_area.position = Vector2(-region_rect.size.x / 4 + -region_rect.size.x / 8, 0)	
+				left_area.position = Vector2(-region_rect.size.x / 4 + -region_rect.size.x / 8, 0)
 				left_collision.shape.set_size(Vector2(region_rect.size.x / 4, region_rect.size.y))
+				left_collision.shape.size.y /= 2
 				active_areas.append(left_area)
 				
 			if right_neighbor == null:
@@ -276,6 +280,8 @@ func _prepare_border_areas() -> void:
 			else:
 				right_area.position = Vector2(region_rect.size.x / 4 + region_rect.size.x / 8, 0)
 				right_collision.shape.set_size(Vector2(region_rect.size.x / 4, region_rect.size.y))
+				right_collision.shape.size.y /= 2
+				
 				active_areas.append(right_area)
 
 
