@@ -39,6 +39,7 @@ enum SpawnDistributionMode {
 @export var puzzle_mode: PuzzleMode = PuzzleMode.Free
 @export var shuffle_mode: ShuffleMode = ShuffleMode.AroundTheViewport
 @export var spawn_distribution_mode: SpawnDistributionMode = SpawnDistributionMode.Random
+@export var random_piece_rotation: bool = true
 @export var outline_display_mode: PuzzlePiece.OutlineDisplayMode = PuzzlePiece.OutlineDisplayMode.Always
 @export var puzzle_texture: Texture2D:
 	set(value):
@@ -149,7 +150,10 @@ func generate_puzzle(puzzle_image: Image = current_puzzle_image) -> void:
 			piece.mosaic_layer = mosaic_area.mosaic_layer
 	
 		piece.position = generate_spawn_puzzle_position(background_puzzle, piece.piece_size, spawn_margin, shuffle_mode, spawn_distribution_mode)
-			
+		
+		if random_piece_rotation:
+			piece.rotation = (PI / 2) * randi_range(0, 3)
+		
 		piece.dragged.connect(on_piece_dragged.bind(piece))
 		piece.released.connect(on_piece_released.bind(piece))
 		
