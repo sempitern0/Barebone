@@ -158,3 +158,13 @@ static func get_shader_files(path: String) -> Array:
 	regex.compile(".gdshader$")
 	
 	return get_files_recursive(path, regex)
+	
+
+static func uid_to_file(uid: String) -> String:
+	if uid.begins_with("uid:"):
+		var id: int = ResourceUID.text_to_id(uid)
+		
+		if ResourceUID.has_id(id):
+			return ResourceUID.get_id_path(id)
+
+	return ""

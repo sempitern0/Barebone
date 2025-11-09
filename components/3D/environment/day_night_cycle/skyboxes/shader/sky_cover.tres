@@ -5,14 +5,14 @@
 
 [resource]
 shader = ExtResource("1_gb1mi")
-shader_parameter/sky_top_color = Color(0.0313726, 0.054902, 0.109804, 1)
-shader_parameter/sky_horizon_color = Color(0.03578508, 0.060182072, 0.11165361, 1)
+shader_parameter/sky_top_color = Color(0.4533555, 0.6502975, 0.8373634, 1)
+shader_parameter/sky_horizon_color = Color(0.896422, 0.8141838, 0.6268651, 1)
 shader_parameter/sky_curve = 0.15
 shader_parameter/sky_energy = 1.0
 shader_parameter/sky_cover = ExtResource("2_djdn3")
-shader_parameter/sky_cover_modulate = Color(0.65595907, 0.65595907, 0.6809971, 1)
-shader_parameter/ground_bottom_color = Color(0.009254729, 0.011388012, 0.019921063, 1)
-shader_parameter/ground_horizon_color = Color(0.02028719, 0.035596795, 0.069081336, 1)
+shader_parameter/sky_cover_modulate = Color(0.88588035, 0.88588035, 0.88588035, 1)
+shader_parameter/ground_bottom_color = Color(0.141444, 0.1087001, 0.09590704, 1)
+shader_parameter/ground_horizon_color = Color(0.6578704, 0.56025654, 0.44632035, 1)
 shader_parameter/ground_curve = 0.02
 shader_parameter/ground_energy = 1.0
 shader_parameter/sun_angle_max = 0.5
@@ -30,13 +30,13 @@ shader_parameter/horizon_blend_shape = 0.05
 shader_parameter/horizon_blend_strength = 0.05
 shader_parameter/horizon_blend_brightness = 0.3
 shader_parameter/horizon_blend_width = 0.1
-shader_parameter/moon = true
+shader_parameter/moon = false
 shader_parameter/moon_direction = Vector3(0.28903174, 0.95731956, 0)
 shader_parameter/moon_size = 0.05
 shader_parameter/moon_brightness = 4.0
 shader_parameter/moon_color = Color(1, 0.95, 0.9, 1)
 shader_parameter/moon_roughness = 0.5
-shader_parameter/stars = true
+shader_parameter/stars = false
 shader_parameter/star_density = 0.01
 shader_parameter/star_size_randomness = 1.0
 shader_parameter/star_brightness = 1.5
