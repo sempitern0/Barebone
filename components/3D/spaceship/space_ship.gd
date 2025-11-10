@@ -16,13 +16,14 @@ class_name Spaceship3D extends CharacterBody3D
 
 
 var current_speed: float = 0.0
+var speed_ratio: float = 0.0
 var drift_direction: Vector3 = Vector3.FORWARD
 var direction_input: Vector3 = Vector3.ZERO
-var current_fov: float = base_fov
+var target_fov: float = base_fov
 
 
 func _physics_process(delta: float) -> void:
-	_rotate_ship(delta)
+	rotate_ship(delta)
 
 	if Input.is_action_just_pressed(InputControls.RunAction):
 		drift_direction = -ship_skin.global_transform.basis.z
@@ -32,15 +33,11 @@ func _physics_process(delta: float) -> void:
 	else:
 		move_forward(delta)
 	
-	var speed_ratio: float = absf(current_speed) / max_speed
-	var target_fov: float = lerpf(base_fov, max_fov, speed_ratio)
-	
-	camera.fov = lerpf(camera.fov, target_fov, fov_lerp_speed * delta)
-	
+	update_camera_fov(delta)
 	move_and_slide()
 
 
-func _rotate_ship(delta: float) -> void:
+func rotate_ship(delta: float = get_physics_process_delta_time()) -> void:
 	var mouse_relative: Vector2 = OmniKitWindowManager.screen_relative_mouse_position(get_viewport())
 
 	var pitch: Quaternion = Quaternion(transform.basis.x, -mouse_relative.y * rotation_speed * delta)
@@ -54,7 +51,7 @@ func _rotate_ship(delta: float) -> void:
 	ship_skin.rotation = (ship_yaw * ship_pitch * ship_roll).get_euler()
 
 
-func move_forward(delta: float) -> void:
+func move_forward(delta: float = get_physics_process_delta_time()) -> void:
 	var forward: Vector3 = -ship_skin.global_transform.basis.z.normalized()
 
 	if OmniKitInputHelper.action_pressed_and_exists(InputControls.MoveForward):
@@ -73,8 +70,14 @@ func move_forward(delta: float) -> void:
 	velocity = forward * current_speed
 
 
-func drift(delta: float) -> void:
+func drift(delta: float = get_physics_process_delta_time()) -> void:
 	var forward: Vector3 = -ship_skin.global_transform.basis.z.normalized()
 
 	drift_direction = drift_direction.lerp(forward, 0.7 * delta)
 	velocity = drift_direction.normalized() * current_speed
+
+
+func update_camera_fov(delta: float = get_physics_process_delta_time()) -> void:
+	speed_ratio = absf(current_speed) / max_speed
+	target_fov = lerpf(base_fov, max_fov, speed_ratio)
+	camera.fov = lerpf(camera.fov, target_fov, fov_lerp_speed * delta)
