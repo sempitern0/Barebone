@@ -43,7 +43,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	raycast_result = OmniKitCamera3DHelper.project_raycast_to_mouse(camera, raycast_distance)
 	
-	var target_position: Vector3 = raycast_result.projection() if raycast_result.normal.is_zero_approx() else raycast_result.position
+	var target_position: Vector3 = raycast_result.projection(camera.global_position, raycast_result.position, raycast_distance) if raycast_result.normal.is_zero_approx() else raycast_result.position
 	var desired_transform = global_transform.looking_at(target_position, Vector3.UP)
 	
 	if use_quaternions:

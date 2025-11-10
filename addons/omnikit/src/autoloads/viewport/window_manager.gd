@@ -194,6 +194,14 @@ func monitor_screen_center() -> Vector2i:
 	return DisplayServer.screen_get_position() + DisplayServer.screen_get_size() / 2
 
 
+func screen_relative_mouse_position(viewport: Viewport = get_viewport()) -> Vector2:
+	var mouse_position: Vector2 = viewport.get_mouse_position()
+	var center: Vector2 = viewport.size / 2.0
+	var mouse_direction: Vector2 = mouse_position - center
+	
+	return mouse_direction / maxf(viewport.size.x, viewport.size.y)
+
+
 func get_camera2d_frame(viewport: Viewport = get_viewport()) -> Rect2:
 	var camera_frame: Rect2 = viewport.get_visible_rect()
 	var camera: Camera2D = viewport.get_camera_2d()
