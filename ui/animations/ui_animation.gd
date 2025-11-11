@@ -84,6 +84,7 @@ func pop(node: CanvasItem, target_scale:Vector2 = Vector2.ONE, options:UIAnimati
 	
 	return tween.finished
 
+
 func shrink(node: CanvasItem, options: UIAnimationOptions = shrink_animation_options):
 	_adjust_pivot_offset(node, options)
 	

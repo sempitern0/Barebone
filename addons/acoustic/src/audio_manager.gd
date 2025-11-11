@@ -22,7 +22,7 @@ const MasterBusPhaserEffect: int = 2
 const MusicBusLowPassFilterEffect: int = 0
 #endregion
 
-static var default_audio_volumes: Dictionary = {
+static var default_audio_volumes: Dictionary[StringName, float] = {
 	MasterBus.to_lower(): 0.9,
 	MusicBus.to_lower(): 0.8,
 	SFXBus.to_lower(): 0.9,

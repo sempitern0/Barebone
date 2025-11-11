@@ -4,8 +4,7 @@ signal added_pool(pool: FastPool)
 signal updated_pool(previous_pool: FastPool, current: FastPool)
 signal removed_pool(pool: FastPool)
 
-## [StringName, FastPool]
-var available_pools: Dictionary = {}
+var available_pools: Dictionary[StringName, FastPool] = {}
 
 
 func add_pool(id: StringName, pool: FastPool, overwrite: bool = false) -> void:

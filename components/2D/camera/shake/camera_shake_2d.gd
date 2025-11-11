@@ -9,11 +9,6 @@ signal shake_finished
 @export var default_strength: float = 25.0
 
 var _shake_tween: Tween
-
-func _unhandled_input(_event: InputEvent) -> void:
-	if OmniKitInputHelper.action_just_pressed_and_exists(&"ui_accept"):
-		shake()
-		
 		
 func shake(duration: float = default_duration, strength: float = default_strength) -> void:
 	if not is_instance_valid(camera):
@@ -30,7 +25,7 @@ func shake(duration: float = default_duration, strength: float = default_strengt
 	_shake_tween.tween_method(_run_shake.bind(camera_base_offset, strength), 1.0, 0.0, duration)
 	_shake_tween.finished.connect(func(): shake_finished.emit(), CONNECT_ONE_SHOT)
 
-	
+
 func _run_shake(delay: float, base_offset: Vector2,  strength: float) -> void:
 	var movement:Vector2 = OmniKitVectorHelper.generate_2d_random_direction() * strength * delay
 	camera.offset = base_offset + movement 

@@ -1,6 +1,6 @@
 class_name GraphicsQualitySetting extends HBoxContainer
 
-var quality_preset_buttons: Dictionary = {}
+var quality_preset_buttons: Dictionary[OmniKitHardwareRequirements.QualityPreset, Button] = {}
 var quality_preset_button_group: ButtonGroup = ButtonGroup.new()
 
 var QualityPresetKeys: Dictionary = {
