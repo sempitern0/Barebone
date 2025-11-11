@@ -109,7 +109,7 @@ func _ready() -> void:
 	update_current_time(start_hour, start_minute)
 	_update_time_sampler()
 	call_deferred("set_process", enabled and not Engine.is_editor_hint())
-	
+
 
 func _process(delta: float) -> void:
 	time += time_rate * delta
@@ -191,7 +191,7 @@ func update_day(day: int) -> void:
 func update_current_time(hour: int, minute: int) -> void:
 	current_hour = hour
 	current_minute = minute
-	
+
 	update_day_zone()
 	update_sun()
 	update_sky()

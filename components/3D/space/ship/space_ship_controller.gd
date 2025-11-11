@@ -1,4 +1,5 @@
-class_name Spaceship3D extends CharacterBody3D
+@icon("res://components/3D/space/ship/space_ship.svg")
+class_name SpaceshipController3D extends CharacterBody3D
 
 @export var camera: Camera3D
 @export var ship_skin: Node3D
