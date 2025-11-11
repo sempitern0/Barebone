@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="RoomMaterials" load_steps=3 format=3 uid="uid://4pes10ft8kqb"]
+
+[ext_resource type="Material" uid="uid://bvxctm1deqi2" path="res://addons/room_creator/src/debug_colors/path.tres" id="1_ggomg"]
+[ext_resource type="Script" uid="uid://ca4j3w55oyd23" path="res://addons/room_creator/src/dungeon/room_materials.gd" id="2_jenbd"]
+
+[resource]
+script = ExtResource("2_jenbd")
+id = &"red_debug"
+ceil_material = ExtResource("1_ggomg")
+floor_material = ExtResource("1_ggomg")
+left_wall_material = ExtResource("1_ggomg")
+right_wall_material = ExtResource("1_ggomg")
+back_wall_material = ExtResource("1_ggomg")
+front_wall_material = ExtResource("1_ggomg")
+door_material = ExtResource("1_ggomg")
+metadata/_custom_type_script = "uid://ca4j3w55oyd23"
