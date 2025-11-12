@@ -201,6 +201,23 @@ func screen_relative_mouse_position(viewport: Viewport = get_viewport()) -> Vect
 	
 	return mouse_direction / maxf(viewport.size.x, viewport.size.y)
 
+## This function is used to obtain the area of the screen where it is safe to place interactive content, 
+## such as user interface (UI) controls, so that they are not hidden or inaccessible
+## due to physical or software elements of the device.
+func get_mobile_safe_area(viewport: Viewport = get_viewport()) -> Rect2:
+	var viewport_size: Vector2 = viewport.get_visible_rect().size
+	
+	if not OmniKitHardwareDetector.is_mobile():
+		return Rect2(Vector2.ZERO, viewport_size)
+
+	var window_size: Vector2 = DisplayServer.window_get_size()
+	var scale_factor: Vector2 = viewport_size / window_size
+	var safe_area: Rect2 = DisplayServer.get_display_safe_area()
+	var safe_area_position: Vector2 = safe_area.position * scale_factor
+	var safe_area_size: Vector2 = safe_area.size * scale_factor
+	
+	return Rect2(safe_area_position, safe_area_size)
+
 
 func get_camera2d_frame(viewport: Viewport = get_viewport()) -> Rect2:
 	var camera_frame: Rect2 = viewport.get_visible_rect()

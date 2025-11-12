@@ -9,7 +9,7 @@ signal shake_finished
 @export var default_strength: float = 25.0
 
 var _shake_tween: Tween
-		
+
 func shake(duration: float = default_duration, strength: float = default_strength) -> void:
 	if not is_instance_valid(camera):
 		push_error("CameraShake2D: This node %s does not have a valid Camera2D assigned, aborting shake..." % name)
