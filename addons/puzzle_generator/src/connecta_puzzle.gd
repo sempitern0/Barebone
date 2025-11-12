@@ -67,7 +67,7 @@ var background_puzzle: PuzzleBackground
 
 func _ready() -> void:
 	assert(draggable_component != null, "ConnectaPuzzle: This node needs a Draggable2D in order to drag drop the pieces.")
-	
+
 	if output_node == null:
 		output_node = self
 		
