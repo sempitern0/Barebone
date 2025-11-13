@@ -12,6 +12,9 @@ const hitboxes_collision_layer: int = 128
 const placeables_collision_layer: int = 256
 #endregion
 
+func _ready() -> void:
+	get_tree().set_auto_accept_quit(false)
+	get_window().title = "YOUR GAME TITLE HERE"
 
 #region General helpers
 ## Example with lambda -> Utilities.delay_func(func(): print("test"), 1.5)

@@ -75,7 +75,7 @@ func update_current_controller(device: int, controller_name: String) -> void:
 			current_controller_device = DeviceSteamDeckController
 		"Luna Controller":
 			current_controller_device = DeviceLunaController
-		"XInput Gamepad", "Xbox One For Windows", "Xbox Series Controller", "Xbox 360 Controller", \
+		"XInput", "XInput Gamepad", "Xbox One For Windows", "Xbox Series Controller", "Xbox 360 Controller", \
 		"Xbox One Controller": 
 			current_controller_device = DeviceXboxController
 		"Sony DualSense","Nacon Revolution Unlimited Pro Controller",\
