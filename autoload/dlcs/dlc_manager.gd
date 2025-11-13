@@ -1,6 +1,6 @@
 extends Node
 
-## This is false to default to avoid reading .pck files when you know your game does not have dlcs available
+## This is false by default to avoid reading .pck files when you know your game does not have dlcs available
 const LoadDLCs: bool = false 
 const Prefix: String = "dlc_"
 const Suffix: String = ".pck"
