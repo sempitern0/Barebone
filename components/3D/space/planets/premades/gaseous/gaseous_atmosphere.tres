@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://tn234q4dj2j3"]
+
+[ext_resource type="Shader" uid="uid://6b4uvebfuc02" path="res://components/3D/space/planets/shaders/planet_atmosphere.gdshader" id="1_c5y3i"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_c5y3i")
+shader_parameter/color_1 = Color(0.4, 0.25882354, 0.2, 1)
+shader_parameter/color_2 = Color(0.7647059, 0.56078434, 0.47058824, 1)
+shader_parameter/alpha = 0.800000038
+shader_parameter/amount = 4.5
+shader_parameter/intensity = 4.0
+shader_parameter/emit = false

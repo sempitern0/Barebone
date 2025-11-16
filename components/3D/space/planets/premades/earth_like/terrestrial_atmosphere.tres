@@ -1,15 +1,13 @@
 [gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://b1u43xyvw4q6q"]
 
-[ext_resource type="Shader" uid="uid://6b4uvebfuc02" path="res://components/3D/space/planets/shaders/planet_atmosphere.gdshader" id="1_ccy8i"]
+[ext_resource type="Shader" uid="uid://6b4uvebfuc02" path="res://components/3D/space/planets/shaders/planet_atmosphere.gdshader" id="1_bujab"]
 
 [resource]
 render_priority = 0
-shader = ExtResource("1_ccy8i")
-shader_parameter/inner_color = Color(0, 0.1, 0.25, 1)
-shader_parameter/outer_color = Color(0.55, 0.75, 1, 1)
-shader_parameter/alpha_base = 0.35
-shader_parameter/fresnel_power = 5.6730002457175
-shader_parameter/fresnel_intensity = 3.5
-shader_parameter/horizon_softness = 1.2
-shader_parameter/inner_brightness = 0.35
-shader_parameter/emit_fresnel = true
+shader = ExtResource("1_bujab")
+shader_parameter/color_1 = Color(0, 0.12, 0.27, 1)
+shader_parameter/color_2 = Color(0.63, 0.78, 1, 1)
+shader_parameter/alpha = 0.3
+shader_parameter/amount = 4.5
+shader_parameter/intensity = 4.0
+shader_parameter/emit = false

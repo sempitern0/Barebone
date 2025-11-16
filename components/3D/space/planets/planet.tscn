@@ -7,6 +7,8 @@
 
 [sub_resource type="SphereMesh" id="SphereMesh_e7n3i"]
 material = ExtResource("1_ti4df")
+radial_segments = 256
+rings = 256
 
 [sub_resource type="Resource" id="Resource_ktoem"]
 script = ExtResource("2_ktoem")
@@ -14,9 +16,11 @@ metadata/_custom_type_script = "uid://bg8jbcxvomypf"
 
 [sub_resource type="SphereMesh" id="SphereMesh_lq7cm"]
 material = ExtResource("4_ti4df")
+radial_segments = 256
+rings = 256
 
 [node name="Planet" type="MeshInstance3D" node_paths=PackedStringArray("atmosphere")]
-transform = Transform3D(0.49999997, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.49999997, 0, 0, 0)
+transform = Transform3D(-0.25881913, 0, -0.9659258, 0, 1, 0, 0.9659258, 0, -0.25881913, 0, 0, 0)
 mesh = SubResource("SphereMesh_e7n3i")
 script = ExtResource("1_xsffq")
 configuration = SubResource("Resource_ktoem")
@@ -24,4 +28,5 @@ atmosphere = NodePath("Atmosphere")
 
 [node name="Atmosphere" type="MeshInstance3D" parent="."]
 process_mode = 1
+sorting_offset = 5.0
 mesh = SubResource("SphereMesh_lq7cm")
