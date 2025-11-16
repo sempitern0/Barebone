@@ -1,0 +1,21 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://bddijnf7f7ir7"]
+
+[ext_resource type="Shader" uid="uid://5c2qcdxenbid" path="res://components/3D/space/planets/shaders/planet_clouds.gdshader" id="1_umrec"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_2j0pr"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_y4l8j"]
+noise = SubResource("FastNoiseLite_2j0pr")
+seamless = true
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_umrec")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_y4l8j")
+shader_parameter/realistic = true
+shader_parameter/speed = 0.005
+shader_parameter/brightness = 1.30000006175
+shader_parameter/coverage = 1.0290000488775
+shader_parameter/fluffiness = 0.2000000095
+shader_parameter/threshold = 1.0910000518225
+shader_parameter/contrast = 1.700000057

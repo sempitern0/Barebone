@@ -1,0 +1,27 @@
+[gd_scene load_steps=8 format=3 uid="uid://bbcig1v48nvej"]
+
+[ext_resource type="Material" uid="uid://b6vsfbj2yl3jp" path="res://components/3D/space/planets/premades/earth_like/terrestrial_planet.tres" id="1_ti4df"]
+[ext_resource type="Script" uid="uid://dfvc8ocbus547" path="res://components/3D/space/planets/planet.gd" id="1_xsffq"]
+[ext_resource type="Script" uid="uid://bg8jbcxvomypf" path="res://components/3D/space/planets/planet_configuration.gd" id="2_ktoem"]
+[ext_resource type="Material" uid="uid://b1u43xyvw4q6q" path="res://components/3D/space/planets/premades/earth_like/terrestrial_atmosphere.tres" id="4_ti4df"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_e7n3i"]
+material = ExtResource("1_ti4df")
+
+[sub_resource type="Resource" id="Resource_ktoem"]
+script = ExtResource("2_ktoem")
+metadata/_custom_type_script = "uid://bg8jbcxvomypf"
+
+[sub_resource type="SphereMesh" id="SphereMesh_lq7cm"]
+material = ExtResource("4_ti4df")
+
+[node name="Planet" type="MeshInstance3D" node_paths=PackedStringArray("atmosphere")]
+transform = Transform3D(0.49999997, 0, -0.86602545, 0, 1, 0, 0.86602545, 0, 0.49999997, 0, 0, 0)
+mesh = SubResource("SphereMesh_e7n3i")
+script = ExtResource("1_xsffq")
+configuration = SubResource("Resource_ktoem")
+atmosphere = NodePath("Atmosphere")
+
+[node name="Atmosphere" type="MeshInstance3D" parent="."]
+process_mode = 1
+mesh = SubResource("SphereMesh_lq7cm")

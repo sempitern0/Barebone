@@ -1,0 +1,36 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://b6vsfbj2yl3jp"]
+
+[ext_resource type="Material" uid="uid://bddijnf7f7ir7" path="res://components/3D/space/planets/premades/earth_like/terrestrial_clouds.tres" id="1_yqyit"]
+[ext_resource type="Shader" uid="uid://d31pn7nv7l57p" path="res://components/3D/space/planets/shaders/planet_body.gdshader" id="2_aj5i6"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gm12o"]
+frequency = 0.0049
+fractal_lacunarity = 3.0
+fractal_gain = 0.45
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_1thie"]
+noise = SubResource("FastNoiseLite_gm12o")
+seamless = true
+seamless_blend_skirt = 0.5
+
+[resource]
+render_priority = 0
+next_pass = ExtResource("1_yqyit")
+shader = ExtResource("2_aj5i6")
+shader_parameter/emit = 0.0
+shader_parameter/color_1 = Color(0.17, 0.55, 1, 1)
+shader_parameter/color_1_treshold = 0.54
+shader_parameter/color_1_roughness = 0.1
+shader_parameter/color_1_emit = false
+shader_parameter/color_2 = Color(1, 0.94, 0.76, 1)
+shader_parameter/color_2_treshold = 0.56
+shader_parameter/color_3 = Color(0.34, 0.74, 0.5, 1)
+shader_parameter/color_3_treshold = 0.6
+shader_parameter/color_4 = Color(0.27, 0.62, 0.42, 1)
+shader_parameter/color_4_treshold = 0.7
+shader_parameter/color_5 = Color(1, 1, 1, 1)
+shader_parameter/color_5_treshold = 1.0
+shader_parameter/noise_gaseous = false
+shader_parameter/noise_gaseous_speed = 0.0025
+shader_parameter/noise_scale = 1.0
+shader_parameter/noise = SubResource("NoiseTexture2D_1thie")
