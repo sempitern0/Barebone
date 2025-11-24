@@ -1,5 +1,6 @@
+@icon("res://components/2D/motion/orbit/orbit.svg")
 @tool
-class_name OmniKitOrbitComponent2D extends Node
+class_name OrbitComponent2D extends Node
 
 signal started
 signal stopped
@@ -32,7 +33,7 @@ var current_angle: float = initial_angle:
 
 
 func _ready():
-	assert(target is Node2D and orbit_around is Node2D and target != orbit_around, "OmniKitOrbitComponent2D: This component needs a Node2D target and orbit around to apply the orbit and cannot be the same node")
+	assert(target is Node2D and orbit_around is Node2D and target != orbit_around, "OrbitComponent2D: This component needs a Node2D target and orbit around to apply the orbit and cannot be the same node")
 	
 	current_angle = deg_to_rad(initial_angle)
 	set_process(active)

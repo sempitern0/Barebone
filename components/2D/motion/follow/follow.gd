@@ -1,4 +1,6 @@
-class_name OmniKitFollowComponent2D extends Node2D
+@icon("res://components/2D/motion/follow/follow.svg")
+@tool
+class_name FollowComponent2D extends Node2D
 
 signal enabled
 signal disabled
@@ -44,8 +46,8 @@ func _ready():
 	if actor == null:
 		actor = get_parent()
 		
-	assert(actor is Node2D, "OmniKitFollowComponent2D: This component needs a valid Node2D actor to apply the follow behaviour")
-	assert(target is Node2D, "OmniKitFollowComponent2D: This component needs a valid Node2D to follow")
+	assert(actor is Node2D, "FollowComponent2D: This component needs a valid Node2D actor to apply the follow behaviour")
+	assert(target is Node2D, "FollowComponent2D: This component needs a valid Node2D to follow")
 	
 	set_physics_process(active and speed > 0)
 	

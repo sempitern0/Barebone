@@ -1,4 +1,5 @@
-class_name OmniKitDraggable2D extends Button
+@icon("res://components/2D/drag/draggable_2d.svg")
+class_name Draggable2D extends Button
 
 signal dragged
 signal released
@@ -72,7 +73,7 @@ func _ready() -> void:
 	if draggable == null:
 		draggable = get_parent()
 		
-	assert(is_instance_valid(draggable) and (draggable is Node2D or draggable is Control), "OmniKitDraggable2D: This mouse drag region needs a valid Node2D or Control to works properly")
+	assert(is_instance_valid(draggable) and (draggable is Node2D or draggable is Control), "Draggable2D: This mouse drag region needs a valid Node2D or Control to works properly")
 	
 	set_process(false)
 	set_physics_process(false)

@@ -1,5 +1,8 @@
 extends Node
 
+signal size_changed
+signal screenshot_taken(image: Image)
+
 ## Configuration for 4k Games
 # Viewport Size: 1920x1080
 # Aspect: Expand
@@ -31,9 +34,8 @@ const AspectRatio16_9: Vector2i = Vector2i(16,9)
 const AspectRatio16_10: Vector2i = Vector2i(16, 10)
 const AspectRatio21_9: Vector2i = Vector2i(21, 9)
 
-signal size_changed
 
-var resolutions: Dictionary[StringName, Array] = {
+const resolutions: Dictionary[StringName, Array] = {
 	Resolution_Mobile: [
 		Vector2i(320, 480),  # Older smartphones
 		Vector2i(320, 640),
@@ -53,13 +55,13 @@ var resolutions: Dictionary[StringName, Array] = {
 		Vector2i(1536, 2048), # High resolutions in larger tablets and some smartphones
 	],
 	Resolution4_3: [
-	  	Vector2i(320, 180),
-	   	Vector2i(512, 384),
+		Vector2i(320, 180),
+		Vector2i(512, 384),
 		Vector2i(768, 576),
 		Vector2i(1024, 768),
 	],
 	Resolution16_9: [
-	  	Vector2i(320, 180),
+		Vector2i(320, 180),
 		Vector2i(400, 224),
 		Vector2i(640, 360),
 		Vector2i(960, 540),
@@ -106,6 +108,7 @@ enum DaltonismTypes {
 	Tritanopia,
 	Achromatopsia
 }
+
 
 func _enter_tree() -> void:
 	get_tree().root.size_changed.connect(on_size_changed)
@@ -165,7 +168,8 @@ func _get_resolution(aspect_ratio: StringName, use_computer_screen_limit: bool =
 	
 
 func _filter_by_screen_size_limit(screen_size: Vector2i):
-	return screen_size <= OmniKitHardwareDetector.computer_screen_size
+	return screen_size <= DisplayServer.screen_get_size()
+
 #endregion
 
 
@@ -174,7 +178,8 @@ func center_window_position(viewport: Viewport = get_viewport()) -> void:
 	
 	viewport.get_window().position = monitor_screen_center() - windowSize / 2
 
-
+## Calculates the Viewport center position transformed into the 2D world space of a given CanvasItem.	
+## For example to position a 2D effect (like a screen flash) or a debug overlay relative to the world camera.
 func screen_center_2d(canvas: CanvasItem) -> Vector2:
 	return canvas.get_canvas_transform().affine_inverse() * screen_center()
 
@@ -182,21 +187,23 @@ func screen_center_2d(canvas: CanvasItem) -> Vector2:
 func screen_center() -> Vector2:
 	return screen_size() / 2.0
 
-
+## Returns the visible size of the current Viewport.
 func screen_size() -> Vector2:
 	return get_viewport().get_visible_rect().size
 
-
+## Calculates the aspect ratio of the current Viewport (Width / Height). 
+## For example to detect if the game is running on Ultrawide (e.g., ratio > 2.0) to adjust level design or camera limits.
 func screen_ratio() -> float:
 	var current_screen_size: Vector2 = screen_size()
 	
 	return current_screen_size.x / current_screen_size.y
 
-## Center of the pc screen monitor used for play
+## Returns the absolute center position of the primary physical monitor or screen.
 func monitor_screen_center() -> Vector2i:
 	return DisplayServer.screen_get_position() + DisplayServer.screen_get_size() / 2
 
-
+## Returns the mouse position relative to the screen center, normalized to a range of [-1.0, 1.0].
+## Example: Creating directional input from the mouse (e.g., aiming a twin-stick shooter) that is independent of screen resolution.
 func screen_relative_mouse_position(viewport: Viewport = get_viewport()) -> Vector2:
 	var mouse_position: Vector2 = viewport.get_mouse_position()
 	var center: Vector2 = viewport.size / 2.0
@@ -221,25 +228,17 @@ func get_mobile_safe_area(viewport: Viewport = get_viewport()) -> Rect2:
 	
 	return Rect2(safe_area_position, safe_area_size)
 
-
-func get_camera2d_frame(viewport: Viewport = get_viewport()) -> Rect2:
-	var camera_frame: Rect2 = viewport.get_visible_rect()
-	var camera: Camera2D = viewport.get_camera_2d()
-	
-	if camera:
-		camera_frame.position = camera.get_screen_center_position() - camera_frame.size / 2.0
-		
-	return camera_frame
 	
 #region Screenshot
 ## Recommended to call this method after await RenderingServer.frame_post_draw
 func screenshot(viewport: Viewport) -> Image:
 	var screenshot_image: Image = viewport.get_texture().get_image()
-	
 	assert(screenshot_image != null, "OmniKitWindowManager::screenshot: The image output is null")
 	
 	screenshot_image.convert(Image.FORMAT_RGB8)
 	screenshot_image.fix_alpha_edges()
+	
+	screenshot_taken.emit(screenshot_image)
 	
 	return screenshot_image
 

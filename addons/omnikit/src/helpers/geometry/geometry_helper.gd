@@ -18,13 +18,13 @@ static func get_random_mesh_surface_position(target: MeshInstance3D) -> Vector3:
 
 
 static func random_inside_unit_circle(position: Vector2, radius: float = 1.0) -> Vector2:
-	var angle := randf() * 2.0 * PI
+	var angle: float = randf() * 2.0 * PI
 	return position + Vector2(cos(angle), sin(angle)) * radius
 
 
 static func random_on_unit_circle(position: Vector2) -> Vector2:
-	var angle := randf() * 2.0 * PI
-	var radius := randf()
+	var angle: float = randf() * 2.0 * PI
+	var radius: float = randf()
 	
 	return position + radius * Vector2(cos(angle), sin(angle))
 
@@ -32,18 +32,15 @@ static func random_on_unit_circle(position: Vector2) -> Vector2:
 static func random_point_in_rect(rect: Rect2) -> Vector2:
 	randomize()
 	
-	var x = randf()
-	var y = randf()
+	var x: float = randf()
+	var y: float = randf()
 	
-	var x_dist = rect.size.x * x
-	var y_dist = rect.size.y * y
-	
-	return Vector2(x_dist, y_dist)
+	return Vector2(rect.size.x * x, rect.size.y * y)
 
 ## Two concentric circles (donut basically)
 static func random_point_in_annulus(center, radius_small, radius_large) -> Vector2:
-	var square = Rect2(center - Vector2(radius_large, radius_large), Vector2(radius_large * 2, radius_large * 2))
-	var point = null
+	var square: Rect2 = Rect2(center - Vector2(radius_large, radius_large), Vector2(radius_large * 2, radius_large * 2))
+	var point: Vector2 = Vector2.INF
 	
 	while not point:
 		var test_point = random_point_in_rect(square)
@@ -56,8 +53,8 @@ static func random_point_in_annulus(center, radius_small, radius_large) -> Vecto
 
 	
 static func polygon_bounding_box(polygon: PackedVector2Array) -> Rect2:
-	var min_vec = Vector2.INF
-	var max_vec = -Vector2.INF
+	var min_vec: Vector2 = Vector2.INF
+	var max_vec: Vector2 = -Vector2.INF
 	
 	for vec: Vector2 in polygon:
 		min_vec = Vector2(min(min_vec.x, vec.x), min(min_vec.y, vec.y))
@@ -114,7 +111,6 @@ static func create_cilinder_mesh(height: float = 2.0, top_radius: float = 0.5, b
 	return mesh
 	
 
-	
 static func create_sphere_mesh(height: float = 2.0, radius: float = 0.5, is_hemisphere: bool = false) -> MeshInstance3D:
 	var mesh = MeshInstance3D.new()
 	var cylinder = SphereMesh.new()
@@ -134,6 +130,24 @@ static func create_capsule_mesh(height: float = 2.0, radius: float = 0.5) -> Mes
 	mesh.mesh = capsule
 	
 	return mesh
+
+
+static func volume_of_sphere(radius: float) -> float:
+	return (4.0 / 3.0) * PI * pow(radius, 3)
+	
+
+static func volume_of_hollow_sphere(outer_radius: float, inner_radius: float) -> float:
+	return (4.0 / 3.0) * PI *  (pow(outer_radius, 3) - pow(inner_radius, 3))
+	
+
+static func area_of_circle(radius: float) -> float:
+	return PI * pow(radius, 2) 
+
+
+static func area_of_triangle(base: float, perpendicular_height: float) -> float:
+	return (base * perpendicular_height) / 2.0
+
+
 
 # Time complexity O(n^2), the more complex method is faster, but is harder to write
 static func is_valid_polygon(points: PackedVector2Array) -> bool:
@@ -170,7 +184,7 @@ static func calculate_polygon_area(polygon: PackedVector2Array) -> float:
 		
 		area += current.x * next.y - current.y * next.x
 		
-	return abs(area) / 2.0
+	return absf(area) / 2.0
 
 
 static func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array:
@@ -181,7 +195,7 @@ static func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array:
 	for i in range(0, trianglies.size(), 3):
 		chunks.append(trianglies.slice(i, i + 3))
 
-	for n in chunks:
+	for n: Array in chunks:
 		var triangle_points: PackedVector2Array
 		
 		for point in n:
@@ -190,3 +204,78 @@ static func fracture_polygons_triangles(polygon: PackedVector2Array) -> Array:
 		fractured_polygons.append(triangle_points)
 	
 	return fractured_polygons
+
+
+# https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
+static func segment_circle_intersects(start, end, center, radius) -> Array:
+	var d = end - start
+	var f = start - center
+	
+	var a = d.dot(d)
+	var b = 2 * f.dot(d)
+	var c = f.dot(f) - radius * radius
+	var disc = b * b - 4 * a * c
+	
+	if disc < 0:
+		return []
+	
+	disc = sqrt(disc)
+	var candidates = [(-b - disc) / (2 * a), (-b + disc) / (2 * a)]
+	
+	var intersects = []
+	
+	for t in candidates:
+		if t >= 0.0 and t <= 1.0:
+			intersects.append((1 - t) * start + t * end)
+		
+	return intersects
+				
+# Returns intersection point(s) of a segment from 'a' to 'b' with a given rect, in order of increasing distance from 'a'
+static func segment_rect_intersects(a, b, rect) -> Array:
+	var points := []
+	var corners := [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]
+	
+	for i in range(4):
+		var intersect = Geometry2D.segment_intersects_segment(a, b, corners[i - 1], corners[i])
+		
+		if intersect:
+			if not points.is_empty() and intersect.distance_squared_to(a) < points[0].distance_squared_to(a):
+				points.push_front(intersect)
+			else:
+				points.append(intersect)
+				
+			if points.size() == 2:
+				break
+				
+	return points
+	
+#https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Rectangle_difference	
+static func rect_difference(r1: Rect2, r2: Rect2) -> Array:
+	var result = []
+	var top_height = r2.position.y - r1.position.y
+	
+	if top_height > 0:
+		result.append(Rect2(r1.position.x, r1.position.y, r1.size.x, top_height))
+		
+	var bottom_y = r2.position.y + r2.size.y
+	var bottom_height = r1.size.y - (bottom_y - r1.position.y)
+	
+	if bottom_height > 0 and bottom_y < r1.position.y + r1.size.y:
+		result.append(Rect2(r1.position.x, bottom_y, r1.size.x, bottom_height))
+		
+	var y1 = max(r1.position.y, r2.position.y)
+	var y2 = min(bottom_y, (r1.position.y + r1.size.y))
+	var lr_height = y2 - y1
+	
+	var left_width = r2.position.x - r1.position.x
+	
+	if left_width > 0 and lr_height > 0:
+		result.append(Rect2(r1.position.x, y1, left_width, lr_height))
+		
+	var right_x = r2.position.x + r2.size.x
+	var right_width = r1.size.x - (right_x - r1.position.x)
+	
+	if right_width > 0 and lr_height > 0:
+		result.append(Rect2(right_x, y1, right_width, lr_height))
+	
+	return result

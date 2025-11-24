@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cedpegupi7r0v"
-path="res://.godot/imported/swing.svg-ad897b017ffab274fbe30cb29f23dd05.ctex"
+path="res://.godot/imported/swing.svg-c6c26cd47c09e0b03fdda5fffc72f058.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/omnikit/src/components/2D/motion/swing/swing.svg"
-dest_files=["res://.godot/imported/swing.svg-ad897b017ffab274fbe30cb29f23dd05.ctex"]
+source_file="res://components/2D/motion/swing/swing.svg"
+dest_files=["res://.godot/imported/swing.svg-c6c26cd47c09e0b03fdda5fffc72f058.ctex"]
 
 [params]
 

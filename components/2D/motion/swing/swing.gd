@@ -1,5 +1,6 @@
+@icon("res://components/2D/motion/swing/swing.svg")
 @tool
-class_name OmniKitSwingComponent2D extends Node2D
+class_name SwingComponent2D extends Node2D
 
 signal started
 signal stopped

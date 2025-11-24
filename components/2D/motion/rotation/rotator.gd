@@ -1,5 +1,6 @@
+@icon("res://components/2D/motion/rotation/rotator.svg")
 @tool
-class_name OmniKitRotatorComponent2D extends Node2D
+class_name RotatorComponent2D extends Node2D
 
 signal started
 signal stopped
@@ -67,7 +68,7 @@ func _ready():
 	if target == null:
 		target = get_parent() as Node2D
 	
-	assert(target is Node2D, "OmniKitRotatorComponent2D: This component needs a Node2D target to apply the rotation")
+	assert(target is Node2D, "RotatorComponent2D: This component needs a Node2D target to apply the rotation")
 	
 	original_rotation = rotation
 	

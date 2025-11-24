@@ -25,12 +25,12 @@ const DefaultVibrationDuration: float = 0.65
 var current_controller_guid
 var current_controller_device := DeviceKeyboard
 var current_controller_name: String = "Keyboard"
-var current_device_id := 0
+var current_device_id: int = 0
 var connected: bool = false
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_PREDELETE:
+	if what in [NOTIFICATION_PREDELETE, NOTIFICATION_EXIT_TREE]:
 		Input.stop_joy_vibration(current_device_id)
 
 

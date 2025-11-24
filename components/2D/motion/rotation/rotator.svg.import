@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cwaqmcg2epehe"
-path="res://.godot/imported/orbit.svg-553f363906ed1dacbb96d5f00ea5097f.ctex"
+uid="uid://1ih14wvoyr1e"
+path="res://.godot/imported/rotator.svg-b02786c69000157ff9b02e73f86bcc10.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/omnikit/src/components/2D/motion/orbit/orbit.svg"
-dest_files=["res://.godot/imported/orbit.svg-553f363906ed1dacbb96d5f00ea5097f.ctex"]
+source_file="res://components/2D/motion/rotation/rotator.svg"
+dest_files=["res://.godot/imported/rotator.svg-b02786c69000157ff9b02e73f86bcc10.ctex"]
 
 [params]
 

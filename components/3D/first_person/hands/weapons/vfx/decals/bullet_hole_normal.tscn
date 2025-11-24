@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cace0swj3vbdq"]
 
 [ext_resource type="Texture2D" uid="uid://mlls1y0snmmj" path="res://components/3D/first_person/hands/weapons/vfx/decals/bullet_hole_basic.png" id="1_xx7m8"]
-[ext_resource type="Script" uid="uid://c8mtdps32umm4" path="res://addons/omnikit/src/components/3D/decals/smart_decal.gd" id="2_ccr1c"]
+[ext_resource type="Script" uid="uid://c8mtdps32umm4" path="res://components/3D/decals/smart_decal.gd" id="2_ccr1c"]
 
 [node name="BulletHoleNormal" type="Decal"]
 size = Vector3(0.5, 0.5, 0.5)

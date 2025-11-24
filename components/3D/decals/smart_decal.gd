@@ -1,4 +1,4 @@
-class_name OmniKitSmartDecal extends Decal
+class_name SmartDecal extends Decal
 
 @export var use_size_limits: bool = false
 ## The minimum size this decal can have. Set both min_size and max_size to not apply a random range between them

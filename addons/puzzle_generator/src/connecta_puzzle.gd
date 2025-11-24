@@ -34,7 +34,7 @@ enum SpawnDistributionMode {
 }
 
 @export var output_node: Node2D
-@export var draggable_component: OmniKitDraggable2D
+@export var draggable_component: Draggable2D
 @export var generation_type: GenerationType = GenerationType.Automatic
 @export var puzzle_mode: PuzzleMode = PuzzleMode.Free
 @export var shuffle_mode: ShuffleMode = ShuffleMode.AroundTheViewport
