@@ -6,11 +6,17 @@ signal connected_to_server()
 signal connection_failed_to_server()
 signal server_disconnected()
 
+signal create_server_error(error: Error)
+signal join_client_error(error: Error)
+
 const DefaultServerPort: int = 42069
 const DefaultBroadcastPort: int = 42070
 const DefaultBroadcastListenPort: int = 42071
 const DefaultBroadcastAddress: String = "255.255.255.255"
 const DefaultDNSPort: int = 53
+const MinPort = 1024 # Avoid privileged & reserved ports (0-1023)
+const MaxPort: int = pow(2, 16) - 1 ## 65535
+const DefaultMaxServerPlayers: int = 32
 
 const GoogleHost: String = "8.8.8.8"
 const CloudFlareHost: String = "1.1.1.1"
@@ -21,6 +27,15 @@ const DefaultPingURLs: Array[String] = [
 		"https://www.cloudflare.com/cdn-cgi/trace",
 		"https://example.com"
 ]
+
+
+
+enum NetworkType {
+	## Game within the same local area network (LAN)
+	LocalAreaNetwork,
+	## Game over the Internet (using relays/servers).
+	Global
+}
 
 var broadcaster: PacketPeerUDP
 var broadcast_listener: PacketPeerUDP
@@ -71,9 +86,15 @@ func ping(urls: Array[String] = DefaultPingURLs) -> bool:
 	return internet_connection[0]
 
 
-func start_server(port: int =  DefaultServerPort, max_players: int = 32) -> void:
+func start_server(port: int =  DefaultServerPort, max_players: int = DefaultMaxServerPlayers) -> void:
 	peer = ENetMultiplayerPeer.new()
-	peer.create_server(port, max_players)
+	var server_error: Error = peer.create_server(port, max_players)
+	
+	if server_error != OK:
+		push_error("OmniKitNetworkHandler->start_server: An error [%d | %s] happened trying to create server, aborting..." % [server_error, error_string(server_error)])
+		create_server_error.emit(server_error)
+		return
+		
 	multiplayer.multiplayer_peer = peer
 	
 	multiplayer.peer_connected.connect(on_client_connected)
@@ -82,7 +103,13 @@ func start_server(port: int =  DefaultServerPort, max_players: int = 32) -> void
 
 func start_client(ip: String = LocalHost, port: int = DefaultServerPort) -> void:
 	peer = ENetMultiplayerPeer.new()
-	peer.create_client(ip, port)
+	var client_error: Error = peer.create_client(ip, port)
+	
+	if client_error != OK:
+		push_error("OmniKitNetworkHandler->start_server: An error [%d | %s] happened trying to create server, aborting..." % [client_error, error_string(client_error)])
+		join_client_error.emit(client_error)
+		return
+		
 	multiplayer.multiplayer_peer = peer
 	
 	multiplayer.peer_connected.connect(on_client_connected)
@@ -94,7 +121,7 @@ func start_client(ip: String = LocalHost, port: int = DefaultServerPort) -> void
 
 func start_broadcast(broadcast_port: int = DefaultBroadcastPort, dest_port: int = DefaultBroadcastListenPort, bind_address: String = "0.0.0.0") -> void:
 	_create_broadcast_timer()
-		
+
 	broadcaster = PacketPeerUDP.new()
 	broadcaster.set_broadcast_enabled(true)
 	broadcaster.set_dest_address(current_broadcast_address, dest_port)
@@ -164,22 +191,24 @@ func _create_broadcast_timer() -> void:
 
 func validate_ipv4(ip: String) -> bool:
 	var ipv4_regex: RegEx = RegEx.new()
+	var compiled: Error = ipv4_regex.compile(r"^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$")
 	
-	return ipv4_regex.compile(r"^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$")
+	return compiled == OK and ipv4_regex.search(ip) != null
 
 
 func validate_ipv6(ip: String) -> bool:
 	var ipv6_regex: RegEx = RegEx.new()
+	var compiled: Error = ipv6_regex.compile(r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
 	
-	return ipv6_regex.compile(r"(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))")
+	return compiled == OK and ipv6_regex.search(ip) != null
 	
 	
 func port_in_valid_range(port: int) -> bool:
-	return OmniKitMathHelper.value_is_between(port, 1, pow(2, 16) - 1) ## 65536 - 1
+	return OmniKitMathHelper.value_is_between(port, MinPort, MaxPort)
 
 
-func random_port() -> bool:
-	return randi_range(1, 65535)
+func random_port(include_reserved_ports: bool = false) -> bool:
+	return randi_range(1 if include_reserved_ports else MinPort, MaxPort)
 
 
 func get_local_ips() -> Array[String]:
@@ -220,9 +249,9 @@ func get_broadcast_address(local_ip: String, use_localhost: bool = false) -> Str
 func is_valid_url(url: String) -> bool:
 	var regex = RegEx.new()
 	var url_pattern = "/(https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z]{2,}(\\.[a-zA-Z]{2,})(\\.[a-zA-Z]{2,})?\\/[a-zA-Z0-9]{2,}|((https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z]{1,}(\\.[a-zA-Z]{2,})(\\.[a-zA-Z]{2,})?)|(https:\\/\\/www\\.|http:\\/\\/www\\.|https:\\/\\/|http:\\/\\/)?[a-zA-Z0-9]{2,}\\.[a-zA-Z0-9]{2,}\\.[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,})?/g"
-	regex.compile(url_pattern)
+	var compiled: Error = regex.compile(url_pattern)
 	
-	return regex.search(url) != null
+	return compiled == OK and regex.search(url) != null
 
 
 func open_external_link(url: String) -> void:

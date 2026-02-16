@@ -32,6 +32,7 @@ DLCManager="*res://autoload/dlcs/dlc_manager.gd"
 OmniKitWindowManager="*res://addons/omnikit/src/autoloads/viewport/window_manager.gd"
 OmniKitNetworkHandler="*res://addons/omnikit/src/autoloads/network/network_handler.gd"
 OmniKitGamepadControllerManager="*res://addons/omnikit/src/autoloads/gamepad/gamepad_controller_manager.gd"
+OmniKitEventBus="*res://addons/omnikit/src/autoloads/signals/event_bus.gd"
 
 [display]
 
