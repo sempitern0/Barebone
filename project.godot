@@ -8,31 +8,39 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Barebone-Template"
 config/auto_accept_quit=false
-config/features=PackedStringArray("4.5", "Forward Plus")
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[audio]
+
+buses/default_bus_layout="uid://cktnsh7pma6tc"
 
 [autoload]
 
-AcousticAudioManager="*res://addons/acoustic/src/audio_manager.gd"
-AcousticMusicManager="*res://addons/acoustic/src/music_manager.gd"
-AcousticSoundPool="*res://addons/acoustic/src/sound_pool.gd"
-VaultSaveManager="*res://addons/vault/src/save_manager.gd"
+AcousticAudioManager="*uid://ugepyftpi7fl"
+AcousticMusicManager="*uid://t2mn1k2ylfcc"
+AcousticSoundPool="*uid://dyl4bsabgfjgr"
+VaultSaveManager="*uid://bv2sl26jetn7g"
 Globals="*res://autoload/general/global.gd"
 GlobalEvents="*res://autoload/general/global_events.gd"
 SettingsManager="*res://autoload/persistence/settings_manager.tscn"
 GlobalEffects="*res://ui/effects/global_effects.tscn"
 UiAnimations="*res://ui/animations/ui_animations.tscn"
-Warp="*res://addons/warp/src/warp.tscn"
+Warp="*uid://cx6pdxa5atxe8"
 InventoryManager="*res://components/inventory/inventory_manager.tscn"
 DLCManager="*res://autoload/dlcs/dlc_manager.gd"
-OmniKitWindowManager="*res://addons/omnikit/src/autoloads/viewport/window_manager.gd"
-OmniKitNetworkHandler="*res://addons/omnikit/src/autoloads/network/network_handler.gd"
-OmniKitGamepadControllerManager="*res://addons/omnikit/src/autoloads/gamepad/gamepad_controller_manager.gd"
-OmniKitEventBus="*res://addons/omnikit/src/autoloads/signals/event_bus.gd"
+OmniKitWindowManager="*uid://da7eswtcbmxi0"
+OmniKitNetworkHandler="*uid://c4u82u2tcol30"
+OmniKitGamepadControllerManager="*uid://7xfpq4t0wvte"
+OmniKitEventBus="*uid://bkr7j5nn8sfsh"
 
 [display]
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://b54rkfq2731tb"]
+[gd_scene format=3 uid="uid://b54rkfq2731tb"]
 
 [ext_resource type="Script" uid="uid://c2myvf0kfimbs" path="res://components/3D/first_person/first_person_controller.gd" id="1_64dg2"]
 [ext_resource type="Script" uid="uid://dhxxp8vvdnsqi" path="res://components/3D/first_person/motion/camera/camera_controller.gd" id="2_0rpms"]
@@ -40,23 +40,23 @@
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_bl6ol"]
 
-[node name="FirstPersonController" type="CharacterBody3D"]
+[node name="FirstPersonController" type="CharacterBody3D" unique_id=1164095376]
 process_mode = 1
 collision_layer = 2
 collision_mask = 21
 script = ExtResource("1_64dg2")
 headbob = false
 
-[node name="DebugUI" type="CanvasLayer" parent="."]
+[node name="DebugUI" type="CanvasLayer" parent="." unique_id=986558807]
 layer = 2
 
-[node name="DebugUI" parent="DebugUI" node_paths=PackedStringArray("actor") instance=ExtResource("3_5qxob")]
+[node name="DebugUI" parent="DebugUI" unique_id=1001377619 node_paths=PackedStringArray("actor") instance=ExtResource("3_5qxob")]
 actor = NodePath("../..")
 
-[node name="ReticleUI" type="CanvasLayer" parent="."]
+[node name="ReticleUI" type="CanvasLayer" parent="." unique_id=2068843896]
 layer = 2
 
-[node name="CenterContainer" type="CenterContainer" parent="ReticleUI"]
+[node name="CenterContainer" type="CenterContainer" parent="ReticleUI" unique_id=125403076]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -70,7 +70,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Reticle" type="Control" parent="ReticleUI/CenterContainer"]
+[node name="Reticle" type="Control" parent="ReticleUI/CenterContainer" unique_id=522559463]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
@@ -78,7 +78,7 @@ mouse_filter = 2
 script = ExtResource("3_70vjd")
 radius = 4.0
 
-[node name="CrossReticle" type="Control" parent="ReticleUI/CenterContainer" node_paths=PackedStringArray("top_reticle", "bottom_reticle", "right_reticle", "left_reticle")]
+[node name="CrossReticle" type="Control" parent="ReticleUI/CenterContainer" unique_id=1410776116 node_paths=PackedStringArray("top_reticle", "bottom_reticle", "right_reticle", "left_reticle")]
 visible = false
 layout_mode = 2
 mouse_filter = 2
@@ -88,35 +88,35 @@ bottom_reticle = NodePath("BottomReticle")
 right_reticle = NodePath("RightReticle")
 left_reticle = NodePath("LeftReticle")
 
-[node name="TopReticle" type="Line2D" parent="ReticleUI/CenterContainer/CrossReticle"]
+[node name="TopReticle" type="Line2D" parent="ReticleUI/CenterContainer/CrossReticle" unique_id=2033488124]
 points = PackedVector2Array(0, -5, 0, -15)
 width = 2.0
 
-[node name="BottomReticle" type="Line2D" parent="ReticleUI/CenterContainer/CrossReticle"]
+[node name="BottomReticle" type="Line2D" parent="ReticleUI/CenterContainer/CrossReticle" unique_id=1399841155]
 points = PackedVector2Array(0, 5, 0, 15)
 width = 2.0
 
-[node name="RightReticle" type="Line2D" parent="ReticleUI/CenterContainer/CrossReticle"]
+[node name="RightReticle" type="Line2D" parent="ReticleUI/CenterContainer/CrossReticle" unique_id=1842988515]
 points = PackedVector2Array(5, 0, 15, 0)
 width = 2.0
 
-[node name="LeftReticle" type="Line2D" parent="ReticleUI/CenterContainer/CrossReticle"]
+[node name="LeftReticle" type="Line2D" parent="ReticleUI/CenterContainer/CrossReticle" unique_id=1517329967]
 points = PackedVector2Array(-5, 0, -15, 0)
 width = 2.0
 
-[node name="MotionStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+[node name="MotionStateMachine" type="Node" parent="." unique_id=635849355 node_paths=PackedStringArray("initial_state")]
 script = ExtResource("2_qqgk4")
 initial_state = NodePath("Ground/IdleState")
 stack_capacity = 1
 metadata/_custom_type_script = "uid://uydvspiq3y2j"
 
-[node name="Ground" type="Node" parent="MotionStateMachine"]
+[node name="Ground" type="Node" parent="MotionStateMachine" unique_id=943820734]
 
-[node name="IdleState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
+[node name="IdleState" type="Node" parent="MotionStateMachine/Ground" unique_id=1916256407 node_paths=PackedStringArray("actor")]
 script = ExtResource("4_mcspx")
 actor = NodePath("../../..")
 
-[node name="WalkState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
+[node name="WalkState" type="Node" parent="MotionStateMachine/Ground" unique_id=701739400 node_paths=PackedStringArray("actor")]
 script = ExtResource("5_ngxf2")
 actor = NodePath("../../..")
 speed = 4.0
@@ -124,7 +124,7 @@ side_speed = 3.5
 acceleration = 10.0
 friction = 12.0
 
-[node name="RunState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
+[node name="RunState" type="Node" parent="MotionStateMachine/Ground" unique_id=854047019 node_paths=PackedStringArray("actor")]
 script = ExtResource("6_0yq0l")
 actor = NodePath("../../..")
 speed = 5.0
@@ -132,35 +132,35 @@ side_speed = 4.5
 acceleration = 12.0
 friction = 15.0
 
-[node name="CrouchState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
+[node name="CrouchState" type="Node" parent="MotionStateMachine/Ground" unique_id=910685490 node_paths=PackedStringArray("actor")]
 script = ExtResource("8_bl6ol")
 actor = NodePath("../../..")
 
-[node name="DashState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
+[node name="DashState" type="Node" parent="MotionStateMachine/Ground" unique_id=1737420226 node_paths=PackedStringArray("actor")]
 script = ExtResource("9_baian")
 actor = NodePath("../../..")
 gravity_force = 0.1
 
-[node name="SlideState" type="Node" parent="MotionStateMachine/Ground" node_paths=PackedStringArray("actor")]
+[node name="SlideState" type="Node" parent="MotionStateMachine/Ground" unique_id=819315440 node_paths=PackedStringArray("actor")]
 script = ExtResource("10_e71sw")
 actor = NodePath("../../..")
 
-[node name="Air" type="Node" parent="MotionStateMachine"]
+[node name="Air" type="Node" parent="MotionStateMachine" unique_id=1708158117]
 
-[node name="FallState" type="Node" parent="MotionStateMachine/Air" node_paths=PackedStringArray("actor")]
+[node name="FallState" type="Node" parent="MotionStateMachine/Air" unique_id=1483504873 node_paths=PackedStringArray("actor")]
 script = ExtResource("9_hk4s8")
 actor = NodePath("../../..")
 
-[node name="JumpState" type="Node" parent="MotionStateMachine/Air" node_paths=PackedStringArray("actor")]
+[node name="JumpState" type="Node" parent="MotionStateMachine/Air" unique_id=831999945 node_paths=PackedStringArray("actor")]
 script = ExtResource("10_dwvxt")
 actor = NodePath("../../..")
 
-[node name="WallJumpState" type="Node" parent="MotionStateMachine/Air" node_paths=PackedStringArray("actor")]
+[node name="WallJumpState" type="Node" parent="MotionStateMachine/Air" unique_id=233234503 node_paths=PackedStringArray("actor")]
 script = ExtResource("14_5qxob")
 actor = NodePath("../../..")
 metadata/_custom_type_script = "uid://fiehcpqmuwnq"
 
-[node name="WeaponManager" type="Node" parent="." node_paths=PackedStringArray("actor", "camera_controller", "camera_recoil_node", "right_hand", "left_hand")]
+[node name="WeaponManager" type="Node" parent="." unique_id=1921455619 node_paths=PackedStringArray("actor", "camera_controller", "camera_recoil_node", "right_hand", "left_hand")]
 script = ExtResource("13_jvaen")
 actor = NodePath("..")
 camera_controller = NodePath("../Head/CameraController")
@@ -168,84 +168,84 @@ camera_recoil_node = NodePath("../Head/Eyes")
 right_hand = NodePath("../Head/Eyes/Camera3D/WeaponRightHand")
 left_hand = NodePath("../Head/Eyes/Camera3D/WeaponLeftHand")
 
-[node name="BodyShape" type="CollisionShape3D" parent="."]
+[node name="BodyShape" type="CollisionShape3D" parent="." unique_id=1733207275]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_7bqjy")
 
-[node name="CrouchShape" type="CollisionShape3D" parent="."]
+[node name="CrouchShape" type="CollisionShape3D" parent="." unique_id=1224547426]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 shape = SubResource("SphereShape3D_ro7er")
 
-[node name="CeilDetector" type="ShapeCast3D" parent="."]
+[node name="CeilDetector" type="ShapeCast3D" parent="." unique_id=1614210611]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 shape = SubResource("SphereShape3D_bl6ol")
 target_position = Vector3(0, 0.5, 0)
 
-[node name="MouseCaptureComponent" type="Node" parent="."]
+[node name="MouseCaptureComponent" type="Node" parent="." unique_id=794622080]
 script = ExtResource("2_57c2p")
 
-[node name="Head" type="Node3D" parent="."]
+[node name="Head" type="Node3D" parent="." unique_id=292413045]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
 
-[node name="CameraController" type="Node3D" parent="Head" node_paths=PackedStringArray("actor", "camera_pivot", "camera", "mouse_capture")]
+[node name="CameraController" type="Node3D" parent="Head" unique_id=830927952 node_paths=PackedStringArray("actor", "camera_pivot", "camera", "mouse_capture")]
 script = ExtResource("2_0rpms")
 actor = NodePath("../..")
 camera_pivot = NodePath("../Eyes")
 camera = NodePath("../Eyes/Camera3D")
 mouse_capture = NodePath("../../MouseCaptureComponent")
 
-[node name="MotionTilt" type="Node3D" parent="Head" node_paths=PackedStringArray("actor", "camera")]
+[node name="MotionTilt" type="Node3D" parent="Head" unique_id=1462940614 node_paths=PackedStringArray("actor", "camera")]
 script = ExtResource("3_3c6vp")
 actor = NodePath("../..")
 camera = NodePath("../Eyes/Camera3D")
 
-[node name="HeadBob" type="Node3D" parent="Head" node_paths=PackedStringArray("actor", "pivot_node")]
+[node name="HeadBob" type="Node3D" parent="Head" unique_id=367106639 node_paths=PackedStringArray("actor", "pivot_node")]
 script = ExtResource("4_6y2qc")
 actor = NodePath("../..")
 pivot_node = NodePath("../Eyes")
 
-[node name="FallKick" type="Node3D" parent="Head" node_paths=PackedStringArray("actor", "pivot_node")]
+[node name="FallKick" type="Node3D" parent="Head" unique_id=1884315428 node_paths=PackedStringArray("actor", "pivot_node")]
 script = ExtResource("15_npdei")
 actor = NodePath("../..")
 pivot_node = NodePath("../Eyes")
 
-[node name="DirectionalDamageKick" type="Node3D" parent="Head" node_paths=PackedStringArray("actor", "pivot_node")]
+[node name="DirectionalDamageKick" type="Node3D" parent="Head" unique_id=1636986305 node_paths=PackedStringArray("actor", "pivot_node")]
 script = ExtResource("16_8a3fm")
 actor = NodePath("../..")
 pivot_node = NodePath("../Eyes")
 
-[node name="ScreenShake" type="Node3D" parent="Head" node_paths=PackedStringArray("pivot_node")]
+[node name="ScreenShake" type="Node3D" parent="Head" unique_id=1287392352 node_paths=PackedStringArray("pivot_node")]
 script = ExtResource("17_5d322")
 pivot_node = NodePath("../Eyes")
 
-[node name="Eyes" type="Node3D" parent="Head"]
+[node name="Eyes" type="Node3D" parent="Head" unique_id=1174017518]
 
-[node name="Camera3D" type="Camera3D" parent="Head/Eyes"]
+[node name="Camera3D" type="Camera3D" parent="Head/Eyes" unique_id=201980499]
 far = 500.0
 
-[node name="RayCastInteractor3D" type="RayCast3D" parent="Head/Eyes/Camera3D"]
+[node name="RayCastInteractor3D" type="RayCast3D" parent="Head/Eyes/Camera3D" unique_id=2030293333]
 target_position = Vector3(0, 0, -3)
 debug_shape_custom_color = Color(0.882353, 0.737255, 0, 1)
 script = ExtResource("15_gtlb3")
 
-[node name="GrabbableRayCastInteractor3D" type="RayCast3D" parent="Head/Eyes/Camera3D"]
+[node name="GrabbableRayCastInteractor3D" type="RayCast3D" parent="Head/Eyes/Camera3D" unique_id=1193916270]
 target_position = Vector3(0, 0, -3)
 debug_shape_custom_color = Color(0.960784, 0, 0.2, 1)
 script = ExtResource("21_a80v1")
 
-[node name="HandGrabber" type="Node3D" parent="Head/Eyes/Camera3D" node_paths=PackedStringArray("available_slots", "grabbable_interactor")]
+[node name="HandGrabber" type="Node3D" parent="Head/Eyes/Camera3D" unique_id=1899718364 node_paths=PackedStringArray("available_slots", "grabbable_interactor")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 script = ExtResource("22_5inxr")
 available_slots = [NodePath("RightHandGrabber"), NodePath("LeftHandGrabber")]
 grabbable_interactor = NodePath("../GrabbableRayCastInteractor3D")
 
-[node name="RightHandGrabber" type="Marker3D" parent="Head/Eyes/Camera3D/HandGrabber"]
+[node name="RightHandGrabber" type="Marker3D" parent="Head/Eyes/Camera3D/HandGrabber" unique_id=434352456]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.1, -1.3)
 
-[node name="LeftHandGrabber" type="Marker3D" parent="Head/Eyes/Camera3D/HandGrabber"]
+[node name="LeftHandGrabber" type="Marker3D" parent="Head/Eyes/Camera3D/HandGrabber" unique_id=1596483182]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.1, -1.3)
 
-[node name="WeaponRightHand" type="Node3D" parent="Head/Eyes/Camera3D" node_paths=PackedStringArray("actor", "spawn_node", "weapon_sway", "weapon_bob", "weapon_tilt", "weapon_impulse", "weapon_recoil")]
+[node name="WeaponRightHand" type="Node3D" parent="Head/Eyes/Camera3D" unique_id=193422151 node_paths=PackedStringArray("actor", "spawn_node", "weapon_sway", "weapon_bob", "weapon_tilt", "weapon_impulse", "weapon_recoil")]
 script = ExtResource("23_vsb1p")
 actor = NodePath("../../../..")
 spawn_node = NodePath("WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse/WeaponRecoil")
@@ -255,27 +255,27 @@ weapon_tilt = NodePath("WeaponSway/WeaponBob/WeaponTilt")
 weapon_impulse = NodePath("WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse")
 weapon_recoil = NodePath("WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse/WeaponRecoil")
 
-[node name="WeaponSway" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand" node_paths=PackedStringArray("actor")]
+[node name="WeaponSway" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand" unique_id=210365409 node_paths=PackedStringArray("actor")]
 script = ExtResource("24_pve8u")
 actor = NodePath("../../../../..")
 
-[node name="WeaponBob" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand/WeaponSway" node_paths=PackedStringArray("actor")]
+[node name="WeaponBob" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand/WeaponSway" unique_id=153017698 node_paths=PackedStringArray("actor")]
 script = ExtResource("25_h2ali")
 actor = NodePath("../../../../../..")
 
-[node name="WeaponTilt" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand/WeaponSway/WeaponBob" node_paths=PackedStringArray("actor")]
+[node name="WeaponTilt" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand/WeaponSway/WeaponBob" unique_id=1708817832 node_paths=PackedStringArray("actor")]
 script = ExtResource("27_xn4io")
 actor = NodePath("../../../../../../..")
 
-[node name="WeaponImpulse" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand/WeaponSway/WeaponBob/WeaponTilt" node_paths=PackedStringArray("actor")]
+[node name="WeaponImpulse" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand/WeaponSway/WeaponBob/WeaponTilt" unique_id=1994730481 node_paths=PackedStringArray("actor")]
 script = ExtResource("28_vcol8")
 actor = NodePath("../../../../../../../..")
 
-[node name="WeaponRecoil" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand/WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse" node_paths=PackedStringArray("actor")]
+[node name="WeaponRecoil" type="Node3D" parent="Head/Eyes/Camera3D/WeaponRightHand/WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse" unique_id=715427916 node_paths=PackedStringArray("actor")]
 script = ExtResource("29_jvaen")
 actor = NodePath("../../../../../../../../..")
 
-[node name="WeaponLeftHand" type="Node3D" parent="Head/Eyes/Camera3D" node_paths=PackedStringArray("actor", "spawn_node", "weapon_sway", "weapon_bob", "weapon_tilt", "weapon_impulse", "weapon_recoil")]
+[node name="WeaponLeftHand" type="Node3D" parent="Head/Eyes/Camera3D" unique_id=1108509897 node_paths=PackedStringArray("actor", "spawn_node", "weapon_sway", "weapon_bob", "weapon_tilt", "weapon_impulse", "weapon_recoil")]
 script = ExtResource("23_vsb1p")
 actor = NodePath("../../../..")
 spawn_node = NodePath("WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse/WeaponRecoil")
@@ -285,43 +285,43 @@ weapon_tilt = NodePath("WeaponSway/WeaponBob/WeaponTilt")
 weapon_impulse = NodePath("WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse")
 weapon_recoil = NodePath("WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse/WeaponRecoil")
 
-[node name="WeaponSway" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand" node_paths=PackedStringArray("actor")]
+[node name="WeaponSway" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand" unique_id=977224335 node_paths=PackedStringArray("actor")]
 script = ExtResource("24_pve8u")
 actor = NodePath("../../../../..")
 
-[node name="WeaponBob" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand/WeaponSway" node_paths=PackedStringArray("actor")]
+[node name="WeaponBob" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand/WeaponSway" unique_id=1174030259 node_paths=PackedStringArray("actor")]
 script = ExtResource("25_h2ali")
 actor = NodePath("../../../../../..")
 
-[node name="WeaponTilt" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand/WeaponSway/WeaponBob" node_paths=PackedStringArray("actor")]
+[node name="WeaponTilt" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand/WeaponSway/WeaponBob" unique_id=1846004136 node_paths=PackedStringArray("actor")]
 script = ExtResource("27_xn4io")
 actor = NodePath("../../../../../../..")
 
-[node name="WeaponImpulse" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand/WeaponSway/WeaponBob/WeaponTilt" node_paths=PackedStringArray("actor")]
+[node name="WeaponImpulse" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand/WeaponSway/WeaponBob/WeaponTilt" unique_id=178579071 node_paths=PackedStringArray("actor")]
 script = ExtResource("28_vcol8")
 actor = NodePath("../../../../../../../..")
 
-[node name="WeaponRecoil" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand/WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse" node_paths=PackedStringArray("actor")]
+[node name="WeaponRecoil" type="Node3D" parent="Head/Eyes/Camera3D/WeaponLeftHand/WeaponSway/WeaponBob/WeaponTilt/WeaponImpulse" unique_id=933379783 node_paths=PackedStringArray("actor")]
 script = ExtResource("29_jvaen")
 actor = NodePath("../../../../../../../../..")
 
-[node name="FootstepsManager3D" type="Node3D" parent="." node_paths=PackedStringArray("floor_detector_raycast", "sound_queue")]
+[node name="FootstepsManager3D" type="Node3D" parent="." unique_id=2020133716 node_paths=PackedStringArray("floor_detector_raycast", "sound_queue")]
 script = ExtResource("23_l1xma")
 floor_detector_raycast = NodePath("FloorDetectorRayCast")
 sound_queue = NodePath("AcousticSoundQueue")
 
-[node name="AudioRemoteTransform3D" type="RemoteTransform3D" parent="FootstepsManager3D"]
+[node name="AudioRemoteTransform3D" type="RemoteTransform3D" parent="FootstepsManager3D" unique_id=1083570732]
 remote_path = NodePath("../AcousticSoundQueue/AudioStreamPlayer3D")
 
-[node name="AcousticSoundQueue" type="Node" parent="FootstepsManager3D"]
+[node name="AcousticSoundQueue" type="Node" parent="FootstepsManager3D" unique_id=86385993]
 script = ExtResource("24_vsb1p")
 queue_count = 5
 metadata/_custom_type_script = "uid://dvynqvoy1ptor"
 
-[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="FootstepsManager3D/AcousticSoundQueue"]
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="FootstepsManager3D/AcousticSoundQueue" unique_id=1824631741]
 max_distance = 25.0
 bus = &"SFX"
 
-[node name="FloorDetectorRayCast" type="RayCast3D" parent="FootstepsManager3D"]
+[node name="FloorDetectorRayCast" type="RayCast3D" parent="FootstepsManager3D" unique_id=1785498529]
 target_position = Vector3(0, -0.2, 0)
 debug_shape_custom_color = Color(0.160662, 0.301404, 0.742407, 1)
