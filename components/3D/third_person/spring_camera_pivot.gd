@@ -20,6 +20,7 @@ class_name ThirdPersonSpringCameraPivot extends Node3D
 @export var zoom_in_step: float = 0.5
 @export_category("Isometric mode")
 @export var is_isometric_mode: bool = false
+@export var isometric_zoom: bool = false
 @export_range(-90.0, 90.0, 0.1, "radians_as_degrees") var isometric_angle: float = deg_to_rad(-35.264)
 @export_range(-180.0, 180.0, 0.1, "radians_as_degrees") var isometric_yaw_angle: float = deg_to_rad(45.0)
 @export var isometric_distance: float = 10.0
@@ -33,11 +34,17 @@ var enabled: bool = true:
 		enabled = value
 		set_physics_process(enabled and (mouse_capture or is_isometric_mode))
 
+var updated_spring_length: float = 1.0
 
 func _ready() -> void:
+	updated_spring_length = spring_arm.spring_length
+	
+	if is_isometric_mode:
+		updated_spring_length = isometric_distance
+
 	set_physics_process(enabled and (mouse_capture or is_isometric_mode))
-
-
+	
+	
 func _physics_process(delta: float) -> void:
 	if is_isometric_mode:
 		var target_rot_x: float = -absf(isometric_angle)
@@ -57,7 +64,7 @@ func _physics_process(delta: float) -> void:
 			mouse_capture.mouse_input = Vector2.ZERO
 			rotation.y = lerp_angle(rotation.y, target_rot_y, delta * camera_isometric_smoothness)
 
-		spring_arm.spring_length = lerp(spring_arm.spring_length, isometric_distance, delta * camera_isometric_smoothness)
+		spring_arm.spring_length = lerpf(spring_arm.spring_length, updated_spring_length, delta * camera_isometric_smoothness)
 		spring_arm.spring_length = clampf(spring_arm.spring_length, 1.0, isometric_zoom_limit)
 	
 	else:
@@ -73,18 +80,16 @@ func _physics_process(delta: float) -> void:
 	else:
 		camera.position = spring_relative_position.position
 
-	if zoom and not is_isometric_mode: 
+	if zoom or (is_isometric_mode and isometric_zoom): 
 		if OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomInCamera):
 			camera_zoom_in()
 		elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomOutCamera):
 			camera_zoom_out()
 
-
 func camera_zoom_in() -> void:
-	spring_arm.spring_length -= zoom_in_step
-	spring_arm.spring_length = maxf(max_spring_length_zoom_in, spring_arm.spring_length)
-
+	updated_spring_length -= zoom_in_step
+	updated_spring_length = maxf(max_spring_length_zoom_in, updated_spring_length)
 
 func camera_zoom_out() -> void:
-	spring_arm.spring_length += zoom_out_step
-	spring_arm.spring_length = minf(max_spring_length_zoom_out, spring_arm.spring_length)
+	updated_spring_length += zoom_out_step
+	updated_spring_length = minf(max_spring_length_zoom_out, updated_spring_length)

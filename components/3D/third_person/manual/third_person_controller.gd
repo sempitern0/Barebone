@@ -86,7 +86,8 @@ func calculate_skin_model_forward(target_skin: Node3D, use_global_transform: boo
 	var target_transform: Transform3D = target_skin.global_transform if use_global_transform else target_skin.transform
 	var forward: Vector3 = target_transform.basis.z.normalized()
 	
-	if forward.dot(Vector3.FORWARD) > 0.0:
+	## Revisit this line as changes based on the model point of view
+	if forward.dot(Vector3.FORWARD) < 0.0: 
 		forward *= -1.0
 			
 	return forward
