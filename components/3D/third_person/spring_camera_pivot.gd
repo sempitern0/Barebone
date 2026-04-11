@@ -65,7 +65,6 @@ func _physics_process(delta: float) -> void:
 			rotation.y = lerp_angle(rotation.y, target_rot_y, delta * camera_isometric_smoothness)
 
 		spring_arm.spring_length = lerpf(spring_arm.spring_length, updated_spring_length, delta * camera_isometric_smoothness)
-		spring_arm.spring_length = clampf(spring_arm.spring_length, 1.0, isometric_zoom_limit)
 	
 	else:
 		if not mouse_capture.mouse_input.is_zero_approx():
@@ -85,11 +84,14 @@ func _physics_process(delta: float) -> void:
 			camera_zoom_in()
 		elif OmniKitInputHelper.action_just_pressed_and_exists(InputControls.ZoomOutCamera):
 			camera_zoom_out()
-
+		
+		spring_arm.spring_length = lerpf(spring_arm.spring_length, updated_spring_length, delta * camera_spring_smoothness)
+	
+	
 func camera_zoom_in() -> void:
 	updated_spring_length -= zoom_in_step
 	updated_spring_length = maxf(max_spring_length_zoom_in, updated_spring_length)
-
+	
 func camera_zoom_out() -> void:
 	updated_spring_length += zoom_out_step
 	updated_spring_length = minf(max_spring_length_zoom_out, updated_spring_length)
