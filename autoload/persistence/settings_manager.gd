@@ -50,15 +50,15 @@ func _enter_tree() -> void:
 	updated_setting_section.connect(on_updated_setting_section)
 	config_file_path = OS.get_user_data_dir() + "/%s.%s" % [settings_file_path.trim_prefix("/").trim_suffix("/"),  OmniKitEnumHelper.value_to_str(ConfigFileFormat, file_format).to_lower()]
 	
-	for setting: GameSetting in settings.filter(func(setting): return setting != null):
-		active_settings[setting.key] = setting
-	
 	created_settings.connect(on_created_settings)
 	loaded_settings.connect(on_loaded_settings)
 	removed_settings.connect(on_removed_settings)
-	
-	
+
+
 func _ready() -> void:
+	for setting: GameSetting in settings.filter(func(setting): return setting != null):
+		active_settings[setting.key] = setting
+		
 	if load_on_start:
 		prepare_settings()
 	
@@ -92,6 +92,7 @@ func load_settings(path: String = config_file_path) -> void:
 	
 	if error != OK:
 		push_error("SettingsManager: An error %d ocurred trying to load the settings from path %s " % [error_string(error), path])
+		create_settings(path)
 		return
 	
 	for setting: GameSetting in active_settings.values():
@@ -102,7 +103,6 @@ func load_settings(path: String = config_file_path) -> void:
 		else:
 			setting.update_value(config_value)
 		
-			
 	load_audio()
 	load_graphics()
 	load_localization()
@@ -175,7 +175,7 @@ func create_keybindings_section() -> void:
 func reset_keybinding_events_to_default() -> void:
 	var default_keybindings: Dictionary = GameSettings.DefaultSettings[GameSettings.DefaultInputMapActionsSetting]
 	
-	for input_action: StringName in default_keybindings:
+	for input_action: StringName in default_keybindings.keys():
 		InputMap.action_erase_events(input_action)
 		
 		for event: InputEvent in default_keybindings[input_action]:
