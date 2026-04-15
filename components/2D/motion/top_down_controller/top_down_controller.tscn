@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://dps067gsm1kje"]
+
+[ext_resource type="Script" uid="uid://cfuyp0l4e8rn4" path="res://components/2D/motion/top_down_controller/top_down_controller_2d.gd" id="1_t8r0o"]
+[ext_resource type="Texture2D" uid="uid://dxknvpfgcg10d" path="res://components/2D/motion/top_down_controller/player_shadow.png" id="2_xn5gc"]
+
+[node name="TopDownController2D" type="CharacterBody2D" unique_id=561622712]
+script = ExtResource("1_t8r0o")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=895597344]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=803104570]
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+rotation_smoothing_enabled = true
+rotation_smoothing_speed = 8.0
+drag_horizontal_enabled = true
+drag_vertical_enabled = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1955445183]
+
+[node name="ShadowSprite" type="Sprite2D" parent="AnimatedSprite2D" unique_id=365001558]
+texture = ExtResource("2_xn5gc")
