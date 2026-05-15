@@ -144,6 +144,6 @@ func on_kill_all_requested() -> void:
 	kill_all()
 
 
-func on_object_exiting_tree(removed_object: FastPoolWrapper) -> void:
+func on_object_exiting_tree(removed_object: Node) -> void:
 	pool.erase(removed_object)
 	spawned.erase(removed_object)
